@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-5.4-nano"
     openai_orchestrator_model: str = "gpt-5.4"
+    # Judge for LLM-as-a-judge evaluation. Kept separate from the agent models
+    # so scoring is not done by the same model that produced the answer.
+    openai_judge_model: str = "gpt-4o"
     # RAG / embeddings
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dim: int = 1536
