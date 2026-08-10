@@ -72,13 +72,15 @@ type ChatPanelProps = {
   loading: boolean;
   disabled: boolean;
   streamingSteps?: StreamingStep[];
+  streamingAnswer?: string;
   streamError?: string | null;
+  onStop?: () => void;
   onPinChart?: (chart: import("../lib/api").ChartData) => void;
 };
 
 const ALLOWED_FILE_TYPES = ".csv,.xlsx,.xls";
 
-export default function ChatPanel({ messages, onSend, loading, disabled, streamingSteps, streamError, onPinChart }: ChatPanelProps) {
+export default function ChatPanel({ messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onPinChart }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [stepsExpanded, setStepsExpanded] = useState(false);
@@ -88,7 +90,7 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading, streamingSteps]);
+  }, [messages, loading, streamingSteps, streamingAnswer]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -187,7 +189,24 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
                     {stepsExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                   </button>
                 )}
+                {onStop && (
+                  <button
+                    type="button"
+                    onClick={onStop}
+                    className="ml-auto text-xs text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    중지
+                  </button>
+                )}
               </div>
+
+              {/* Answer text as it streams in */}
+              {streamingAnswer && (
+                <p className="mt-2 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                  {streamingAnswer}
+                  <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 bg-accent animate-pulse" />
+                </p>
+              )}
 
               {hasSteps && stepsExpanded && (
                 <div className="mt-2 pt-2 border-t border-border space-y-1">

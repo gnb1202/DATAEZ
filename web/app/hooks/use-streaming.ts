@@ -8,17 +8,27 @@ type UseStreamingOptions = {
   getToken: () => string;
 };
 
+// Time without *any* frame from the server — tokens, steps, or heartbeats —
+// before the client gives up. The server heartbeats every 15s, so this only
+// fires on a genuinely stalled connection rather than on a slow tool call.
+const STREAM_IDLE_TIMEOUT_MS = 60_000;
+
 export function useStreaming({ getToken }: UseStreamingOptions) {
   const [loading, setLoading] = useState(false);
   const [streamingSteps, setStreamingSteps] = useState<StreamingStep[]>([]);
+  const [streamingAnswer, setStreamingAnswer] = useState("");
   const [mutationsPerformed, setMutationsPerformed] = useState(false);
   const [schemaChanged, setSchemaChanged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Reset by every frame the server sends, including heartbeats, so a slow
+  // tool call cannot be mistaken for a dead connection.
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const parseSSE = useCallback(
     async (
       res: Response,
+      onIdleTimeout: () => void,
       onStep?: (step: StreamingStep) => void
     ): Promise<Message | null> => {
       const reader = res.body?.getReader();
@@ -27,6 +37,13 @@ export function useStreaming({ getToken }: UseStreamingOptions) {
       const decoder = new TextDecoder();
       let buffer = "";
       let result: Message | null = null;
+      let answerSoFar = "";
+
+      const resetIdleTimer = () => {
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+        idleTimerRef.current = setTimeout(onIdleTimeout, STREAM_IDLE_TIMEOUT_MS);
+      };
+      resetIdleTimer();
 
       try {
         while (true) {
@@ -43,40 +60,60 @@ export function useStreaming({ getToken }: UseStreamingOptions) {
               .find((l) => l.startsWith("data: "));
             if (!dataLine) continue;
 
+            let parsed: any;
             try {
-              const parsed = JSON.parse(dataLine.slice(6));
-
-              if (parsed.type === "step") {
-                const step: StreamingStep = {
-                  tool_name: parsed.data.tool_name,
-                  tool_input: parsed.data.tool_input || {},
-                  tool_output: parsed.data.tool_output || undefined,
-                };
-                setStreamingSteps((prev) => [...prev, step]);
-                onStep?.(step);
-              } else if (parsed.type === "done") {
-                if (parsed.data.mutations_performed) {
-                  setMutationsPerformed(true);
-                }
-                if (parsed.data.schema_changed) {
-                  setSchemaChanged(true);
-                }
-                result = {
-                  message_id: parsed.data.message_id || "",
-                  role: "assistant",
-                  content: parsed.data.content || "",
-                  steps: parsed.data.steps || null,
-                  charts: parsed.data.charts || null,
-                  table_data: parsed.data.table_data || null,
-                  suggestions: parsed.data.suggestions || null,
-                };
-              }
+              parsed = JSON.parse(dataLine.slice(6));
             } catch {
-              // skip malformed JSON
+              continue; // skip malformed JSON
+            }
+
+            resetIdleTimer();
+
+            if (parsed.type === "heartbeat") {
+              continue;
+            }
+
+            if (parsed.type === "token") {
+              // Incremental answer text — rendered as it arrives.
+              answerSoFar += parsed.data.content || "";
+              setStreamingAnswer(answerSoFar);
+            } else if (parsed.type === "step") {
+              const step: StreamingStep = {
+                tool_name: parsed.data.tool_name,
+                tool_input: parsed.data.tool_input || {},
+                tool_output: parsed.data.tool_output || undefined,
+              };
+              setStreamingSteps((prev) => [...prev, step]);
+              onStep?.(step);
+            } else if (parsed.type === "error") {
+              // A mid-stream failure. Without this the stream simply ended
+              // and the user saw the spinner stop with no explanation.
+              setError(
+                parsed.data?.message ||
+                  "응답 생성 중 오류가 발생했습니다. 다시 시도해주세요."
+              );
+              return null;
+            } else if (parsed.type === "done") {
+              if (parsed.data.mutations_performed) {
+                setMutationsPerformed(true);
+              }
+              if (parsed.data.schema_changed) {
+                setSchemaChanged(true);
+              }
+              result = {
+                message_id: parsed.data.message_id || "",
+                role: "assistant",
+                content: parsed.data.content || "",
+                steps: parsed.data.steps || null,
+                charts: parsed.data.charts || null,
+                table_data: parsed.data.table_data || null,
+                suggestions: parsed.data.suggestions || null,
+              };
             }
           }
         }
       } finally {
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
         reader.releaseLock();
       }
 
@@ -93,12 +130,16 @@ export function useStreaming({ getToken }: UseStreamingOptions) {
     ): Promise<Message | null> => {
       setLoading(true);
       setStreamingSteps([]);
+      setStreamingAnswer("");
       setMutationsPerformed(false);
       setSchemaChanged(false);
       setError(null);
       abortRef.current = new AbortController();
-      const STREAM_TIMEOUT_MS = 120_000; // 2 minutes
-      const timeoutId = setTimeout(() => abortRef.current?.abort(), STREAM_TIMEOUT_MS);
+      let timedOut = false;
+      const onIdleTimeout = () => {
+        timedOut = true;
+        abortRef.current?.abort();
+      };
 
       try {
         const formData = new FormData();
@@ -130,15 +171,18 @@ export function useStreaming({ getToken }: UseStreamingOptions) {
           setError(msg);
           return null;
         }
-        return await parseSSE(res);
+        return await parseSSE(res, onIdleTimeout);
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
+          // A user-initiated stop is not an error; a silent stall is.
+          if (timedOut) {
+            setError("응답이 지연되어 중단했습니다. 다시 시도해주세요.");
+          }
           return null;
         }
         setError("네트워크 오류가 발생했습니다. 연결을 확인해주세요.");
         return null;
       } finally {
-        clearTimeout(timeoutId);
         setLoading(false);
         abortRef.current = null;
       }
@@ -153,6 +197,7 @@ export function useStreaming({ getToken }: UseStreamingOptions) {
   return {
     loading,
     streamingSteps,
+    streamingAnswer,
     mutationsPerformed,
     schemaChanged,
     error,

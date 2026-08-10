@@ -44,8 +44,16 @@ export default function DashboardPage() {
   const router = useRouter();
   const { isAuthenticated, initializing, token, email, logout, apiFetchWithRefresh } =
     useAuth();
-  const { loading: streamLoading, streamingSteps, mutationsPerformed, schemaChanged, error: streamError, sendMessage } =
-    useStreaming({ getToken: () => token });
+  const {
+    loading: streamLoading,
+    streamingSteps,
+    streamingAnswer,
+    mutationsPerformed,
+    schemaChanged,
+    error: streamError,
+    sendMessage,
+    abort: abortStream,
+  } = useStreaming({ getToken: () => token });
 
   // Navigation
   const [activeSection, setActiveSection] = useState<Section>("dashboard");
@@ -317,7 +325,9 @@ export default function DashboardPage() {
             sendMessage={sendMessage}
             streamLoading={streamLoading}
             streamingSteps={streamingSteps}
+            streamingAnswer={streamingAnswer}
             streamError={streamError}
+            onStopStream={abortStream}
             onMutationPerformed={handleMutationPerformed}
             onPinChart={handlePinChart}
           />
