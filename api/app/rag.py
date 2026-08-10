@@ -20,6 +20,8 @@ from typing import Any
 
 from .config import settings
 from .db import _connect
+from .korean_text import to_tsquery_input, to_tsvector_input
+from .tokens import count_tokens
 from .llm import embed_one, generate_embeddings
 
 logger = logging.getLogger(__name__)
@@ -125,21 +127,24 @@ def upsert_schema_embedding(
                         """
                         UPDATE schema_embeddings
                         SET content = %s,
+                            content_tsv = to_tsvector('simple', %s),
                             embedding = %s::vector,
                             content_hash = %s,
                             updated_at = NOW()
                         WHERE table_meta_id = %s
                         """,
-                        (content, vec_str, content_hash, table_meta_id),
+                        (content, to_tsvector_input(content), vec_str, content_hash, table_meta_id),
                     )
                 else:
                     cur.execute(
                         """
                         INSERT INTO schema_embeddings
-                          (table_meta_id, user_id, project_id, content, embedding, content_hash)
-                        VALUES (%s, %s, %s, %s, %s::vector, %s)
+                          (table_meta_id, user_id, project_id, content, content_tsv,
+                           embedding, content_hash)
+                        VALUES (%s, %s, %s, %s, to_tsvector('simple', %s), %s::vector, %s)
                         """,
-                        (table_meta_id, user_id, project_id, content, vec_str, content_hash),
+                        (table_meta_id, user_id, project_id, content,
+                         to_tsvector_input(content), vec_str, content_hash),
                     )
             conn.commit()
         logger.info("schema_embedding upserted for table_meta=%s", table_meta_id)
@@ -184,11 +189,11 @@ WITH dense AS (
 ),
 sparse AS (
   SELECT id, ROW_NUMBER() OVER (
-    ORDER BY ts_rank_cd(content_tsv, plainto_tsquery('simple', %(qtext)s)) DESC
+    ORDER BY ts_rank_cd(content_tsv, plainto_tsquery('simple', %(qtok)s)) DESC
   ) AS rnk
   FROM schema_embeddings
   WHERE user_id = %(uid)s AND project_id = %(pid)s
-    AND content_tsv @@ plainto_tsquery('simple', %(qtext)s)
+    AND content_tsv @@ plainto_tsquery('simple', %(qtok)s)
   LIMIT %(cand)s
 ),
 fused AS (
@@ -216,12 +221,12 @@ WITH dense AS (
 ),
 sparse AS (
   SELECT id, ROW_NUMBER() OVER (
-    ORDER BY ts_rank_cd(content_tsv, plainto_tsquery('simple', %(qtext)s)) DESC
+    ORDER BY ts_rank_cd(content_tsv, plainto_tsquery('simple', %(qtok)s)) DESC
   ) AS rnk
   FROM document_chunks
   WHERE user_id = %(uid)s
     AND (%(pid)s::uuid IS NULL OR project_id = %(pid)s::uuid)
-    AND content_tsv @@ plainto_tsquery('simple', %(qtext)s)
+    AND content_tsv @@ plainto_tsquery('simple', %(qtok)s)
   LIMIT %(cand)s
 ),
 fused AS (
@@ -257,6 +262,7 @@ def hybrid_search_schema(
         params = {
             "qvec": _vec_literal(qvec),
             "qtext": query,
+            "qtok": to_tsquery_input(query),
             "uid": user_id,
             "pid": project_id,
             "cand": k * 4,
@@ -329,12 +335,14 @@ def chunk_and_embed_document(
                             """
                             INSERT INTO document_chunks
                               (file_id, user_id, project_id, chunk_index,
-                               content, embedding, metadata, token_count)
-                            VALUES (%s, %s, %s, %s, %s, %s::vector, %s::jsonb, %s)
+                               content, content_tsv, embedding, metadata, token_count)
+                            VALUES (%s, %s, %s, %s, %s, to_tsvector('simple', %s),
+                                    %s::vector, %s::jsonb, %s)
                             """,
                             (
                                 file_id, user_id, project_id, idx,
-                                text, _vec_literal(vec), json.dumps(meta), len(text),
+                                text, to_tsvector_input(text),
+                                _vec_literal(vec), json.dumps(meta), count_tokens(text),
                             ),
                         )
                 conn.commit()
@@ -381,6 +389,7 @@ def hybrid_search_documents(
         params = {
             "qvec": _vec_literal(qvec),
             "qtext": query,
+            "qtok": to_tsquery_input(query),
             "uid": user_id,
             "pid": project_id,
             "cand": k * 4,
