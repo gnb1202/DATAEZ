@@ -391,29 +391,97 @@ async def run_agent_streaming(
             call_kwargs["tools"] = active_tools
             call_kwargs["tool_choice"] = tc
 
+        # Stream the completion. The previous implementation awaited the whole
+        # response before yielding anything, so time-to-first-token equalled
+        # full model latency and the "streaming" endpoint only streamed
+        # completed tool steps.
+        call_kwargs["stream"] = True
+        call_kwargs["stream_options"] = {"include_usage": True}
+
+        content_parts: list[str] = []
+        tool_call_parts: dict[int, dict[str, str]] = {}
+        finish_reason: str | None = None
+        usage = None
+
         try:
             with track_llm_call(
                 model=settings.openai_model, role=ROLE_WORKER, ledger=ledger
             ) as call:
-                response = await async_client.chat.completions.create(**call_kwargs)
-                call.record_usage(response.usage)
-        except Exception as exc:
+                stream = await async_client.chat.completions.create(**call_kwargs)
+                async for chunk in stream:
+                    # The usage-bearing chunk carries no choices, which is why
+                    # streaming previously reported zero tokens.
+                    if getattr(chunk, "usage", None):
+                        usage = chunk.usage
+                    if not chunk.choices:
+                        continue
+
+                    chunk_choice = chunk.choices[0]
+                    if chunk_choice.finish_reason:
+                        finish_reason = chunk_choice.finish_reason
+
+                    delta = chunk_choice.delta
+                    if delta is None:
+                        continue
+
+                    if delta.content:
+                        content_parts.append(delta.content)
+                        yield AgentStep(type="token", content=delta.content)
+
+                    for tc_delta in delta.tool_calls or []:
+                        slot = tool_call_parts.setdefault(
+                            tc_delta.index, {"id": "", "name": "", "arguments": ""}
+                        )
+                        if tc_delta.id:
+                            slot["id"] = tc_delta.id
+                        if tc_delta.function:
+                            # Both name and arguments arrive in fragments and
+                            # must be concatenated, not overwritten.
+                            if tc_delta.function.name:
+                                slot["name"] += tc_delta.function.name
+                            if tc_delta.function.arguments:
+                                slot["arguments"] += tc_delta.function.arguments
+
+                call.record_usage(usage)
+        except Exception:
             logger.error("LLM streaming call failed", exc_info=True)
             agent_turns_total.labels(mode="streaming", outcome="llm_error").inc()
-            yield AgentStep(type="answer", content="AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
+            yield AgentStep(
+                type="error",
+                content="AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+            )
             return
 
-        if response.usage:
-            total_tokens += response.usage.total_tokens
+        if usage:
+            total_tokens += usage.total_tokens
 
-        choice = response.choices[0]
+        assembled_tool_calls = [
+            tool_call_parts[index] for index in sorted(tool_call_parts)
+        ]
+        streamed_content = "".join(content_parts)
 
-        if choice.message.tool_calls:
-            messages.append(choice.message.model_dump())
+        if assembled_tool_calls:
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": streamed_content or None,
+                    "tool_calls": [
+                        {
+                            "id": tc["id"],
+                            "type": "function",
+                            "function": {
+                                "name": tc["name"],
+                                "arguments": tc["arguments"],
+                            },
+                        }
+                        for tc in assembled_tool_calls
+                    ],
+                }
+            )
 
-            for tool_call in choice.message.tool_calls:
-                tool_name = tool_call.function.name
-                tool_args_str = tool_call.function.arguments
+            for tool_call in assembled_tool_calls:
+                tool_name = tool_call["name"]
+                tool_args_str = tool_call["arguments"]
 
                 try:
                     tool_input = json.loads(tool_args_str) if tool_args_str else {}
@@ -436,15 +504,16 @@ async def run_agent_streaming(
 
                 messages.append({
                     "role": "tool",
-                    "tool_call_id": tool_call.id,
+                    "tool_call_id": tool_call["id"],
                     "content": tool_result_str,
                 })
 
         else:
-            # Any finish without tool calls ends the turn; the two cases differ
-            # only in what stands in for an empty completion.
-            placeholder = "" if choice.finish_reason == "stop" else "분석이 완료되었습니다."
-            answer = choice.message.content or placeholder
+            # Any finish without tool calls ends the turn. The text has already
+            # been streamed token by token; this frame carries the assembled
+            # answer so the client can persist it without re-joining deltas.
+            placeholder = "" if finish_reason == "stop" else "분석이 완료되었습니다."
+            answer = streamed_content or placeholder
             yield AgentStep(type="answer", content=answer)
             agent_iterations.labels(mode="streaming").observe(iteration + 1)
             agent_turns_total.labels(mode="streaming", outcome="answered").inc()

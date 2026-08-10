@@ -26,7 +26,9 @@ interface AiChatSectionProps {
   ) => Promise<Message | null>;
   streamLoading: boolean;
   streamingSteps: StreamingStep[];
+  streamingAnswer?: string;
   streamError?: string | null;
+  onStopStream?: () => void;
   onMutationPerformed?: () => void;
   onPinChart?: (chart: ChartData) => void;
 }
@@ -35,7 +37,9 @@ export function AiChatSection({
   sendMessage,
   streamLoading,
   streamingSteps,
+  streamingAnswer,
   streamError,
+  onStopStream,
   onMutationPerformed,
   onPinChart,
 }: AiChatSectionProps) {
@@ -269,7 +273,9 @@ export function AiChatSection({
             loading={streamLoading}
             disabled={false}
             streamingSteps={streamingSteps}
+            streamingAnswer={streamingAnswer}
             streamError={streamError}
+            onStop={onStopStream}
             onPinChart={onPinChart}
           />
         )}

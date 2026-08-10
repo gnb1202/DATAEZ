@@ -16,6 +16,11 @@ from .exceptions import ResourceNotFound, FileTooLarge, UnsupportedFileType
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from .agent import AgentResult, _parse_suggestions, run_agent, run_agent_streaming
+
+# Emitted while the agent is busy (typically inside a long tool call) so an
+# in-progress turn stays distinguishable from a dead connection. Must stay
+# comfortably below the client's stream timeout.
+SSE_HEARTBEAT_SECONDS = 15
 from .auth import get_current_user, login, logout_refresh_token, refresh_access_token, signup
 from .config import settings
 from .db import (
@@ -932,6 +937,52 @@ async def send_message_streaming(
     ]
 
     async def event_generator():
+        """Forward agent events, injecting heartbeats during quiet periods.
+
+        Two problems are handled here. First, any exception raised after the
+        response headers are sent must still reach the client as an error
+        frame — previously it killed the stream mid-flight, the client fell
+        out of its read loop with no error set, the spinner simply stopped,
+        and the already-persisted user message was left without a reply.
+
+        Second, a long-running tool produces no output, and the client aborts
+        after 120s while the server allows up to 25 iterations. Heartbeats
+        keep an in-progress turn distinguishable from a dead connection.
+        """
+        queue: asyncio.Queue = asyncio.Queue()
+        finished = object()
+
+        async def produce():
+            try:
+                async for event in _stream_agent_events():
+                    await queue.put(event)
+            except Exception:
+                logger.error("Streaming turn failed", exc_info=True)
+                failure = {
+                    "type": "error",
+                    "data": {"message": "응답 생성 중 오류가 발생했습니다. 다시 시도해주세요."},
+                }
+                await queue.put(f"data: {json.dumps(failure, ensure_ascii=False)}\n\n")
+            finally:
+                await queue.put(finished)
+
+        producer = asyncio.create_task(produce())
+        try:
+            while True:
+                try:
+                    item = await asyncio.wait_for(
+                        queue.get(), timeout=SSE_HEARTBEAT_SECONDS
+                    )
+                except asyncio.TimeoutError:
+                    yield f"data: {json.dumps({'type': 'heartbeat'})}\n\n"
+                    continue
+                if item is finished:
+                    break
+                yield item
+        finally:
+            producer.cancel()
+
+    async def _stream_agent_events():
         steps = []
         charts = []
         table_data = []
@@ -987,6 +1038,17 @@ async def send_message_streaming(
                     },
                 }
                 yield f"data: {json.dumps(event, ensure_ascii=False, default=str)}\n\n"
+
+            elif step.type == "token":
+                # Incremental answer text. This is what makes time-to-first-
+                # byte independent of total model latency.
+                event = {"type": "token", "data": {"content": step.content}}
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+
+            elif step.type == "error":
+                event = {"type": "error", "data": {"message": step.content}}
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                return
 
             elif step.type == "answer":
                 answer = step.content
