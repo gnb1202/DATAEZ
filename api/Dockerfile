@@ -10,6 +10,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 RUN useradd --create-home appuser
+
+# Create the local-storage mountpoint while still root. Docker seeds a fresh
+# named volume from the image path, ownership included, so this is what lets
+# the unprivileged runtime user write uploads. Without it the volume is
+# created root-owned and every upload fails with EACCES.
+RUN mkdir -p /data/uploads && chown -R appuser:appuser /data
+
 USER appuser
 
 EXPOSE 8000
