@@ -11,6 +11,8 @@ making prompts easier to iterate and test independently.
 
 from typing import Any
 
+from .untrusted import UNTRUSTED_CONTENT_RULE, sanitize_untrusted
+
 
 def build_system_prompt(
     project_name: str,
@@ -30,9 +32,13 @@ def build_system_prompt(
         for t in tables_info:
             columns_schema = t.get("columns_schema") or []
             cols_str = ", ".join(
-                f"{col['name']}({col['type']})" for col in columns_schema
+                f"{sanitize_untrusted(col['name'])}({col['type']})"
+                for col in columns_schema
             )
-            tables_desc += f"  - {t['name']} ({t.get('row_count', 0)}행): {cols_str}\n"
+            tables_desc += (
+                f"  - {sanitize_untrusted(t['name'])} "
+                f"({t.get('row_count', 0)}행): {cols_str}\n"
+            )
         tables_desc = tables_desc.rstrip()
 
     base = SYSTEM_PROMPT_TEMPLATE.format(
@@ -54,6 +60,10 @@ def build_system_prompt(
 
     if intent_addition:
         base += "\n\n" + intent_addition.strip()
+
+    # Always appended: tool results and retrieved chunks can appear on any
+    # turn, so the trust boundary cannot be conditional on intent.
+    base += UNTRUSTED_CONTENT_RULE
 
     return base
 
