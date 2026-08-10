@@ -68,6 +68,15 @@ class PairwiseResult:
     explanation: str = ""
     position_bias_check: bool = False  # True if position swap was performed
     raw_response: str = ""
+    # Whether the judge picked a different winner once the two responses
+    # swapped places. This is the most valuable output of running the
+    # comparison twice: a verdict that flips on ordering is a verdict about
+    # position, not quality, and should not be trusted. Averaging the scores
+    # without reporting this hides exactly the bias the second run exists to
+    # detect.
+    verdict_flipped: bool = False
+    winner_run1: str = ""
+    winner_run2: str = ""
 
 
 @dataclass
@@ -89,9 +98,16 @@ class EvalTestCase:
 class EvalSuiteResult:
     """Aggregated results from a batch evaluation run."""
     total: int = 0
-    avg_score: float = 0.0
+    avg_score: float = 0.0  # pointwise only; meaningless for pairwise
     criteria_averages: dict[str, float] = field(default_factory=dict)
     results: list[dict[str, Any]] = field(default_factory=list)
+    # Pairwise aggregates. A/B comparison has no single "average score" — the
+    # question it answers is which variant wins, and how often the judge's
+    # verdict survives a position swap.
+    win_rate_a: float = 0.0
+    win_rate_b: float = 0.0
+    tie_rate: float = 0.0
+    flip_rate: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -250,13 +266,17 @@ PAIRWISE_USER_TEMPLATE = """## 평가 대상
 # ---------------------------------------------------------------------------
 
 def _get_eval_client(eval_model: str | None = None) -> tuple[OpenAI, str]:
-    """Get OpenAI client and model for evaluation.
+    """Get the OpenAI client and judge model for evaluation.
 
-    Uses a different model than the agent to avoid self-enhancement bias.
+    The judge model is configured separately from the agent models so scoring
+    is not performed by the same model that produced the answer. It was
+    previously hardcoded, which meant the choice could not be changed without
+    editing this file and was never reflected in configuration.
     """
+    from .config import settings
     from .openai_clients import get_openai_client
 
-    model = eval_model or "gpt-4o"  # Default: stronger model for evaluation
+    model = eval_model or settings.openai_judge_model
     client = get_openai_client()
     return client, model
 
@@ -359,6 +379,17 @@ def pointwise_evaluate(
         return PointwiseResult(overall_score=0, explanation=f"평가 오류: {str(exc)}")
 
 
+def _winner_from_scores(score_a: float, score_b: float, tie_threshold: float = 0.3) -> str:
+    """Decide a winner from two scores, with a tie band.
+
+    Scores this close are within judge noise, so calling one the winner would
+    read as a signal when it is not.
+    """
+    if abs(score_a - score_b) < tie_threshold:
+        return "tie"
+    return "A" if score_a > score_b else "B"
+
+
 def pairwise_evaluate(
     user_question: str,
     response_a: str,
@@ -438,12 +469,15 @@ def pairwise_evaluate(
         )
 
         if not mitigate_position_bias:
-            winner = result1.get("winner", "tie").upper()
+            score_a = float(result1.get("score_a", 0))
+            score_b = float(result1.get("score_b", 0))
+            winner = _winner_from_scores(score_a, score_b)
             return PairwiseResult(
                 winner=winner,
-                score_a=float(result1.get("score_a", 0)),
-                score_b=float(result1.get("score_b", 0)),
+                score_a=score_a,
+                score_b=score_b,
                 explanation=result1.get("explanation", ""),
+                winner_run1=winner,
             )
 
         # Run 2: B first, A second (position swap for bias mitigation)
@@ -461,12 +495,21 @@ def pairwise_evaluate(
         avg_score_b = (score_b_r1 + score_b_r2) / 2
 
         # Determine winner from averaged scores
-        if abs(avg_score_a - avg_score_b) < 0.3:
-            winner = "tie"
-        elif avg_score_a > avg_score_b:
-            winner = "A"
-        else:
-            winner = "B"
+        winner = _winner_from_scores(avg_score_a, avg_score_b)
+
+        # Per-run verdicts, un-swapped back to original A/B identities, so the
+        # two runs can be compared. Disagreement means the judge was reacting
+        # to position rather than content.
+        winner_run1 = _winner_from_scores(score_a_r1, score_b_r1)
+        winner_run2 = _winner_from_scores(score_a_r2, score_b_r2)
+        flipped = winner_run1 != winner_run2
+        if flipped:
+            logger.warning(
+                "Pairwise verdict flipped on position swap (run1=%s, run2=%s) — "
+                "treat this comparison as unreliable",
+                winner_run1,
+                winner_run2,
+            )
 
         # Combine explanations
         explanation = (
@@ -480,6 +523,9 @@ def pairwise_evaluate(
             score_b=round(avg_score_b, 1),
             explanation=explanation,
             position_bias_check=True,
+            verdict_flipped=flipped,
+            winner_run1=winner_run1,
+            winner_run2=winner_run2,
         )
     except Exception as exc:
         logger.error("Pairwise evaluation failed: %s", exc)
@@ -551,15 +597,35 @@ def run_eval_suite(
                 "winner": result.winner,
                 "score_a": result.score_a,
                 "score_b": result.score_b,
+                "verdict_flipped": result.verdict_flipped,
                 "explanation": result.explanation,
             })
-            total_score += max(result.score_a, result.score_b)
 
     n = len(test_cases) or 1
     criteria_averages = {
         k: round(criteria_totals[k] / criteria_counts[k], 2)
         for k in criteria_totals
     }
+
+    if mode == "pairwise":
+        wins_a = sum(1 for r in results if r["winner"] == "A")
+        wins_b = sum(1 for r in results if r["winner"] == "B")
+        ties = sum(1 for r in results if r["winner"] == "tie")
+        flips = sum(1 for r in results if r.get("verdict_flipped"))
+        return EvalSuiteResult(
+            total=len(test_cases),
+            # No pointwise scores exist in this mode; reporting a mean of
+            # max(score_a, score_b) — as this previously did — produced a
+            # number that rose whenever either variant scored well and told
+            # you nothing about which one won.
+            avg_score=0.0,
+            criteria_averages={},
+            results=results,
+            win_rate_a=round(wins_a / n, 4),
+            win_rate_b=round(wins_b / n, 4),
+            tie_rate=round(ties / n, 4),
+            flip_rate=round(flips / n, 4),
+        )
 
     return EvalSuiteResult(
         total=len(test_cases),

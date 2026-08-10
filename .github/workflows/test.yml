@@ -29,6 +29,17 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short
 
+      # Offline gate: proves every golden case references a real intent and a
+      # real tool name. A typo here would otherwise depress the live score and
+      # look like a model regression.
+      - name: Validate eval golden dataset
+        env:
+          APP_ENV: development
+          OPENAI_API_KEY: sk-ci-validation-only
+          JWT_SECRET_KEY: ci-only-insecure-secret
+          STORAGE_BACKEND: local
+        run: python -m app.eval.run --validate-only
+
   web-build:
     name: Web Build
     runs-on: ubuntu-latest
