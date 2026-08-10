@@ -1077,8 +1077,11 @@ def ensure_rag_tables() -> None:
                       project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
                       content TEXT NOT NULL,
                       embedding vector(1536) NOT NULL,
-                      content_tsv tsvector
-                        GENERATED ALWAYS AS (to_tsvector('simple', content)) STORED,
+                      -- Populated by the app from morpheme-analysed text; a
+                      -- generated column cannot call the Korean analyzer, and
+                      -- to_tsvector('simple', content) splits Korean on
+                      -- whitespace only. See db/migrations/002_korean_fts.sql.
+                      content_tsv tsvector,
                       content_hash TEXT NOT NULL,
                       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
                       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -1108,8 +1111,11 @@ def ensure_rag_tables() -> None:
                       chunk_index INTEGER NOT NULL,
                       content TEXT NOT NULL,
                       embedding vector(1536) NOT NULL,
-                      content_tsv tsvector
-                        GENERATED ALWAYS AS (to_tsvector('simple', content)) STORED,
+                      -- Populated by the app from morpheme-analysed text; a
+                      -- generated column cannot call the Korean analyzer, and
+                      -- to_tsvector('simple', content) splits Korean on
+                      -- whitespace only. See db/migrations/002_korean_fts.sql.
+                      content_tsv tsvector,
                       metadata JSONB NOT NULL DEFAULT '{}',
                       token_count INTEGER,
                       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -1130,6 +1136,29 @@ def ensure_rag_tables() -> None:
                 cur.execute(
                     "CREATE INDEX IF NOT EXISTS idx_doc_chunks_user_project ON document_chunks(user_id, project_id)"
                 )
+                # Converge databases created before 002, where content_tsv is
+                # still a generated column and cannot be written by the app.
+                for table in ("schema_embeddings", "document_chunks"):
+                    cur.execute(
+                        """
+                        SELECT is_generated FROM information_schema.columns
+                        WHERE table_name = %s AND column_name = 'content_tsv'
+                        """,
+                        (table,),
+                    )
+                    row = cur.fetchone()
+                    if row and row["is_generated"] == "ALWAYS":
+                        logger.info("Migrating %s.content_tsv off generated column", table)
+                        cur.execute(
+                            sql.SQL("ALTER TABLE {} DROP COLUMN content_tsv").format(
+                                sql.Identifier(table)
+                            )
+                        )
+                        cur.execute(
+                            sql.SQL("ALTER TABLE {} ADD COLUMN content_tsv tsvector").format(
+                                sql.Identifier(table)
+                            )
+                        )
             conn.commit()
         logger.info("RAG tables ensured (pgvector + schema_embeddings + document_chunks)")
     except psycopg.errors.UndefinedFile:
