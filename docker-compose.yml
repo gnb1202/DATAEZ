@@ -1,0 +1,117 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: dataez-db
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dataez}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-dataez}
+    # ports not exposed to host — API connects via Docker network (db:5432)
+    # Uncomment below if you need direct host access to DB:
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./db/migrations/001_pgvector_rag.sql:/docker-entrypoint-initdb.d/02_pgvector_rag.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dataez}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+
+  redis:
+    image: redis:7-alpine
+    container_name: dataez-redis
+    restart: unless-stopped
+    logging: *default-logging
+    # ports not exposed to host — API connects via Docker network (redis:6379)
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.5"
+
+  api:
+    build:
+      context: ./api
+    container_name: dataez-api
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dataez}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-dataez}
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
+      AWS_REGION: ${AWS_REGION:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_PREFIX: ${S3_PREFIX:-uploads}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-nano}
+      OPENAI_ORCHESTRATOR_MODEL: ${OPENAI_ORCHESTRATOR_MODEL:-gpt-5.4}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      RAG_ENABLED: ${RAG_ENABLED:-true}
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-20}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-in-production}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXP_MINUTES: ${JWT_EXP_MINUTES:-120}
+      JWT_REFRESH_EXP_DAYS: ${JWT_REFRESH_EXP_DAYS:-14}
+      AUTH_RATE_LIMIT_PER_MINUTE: ${AUTH_RATE_LIMIT_PER_MINUTE:-20}
+      QUERY_RATE_LIMIT_PER_MINUTE: ${QUERY_RATE_LIMIT_PER_MINUTE:-60}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "2.0"
+
+  web:
+    build:
+      context: ./web
+    container_name: dataez-web
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+
+volumes:
+  pgdata:
+  redisdata:
