@@ -101,11 +101,12 @@ services:
   web:
     build:
       context: ./web
+      args:
+        # Baked into the client bundle at build time — see web/Dockerfile.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     container_name: dataez-web
     restart: unless-stopped
     logging: *default-logging
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
     ports:
       - "3000:3000"
     depends_on:

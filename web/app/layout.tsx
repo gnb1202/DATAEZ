@@ -28,6 +28,7 @@ const notoSansKR = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: "DATAEZ",
   description: "소상공인을 위한 데이터 시각화 자동화 도구",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

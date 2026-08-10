@@ -7,6 +7,13 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 COPY . .
+
+# Next.js inlines NEXT_PUBLIC_* into the client bundle at build time, so this
+# must be a build arg. Supplying it only as a runtime env var leaves the
+# bundle pointing at the fallback and silently breaks any non-local deploy.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
 # ── Production stage ──
