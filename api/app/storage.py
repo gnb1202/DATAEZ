@@ -10,10 +10,30 @@ logger = logging.getLogger(__name__)
 
 
 class StorageService:
+    """File storage with two interchangeable backends: S3 and local disk.
+
+    The S3 client is created lazily so a local-only deployment never depends on
+    AWS configuration being present.
+    """
+
     def __init__(self) -> None:
-        self._local_root = Path("/tmp/dataez_uploads")
-        self._local_root.mkdir(parents=True, exist_ok=True)
-        self._s3_client = boto3.client("s3", region_name=settings.aws_region) if settings.aws_region else boto3.client("s3")
+        self._local_root = Path(settings.local_storage_path)
+        self._s3_client_cache = None
+        if settings.storage_backend == "local":
+            self._local_root.mkdir(parents=True, exist_ok=True)
+            logger.info("Storage backend: local (%s)", self._local_root.resolve())
+        else:
+            logger.info("Storage backend: s3 (bucket=%s)", settings.s3_bucket)
+
+    @property
+    def _s3_client(self):
+        if self._s3_client_cache is None:
+            self._s3_client_cache = (
+                boto3.client("s3", region_name=settings.aws_region)
+                if settings.aws_region
+                else boto3.client("s3")
+            )
+        return self._s3_client_cache
 
     def upload_bytes(self, content: bytes, filename: str) -> str:
         key = f"{settings.s3_prefix}/{uuid4()}-{filename}"
@@ -25,6 +45,7 @@ class StorageService:
             logger.info("Uploaded %s to S3 (%d bytes)", filename, len(content))
             return key
 
+        self._local_root.mkdir(parents=True, exist_ok=True)
         local_path = self._local_root / key.replace("/", "_")
         local_path.write_bytes(content)
         logger.info("Saved %s locally (%d bytes)", filename, len(content))

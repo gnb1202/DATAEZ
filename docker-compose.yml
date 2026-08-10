@@ -59,27 +59,32 @@ services:
     restart: unless-stopped
     logging: *default-logging
     environment:
+      APP_ENV: ${APP_ENV:-development}
       DATABASE_URL: postgresql://${POSTGRES_USER:-dataez}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-dataez}
       REDIS_URL: redis://redis:6379/0
-      STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      LOCAL_STORAGE_PATH: ${LOCAL_STORAGE_PATH:-/data/uploads}
       AWS_REGION: ${AWS_REGION:-}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
       S3_BUCKET: ${S3_BUCKET:-}
       S3_PREFIX: ${S3_PREFIX:-uploads}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set in .env}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-nano}
       OPENAI_ORCHESTRATOR_MODEL: ${OPENAI_ORCHESTRATOR_MODEL:-gpt-5.4}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
       RAG_ENABLED: ${RAG_ENABLED:-true}
       MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-20}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-in-production}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in .env}
       JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
       JWT_EXP_MINUTES: ${JWT_EXP_MINUTES:-120}
       JWT_REFRESH_EXP_DAYS: ${JWT_REFRESH_EXP_DAYS:-14}
       AUTH_RATE_LIMIT_PER_MINUTE: ${AUTH_RATE_LIMIT_PER_MINUTE:-20}
       QUERY_RATE_LIMIT_PER_MINUTE: ${QUERY_RATE_LIMIT_PER_MINUTE:-60}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    volumes:
+      - uploads:/data/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -115,3 +120,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  uploads:

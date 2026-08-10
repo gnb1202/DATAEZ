@@ -40,5 +40,5 @@ portfolio/
 CORE_FEATURES.md
 PROMPT_ENGINEERING_ANALYSIS.md
 
-# Sample data
-samples/
+# Local storage backend output
+data/

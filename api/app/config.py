@@ -1,10 +1,21 @@
-from pydantic import field_validator, model_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
+
+# Placeholder secrets that must never reach a real deployment. Kept as an
+# explicit blocklist so `.env.example` can ship a working local value while
+# still failing loudly if someone copies a placeholder into production.
+PLACEHOLDER_SECRETS = {
+    "change-this-in-production",
+    "your-secret-here",
+    "secret",
+}
 
 
 class Settings(BaseSettings):
+    app_env: str = "development"
     database_url: str = "postgresql://dataez:dataez@db:5432/dataez"
-    storage_backend: str = "s3"
+    storage_backend: str = "local"
+    local_storage_path: str = "./data/uploads"
     aws_region: str = ""
     s3_bucket: str = ""
     s3_prefix: str = "uploads"
@@ -41,18 +52,40 @@ class Settings(BaseSettings):
     # Cleanup
     conversation_ttl_days: int = 90
 
-    @field_validator("jwt_secret_key")
-    @classmethod
-    def jwt_secret_must_be_set(cls, v: str) -> str:
-        if not v or v == "change-this-in-production":
+    @property
+    def is_production(self) -> bool:
+        return self.app_env.lower() in ("production", "prod")
+
+    @model_validator(mode="after")
+    def validate_jwt_secret(self) -> "Settings":
+        secret = self.jwt_secret_key
+        if not secret:
             raise ValueError(
                 "JWT_SECRET_KEY must be set to a secure random value. "
                 "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
             )
-        return v
+        if secret in PLACEHOLDER_SECRETS:
+            raise ValueError(
+                f"JWT_SECRET_KEY is set to the placeholder {secret!r}. "
+                "Generate a real one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+            )
+        # The development default shipped in .env.example is deliberately
+        # self-describing so this check can reject it in production.
+        if self.is_production:
+            lowered = secret.lower()
+            if len(secret) < 32 or "dev" in lowered or "insecure" in lowered:
+                raise ValueError(
+                    "JWT_SECRET_KEY looks like a development value but APP_ENV=production. "
+                    "Set a random secret of at least 32 characters."
+                )
+        return self
 
     @model_validator(mode="after")
     def validate_storage_config(self) -> "Settings":
+        if self.storage_backend not in ("s3", "local"):
+            raise ValueError(
+                f"STORAGE_BACKEND must be 's3' or 'local', got {self.storage_backend!r}"
+            )
         if self.storage_backend == "s3" and not self.s3_bucket:
             raise ValueError(
                 "S3_BUCKET must be set when STORAGE_BACKEND=s3"

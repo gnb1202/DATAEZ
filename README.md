@@ -14,23 +14,19 @@
 - **Orchestration**: Docker Compose
 
 ## Quick Start
-1. Create env file:
+
+필요한 건 OpenAI API 키 하나입니다. 기본값은 로컬 파일 저장소라 AWS 계정 없이 동작합니다.
+
 ```bash
-cp .env.example .env
-```
-2. Fill `.env` with your AWS S3 and OpenAI keys.
-3. Run:
-```bash
+cp .env.example .env      # OPENAI_API_KEY 만 채우면 됩니다
 docker compose up --build
 ```
-4. Open web:
-```text
-http://localhost:3000
-```
-5. API health:
-```text
-http://localhost:8000/health
-```
+
+- Web: http://localhost:3000
+- API health: http://localhost:8000/health
+
+> `.env.example`의 `JWT_SECRET_KEY`는 개발 전용 값입니다. `APP_ENV=production`으로 두면
+> 설정 검증이 이 값을 거부하므로 실수로 배포될 수 없습니다.
 
 ## Core Features
 - **프로젝트 관리**: 사업장별 프로젝트 생성/관리
@@ -103,14 +99,18 @@ http://localhost:8000/health
 시작용 템플릿은 [.env.example](.env.example), 상세 설명은 [docs/CONFIGURATION.md](docs/CONFIGURATION.md) 참고.
 기본값의 최종 출처는 [api/app/config.py](api/app/config.py)입니다.
 
-**필수**
-- `JWT_SECRET_KEY` — 미설정 시 기동 실패 (`python -c "import secrets; print(secrets.token_urlsafe(32))"`)
+**필수 (`.env.example`에 미리 채워져 있지 않은 것)**
 - `OPENAI_API_KEY` — 미설정 시 기동 실패
-- `S3_BUCKET` — `STORAGE_BACKEND=s3`일 때 필수
+
+**환경**
+- `APP_ENV` (기본값: `development`) — `production`이면 설정 검증이 강화되어 개발용 JWT 시크릿(길이 32 미만 또는 `dev`/`insecure` 포함)을 거부합니다
+- `JWT_SECRET_KEY` — 미설정/플레이스홀더면 기동 실패 (`python -c "import secrets; print(secrets.token_urlsafe(32))"`)
 - `POSTGRES_PASSWORD`
 
 **Storage**
-- `STORAGE_BACKEND`: `s3` or `local`
+- `STORAGE_BACKEND`: `local`(기본값) or `s3` — 그 외 값은 기동 시 거부
+- `LOCAL_STORAGE_PATH` (기본값: `./data/uploads`, compose에서는 `/data/uploads` 볼륨)
+- `S3_BUCKET` — `STORAGE_BACKEND=s3`일 때 필수
 - `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`(optional)
 - `S3_PREFIX`, `MAX_UPLOAD_SIZE_MB` (기본값: `20`)
 
