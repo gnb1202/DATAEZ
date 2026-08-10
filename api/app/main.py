@@ -182,21 +182,34 @@ app.add_middleware(
 async def request_tracking(request: Request, call_next):
     import time
     from .logging_config import request_id_var, user_id_var
-    from .metrics import metrics
+    from .metrics import (
+        http_request_duration_seconds,
+        http_requests_total,
+        route_label,
+    )
 
-    req_id = request.headers.get("X-Request-ID", str(uuid4())[:8])
+    # A client-supplied X-Request-ID is echoed into logs, so cap and strip it
+    # rather than trusting arbitrary header content.
+    raw_req_id = request.headers.get("X-Request-ID", "")
+    req_id = "".join(c for c in raw_req_id if c.isalnum() or c in "-_")[:64] or str(uuid4())[:8]
     request_id_var.set(req_id)
     user_id_var.set("")  # reset per request
 
     t0 = time.monotonic()
     logger.info("-> %s %s", request.method, request.url.path)
     response = await call_next(request)
-    elapsed = (time.monotonic() - t0) * 1000
-    logger.info("<- %s %s %d %.0fms", request.method, request.url.path, response.status_code, elapsed)
+    elapsed_s = time.monotonic() - t0
+    logger.info(
+        "<- %s %s %d %.0fms", request.method, request.url.path, response.status_code, elapsed_s * 1000
+    )
 
-    labels = {"method": request.method, "path": request.url.path, "status": str(response.status_code)}
-    metrics.inc("http_requests_total", labels)
-    metrics.observe("http_request_duration_ms", elapsed, {"method": request.method, "path": request.url.path})
+    # Route template, not request.url.path: the raw path embeds project and
+    # conversation UUIDs, which would mint a new time series per entity.
+    route = route_label(request)
+    http_requests_total.labels(
+        method=request.method, route=route, status=str(response.status_code)
+    ).inc()
+    http_request_duration_seconds.labels(method=request.method, route=route).observe(elapsed_s)
 
     response.headers["X-Request-ID"] = req_id
     # Security headers
@@ -241,9 +254,11 @@ def readiness() -> dict[str, Any]:
 
 @app.get("/metrics", include_in_schema=False)
 def prometheus_metrics():
-    from fastapi.responses import PlainTextResponse
-    from .metrics import metrics
-    return PlainTextResponse(metrics.export(), media_type="text/plain; charset=utf-8")
+    from fastapi.responses import Response
+    from .metrics import render
+
+    payload, content_type = render()
+    return Response(content=payload, media_type=content_type)
 
 
 # ---------------------------------------------------------------------------
@@ -854,6 +869,7 @@ async def send_message(
         steps=result_dict["steps"],
         charts=result_dict["charts"],
         table_data=result_dict["table_data"],
+        usage=result_dict["usage"],
     )
 
     if len(conversation_history) <= 1:
@@ -867,6 +883,7 @@ async def send_message(
         "steps": result_dict["steps"],
         "charts": result_dict["charts"],
         "table_data": result_dict["table_data"],
+        "usage": result_dict["usage"],
         "suggestions": result_dict["suggestions"],
         "mutations_performed": agent_result.mutations_performed,
         "schema_changed": agent_result.schema_changed,
@@ -922,6 +939,7 @@ async def send_message_streaming(
         mutations_performed = False
         schema_changed = False
         mutated_table_ids: list[str] = []
+        usage: dict[str, Any] = {}
 
         async for step in run_agent_streaming(
             user_id=user["id"],
@@ -933,7 +951,7 @@ async def send_message_streaming(
             attached_files=attached_files or None,
         ):
             if step.type == "meta":
-                # Meta info (mutations flag)
+                # Mutation flags plus this turn's LLM usage.
                 try:
                     meta_data = json.loads(step.content)
                     if meta_data.get("mutations_performed"):
@@ -942,8 +960,10 @@ async def send_message_streaming(
                         schema_changed = True
                     if meta_data.get("mutated_table_ids"):
                         mutated_table_ids = meta_data["mutated_table_ids"]
+                    if meta_data.get("usage"):
+                        usage = meta_data["usage"]
                 except Exception:
-                    pass
+                    logger.warning("Failed to parse agent meta frame", exc_info=True)
                 continue
 
             steps.append(step)
@@ -991,6 +1011,8 @@ async def send_message_streaming(
             table_data=table_data, suggestions=suggestions,
             mutations_performed=mutations_performed,
             schema_changed=schema_changed,
+            total_tokens=usage.get("total_tokens", 0),
+            usage=usage,
         )
         result_dict = result.to_dict()
         save_message(
@@ -1001,6 +1023,7 @@ async def send_message_streaming(
             steps=result_dict["steps"],
             charts=result_dict["charts"],
             table_data=result_dict["table_data"],
+            usage=usage,
         )
 
         if len(conversation_history) <= 1:
@@ -1018,6 +1041,7 @@ async def send_message_streaming(
                 "suggestions": suggestions,
                 "mutations_performed": mutations_performed,
                 "schema_changed": schema_changed,
+                "usage": usage,
             },
         }
         yield f"data: {json.dumps(done_event, ensure_ascii=False, default=str)}\n\n"

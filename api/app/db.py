@@ -715,6 +715,12 @@ def ensure_conversation_tables() -> None:
                 )
                 """
             )
+            # Per-message LLM accounting. Without these, spend can only be read
+            # from logs, so there is no way to attribute cost to a conversation
+            # or a user after the fact.
+            cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS total_tokens INTEGER")
+            cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS cost_usd NUMERIC(12,6)")
+            cur.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS usage JSONB")
         conn.commit()
 
 
@@ -845,6 +851,7 @@ def save_message(
     steps: Any = None,
     charts: Any = None,
     table_data: Any = None,
+    usage: dict[str, Any] | None = None,
 ) -> None:
     import json
 
@@ -852,8 +859,10 @@ def save_message(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO messages (id, conversation_id, role, content, steps, charts, table_data)
-                VALUES (%s, %s, %s, %s, %s::jsonb, %s::jsonb, %s::jsonb)
+                INSERT INTO messages
+                    (id, conversation_id, role, content, steps, charts, table_data,
+                     total_tokens, cost_usd, usage)
+                VALUES (%s, %s, %s, %s, %s::jsonb, %s::jsonb, %s::jsonb, %s, %s, %s::jsonb)
                 """,
                 (
                     message_id,
@@ -863,6 +872,9 @@ def save_message(
                     json.dumps(steps, default=str) if steps else None,
                     json.dumps(charts, default=str) if charts else None,
                     json.dumps(table_data, default=str) if table_data else None,
+                    (usage or {}).get("total_tokens"),
+                    (usage or {}).get("cost_usd"),
+                    json.dumps(usage, default=str) if usage else None,
                 ),
             )
         conn.commit()

@@ -42,8 +42,8 @@ docker compose up --build
 
 ### Health / Ops
 - `GET /health` — 라이브니스
-- `GET /ready` — 레디니스 (DB 연결 확인)
-- `GET /metrics` — Prometheus 스타일 메트릭
+- `GET /ready` — 레디니스 (DB/Redis 연결 확인, 실패 시 503)
+- `GET /metrics` — Prometheus 메트릭 ([관측성](#관측성--비용-추적) 참고)
 
 ### Auth
 - `POST /api/auth/signup`
@@ -130,6 +130,34 @@ docker compose up --build
 - `AGENT_MAX_ITERATIONS` (기본값: `25`), `AGENT_MAX_TOKEN_BUDGET` (기본값: `100000`)
 - `MAX_SELECT_ROWS` (기본값: `10000`), `QUERY_TIMEOUT_MS` (기본값: `30000`)
 - `DB_POOL_MIN_SIZE`, `DB_POOL_MAX_SIZE`, `DB_POOL_TIMEOUT`, `CONVERSATION_TTL_DAYS`
+
+## 관측성 & 비용 추적
+
+에이전트가 쓴 토큰과 비용을 **파이프라인 단계별로** 추적합니다. 2단 구조(라우팅용 저비용
+호출 → 추론용 워커 루프)에서 비용이 실제로 어디서 발생하는지는 단일 합계로는 알 수 없기
+때문에, 모든 LLM 호출에 `role` 라벨(`orchestrator` / `worker` / `embedding` / `judge`)을 붙입니다.
+
+`GET /metrics`에 노출되는 주요 지표:
+
+| 지표 | 라벨 | 답할 수 있는 질문 |
+|---|---|---|
+| `dataez_llm_tokens_total` | model, role, kind | 토큰이 라우팅에서 나가는가 추론에서 나가는가 |
+| `dataez_llm_cost_usd_total` | model, role | 질의당 비용, 단계별 비중 |
+| `dataez_llm_call_duration_seconds` | model, role | LLM 지연 p50/p95/p99 |
+| `dataez_agent_tool_calls_total` | tool, outcome | 어떤 도구가 실패하는가 |
+| `dataez_agent_iterations` | mode | 턴당 루프 반복 분포 |
+| `dataez_orchestrator_decisions_total` | outcome | **라우팅 폴백률** |
+
+`orchestrator_decisions_total`이 특히 중요합니다. 라우팅 응답 파싱이 실패하면 조용히 전체
+도구셋으로 폴백하는데, 이는 오케스트레이터의 존재 이유(토큰 절약·도구 공간 축소)를 무효화
+합니다. 로그로만 남던 이 사건을 카운터로 만들어 폴백률을 측정 가능하게 했습니다.
+
+턴별 사용량은 `messages` 테이블의 `total_tokens` / `cost_usd` / `usage` 컬럼에도 저장되어,
+대화·사용자 단위 비용 귀속이 가능합니다.
+
+```bash
+curl -s localhost:8000/metrics | grep dataez_llm
+```
 
 ## Testing
 

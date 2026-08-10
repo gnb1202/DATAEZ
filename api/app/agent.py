@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 from .agent_tools import TOOL_SPECS, ToolExecutor
 from .config import settings
+from .llm_telemetry import ROLE_WORKER, TurnLedger, track_llm_call
+from .metrics import agent_iterations, agent_turns_total
 from .openai_clients import get_async_openai_client, get_openai_client
 from .prompts import build_conversation_context, build_system_prompt
 from .router import OrchestratorResult, select_tools_via_orchestrator
@@ -53,6 +55,9 @@ class AgentResult:
     schema_changed: bool = False
     mutated_table_ids: set[str] = field(default_factory=set)
     total_tokens: int = 0
+    # Every LLM call made for this turn, including the orchestrator's routing
+    # call, which the old total_tokens counter never included.
+    usage: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -64,6 +69,7 @@ class AgentResult:
             "mutations_performed": self.mutations_performed,
             "schema_changed": self.schema_changed,
             "total_tokens": self.total_tokens,
+            "usage": self.usage,
         }
 
 
@@ -100,10 +106,16 @@ def _parse_suggestions(text: str) -> tuple[str, list[str]]:
     return text, []
 
 
-def _select_tools(question: str, has_attachments: bool = False) -> tuple[list[dict[str, Any]], str]:
+def _select_tools(
+    question: str,
+    has_attachments: bool = False,
+    ledger: TurnLedger | None = None,
+) -> tuple[list[dict[str, Any]], str]:
     """Orchestrator LLM을 통해 질문에 필요한 툴과 intent를 반환."""
     all_tool_names = [t["function"]["name"] for t in TOOL_SPECS]
-    result: OrchestratorResult = select_tools_via_orchestrator(question, has_attachments, all_tool_names)
+    result: OrchestratorResult = select_tools_via_orchestrator(
+        question, has_attachments, all_tool_names, ledger=ledger
+    )
     if result.tools is None:
         return TOOL_SPECS, result.intent
     return [t for t in TOOL_SPECS if t["function"]["name"] in result.tools], result.intent
@@ -125,8 +137,9 @@ def run_agent(
             steps=[AgentStep(type="answer", content="API key not configured")],
         )
 
+    ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent = _select_tools(question, has_attachments=has_attachments)
+    active_tools, intent = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
     logger.info("Orchestrator selected tools=%d, intent=%s: %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     client = get_openai_client()
@@ -167,6 +180,7 @@ def run_agent(
             logger.warning("Token budget exhausted (%d tokens), stopping agent", total_tokens)
             answer = "토큰 예산이 초과되었습니다. 더 간결한 질문으로 다시 시도해주세요."
             steps.append(AgentStep(type="answer", content=answer))
+            agent_turns_total.labels(mode="sync", outcome="budget_exhausted").inc()
             break
 
         logger.info("Agent iteration %d/%d (tokens used: %d)", iteration + 1, settings.agent_max_iterations, total_tokens)
@@ -185,11 +199,16 @@ def run_agent(
             call_kwargs["tool_choice"] = tc
 
         try:
-            response = client.chat.completions.create(**call_kwargs)
+            with track_llm_call(
+                model=settings.openai_model, role=ROLE_WORKER, ledger=ledger
+            ) as call:
+                response = client.chat.completions.create(**call_kwargs)
+                call.record_usage(response.usage)
         except Exception as exc:
             logger.error("LLM call failed", exc_info=True)
             answer = "AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             steps.append(AgentStep(type="answer", content=answer))
+            agent_turns_total.labels(mode="sync", outcome="llm_error").inc()
             break
 
         # Track token usage
@@ -239,18 +258,28 @@ def run_agent(
         elif choice.finish_reason == "stop":
             answer = choice.message.content or ""
             steps.append(AgentStep(type="answer", content=answer))
+            agent_turns_total.labels(mode="sync", outcome="answered").inc()
             break
         else:
             answer = choice.message.content or "분석이 완료되었습니다."
             steps.append(AgentStep(type="answer", content=answer))
+            agent_turns_total.labels(mode="sync", outcome="answered").inc()
             break
 
     if not answer:
         answer = "최대 반복 횟수에 도달했습니다. 더 구체적인 질문으로 다시 시도해주세요."
         steps.append(AgentStep(type="answer", content=answer))
+        agent_turns_total.labels(mode="sync", outcome="iterations_exhausted").inc()
 
+    agent_iterations.labels(mode="sync").observe(iteration + 1)
     answer, suggestions = _parse_suggestions(answer)
-    logger.info("Agent finished: %d total tokens used", total_tokens)
+    usage = ledger.summary()
+    logger.info(
+        "Agent finished: %d tokens across %d LLM calls, est. $%.5f",
+        usage["total_tokens"],
+        usage["calls"],
+        usage["cost_usd"],
+    )
     return AgentResult(
         answer=answer,
         steps=steps,
@@ -260,13 +289,37 @@ def run_agent(
         mutations_performed=executor.mutations_performed,
         schema_changed=executor.schema_changed,
         mutated_table_ids=executor.mutated_table_ids,
-        total_tokens=total_tokens,
+        # Ledger-wide, so routing and worker calls are both counted. The old
+        # value silently omitted the orchestrator's call.
+        total_tokens=usage["total_tokens"],
+        usage=usage,
     )
 
 
 # ---------------------------------------------------------------------------
 # Streaming variants (async generators for SSE)
 # ---------------------------------------------------------------------------
+
+
+def _streaming_meta_step(executor: ToolExecutor, ledger: TurnLedger) -> AgentStep:
+    """Final meta frame carrying mutation flags and this turn's LLM usage.
+
+    Usage is emitted unconditionally. The previous version only sent a meta
+    frame when a mutation happened, so the streaming endpoint had no token or
+    cost figures to persist and always recorded zero.
+    """
+    return AgentStep(
+        type="meta",
+        content=json.dumps(
+            {
+                "mutations_performed": executor.mutations_performed,
+                "schema_changed": executor.schema_changed,
+                "mutated_table_ids": list(executor.mutated_table_ids),
+                "usage": ledger.summary(),
+            },
+            ensure_ascii=False,
+        ),
+    )
 
 
 async def run_agent_streaming(
@@ -286,8 +339,9 @@ async def run_agent_streaming(
         )
         return
 
+    ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent = _select_tools(question, has_attachments=has_attachments)
+    active_tools, intent = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
     logger.info("Orchestrator selected tools=%d, intent=%s (streaming): %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     async_client = get_async_openai_client()
@@ -338,9 +392,14 @@ async def run_agent_streaming(
             call_kwargs["tool_choice"] = tc
 
         try:
-            response = await async_client.chat.completions.create(**call_kwargs)
+            with track_llm_call(
+                model=settings.openai_model, role=ROLE_WORKER, ledger=ledger
+            ) as call:
+                response = await async_client.chat.completions.create(**call_kwargs)
+                call.record_usage(response.usage)
         except Exception as exc:
             logger.error("LLM streaming call failed", exc_info=True)
+            agent_turns_total.labels(mode="streaming", outcome="llm_error").inc()
             yield AgentStep(type="answer", content="AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
             return
 
@@ -381,34 +440,21 @@ async def run_agent_streaming(
                     "content": tool_result_str,
                 })
 
-        elif choice.finish_reason == "stop":
-            answer = choice.message.content or ""
-            yield AgentStep(type="answer", content=answer)
-            # Yield mutation/schema info as a final meta step
-            if executor.mutations_performed or executor.schema_changed:
-                yield AgentStep(
-                    type="meta",
-                    content=json.dumps({
-                        "mutations_performed": executor.mutations_performed,
-                        "schema_changed": executor.schema_changed,
-                        "mutated_table_ids": list(executor.mutated_table_ids),
-                    }),
-                )
-            return
         else:
-            yield AgentStep(type="answer", content=choice.message.content or "분석이 완료되었습니다.")
-            if executor.mutations_performed or executor.schema_changed:
-                yield AgentStep(
-                    type="meta",
-                    content=json.dumps({
-                        "mutations_performed": executor.mutations_performed,
-                        "schema_changed": executor.schema_changed,
-                        "mutated_table_ids": list(executor.mutated_table_ids),
-                    }),
-                )
+            # Any finish without tool calls ends the turn; the two cases differ
+            # only in what stands in for an empty completion.
+            placeholder = "" if choice.finish_reason == "stop" else "분석이 완료되었습니다."
+            answer = choice.message.content or placeholder
+            yield AgentStep(type="answer", content=answer)
+            agent_iterations.labels(mode="streaming").observe(iteration + 1)
+            agent_turns_total.labels(mode="streaming", outcome="answered").inc()
+            yield _streaming_meta_step(executor, ledger)
             return
 
+    agent_iterations.labels(mode="streaming").observe(settings.agent_max_iterations)
+    agent_turns_total.labels(mode="streaming", outcome="iterations_exhausted").inc()
     yield AgentStep(
         type="answer",
         content="최대 반복 횟수에 도달했습니다. 더 구체적인 질문으로 다시 시도해주세요.",
     )
+    yield _streaming_meta_step(executor, ledger)

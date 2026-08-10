@@ -9,6 +9,7 @@ import json
 import logging
 
 from .config import settings
+from .llm_telemetry import ROLE_EMBEDDING, track_llm_call
 from .openai_clients import get_openai_client
 
 logger = logging.getLogger(__name__)
@@ -70,10 +71,14 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []
     client = get_openai_client()
-    response = client.embeddings.create(
-        model=settings.openai_embedding_model,
-        input=texts,
-    )
+    with track_llm_call(
+        model=settings.openai_embedding_model, role=ROLE_EMBEDDING
+    ) as call:
+        response = client.embeddings.create(
+            model=settings.openai_embedding_model,
+            input=texts,
+        )
+        call.record_usage(response.usage)
     return [item.embedding for item in response.data]
 
 

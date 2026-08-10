@@ -1,48 +1,133 @@
-"""Lightweight in-memory metrics exposed as Prometheus text format.
+"""Prometheus metrics for HTTP traffic and the LLM agent.
 
-No external dependencies — just counters and a histogram approximation.
-Suitable for small deployments; swap with prometheus_client for production at scale.
+Replaces a hand-rolled exporter that could only report a mean (it stored a
+sum and a count, no buckets), emitted no HELP/TYPE lines, and labelled
+HTTP series with the raw request path — so every project and conversation
+UUID minted a new time series.
+
+The agent-side metrics are the point of this module: token spend, cost,
+per-tool outcomes, and orchestrator routing decisions are what make agent
+behaviour and its cost visible.
 """
 
-import time
-import threading
-from collections import defaultdict
-from typing import Any
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+    Counter,
+    Histogram,
+    generate_latest,
+)
+
+REGISTRY = CollectorRegistry(auto_describe=True)
+
+# Seconds. Tuned for LLM latency: agent turns routinely run past 10s, and a
+# default web bucket set tops out far too early to show that tail.
+_LLM_LATENCY_BUCKETS = (0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 30, 60, 120)
+_HTTP_LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30)
+
+# ── HTTP ──────────────────────────────────────────────────────────────
+http_requests_total = Counter(
+    "dataez_http_requests_total",
+    "HTTP requests by method, route template, and status class.",
+    ["method", "route", "status"],
+    registry=REGISTRY,
+)
+
+http_request_duration_seconds = Histogram(
+    "dataez_http_request_duration_seconds",
+    "HTTP request latency by method and route template.",
+    ["method", "route"],
+    buckets=_HTTP_LATENCY_BUCKETS,
+    registry=REGISTRY,
+)
+
+# ── LLM calls ─────────────────────────────────────────────────────────
+# `role` separates the cheap routing call from the expensive reasoning
+# loop, which is the whole point of the two-stage architecture: without it
+# a single token total cannot show where spend actually goes.
+llm_calls_total = Counter(
+    "dataez_llm_calls_total",
+    "LLM API calls by model, role (orchestrator|worker|judge|embedding), and outcome.",
+    ["model", "role", "outcome"],
+    registry=REGISTRY,
+)
+
+llm_tokens_total = Counter(
+    "dataez_llm_tokens_total",
+    "LLM tokens consumed by model, role, and kind (prompt|completion).",
+    ["model", "role", "kind"],
+    registry=REGISTRY,
+)
+
+llm_cost_usd_total = Counter(
+    "dataez_llm_cost_usd_total",
+    "Estimated LLM spend in USD by model and role.",
+    ["model", "role"],
+    registry=REGISTRY,
+)
+
+llm_call_duration_seconds = Histogram(
+    "dataez_llm_call_duration_seconds",
+    "LLM call latency by model and role.",
+    ["model", "role"],
+    buckets=_LLM_LATENCY_BUCKETS,
+    registry=REGISTRY,
+)
+
+# ── Agent loop ────────────────────────────────────────────────────────
+agent_turns_total = Counter(
+    "dataez_agent_turns_total",
+    "Agent turns by mode (sync|streaming) and outcome.",
+    ["mode", "outcome"],
+    registry=REGISTRY,
+)
+
+agent_iterations = Histogram(
+    "dataez_agent_iterations",
+    "Loop iterations consumed per agent turn.",
+    ["mode"],
+    buckets=(1, 2, 3, 4, 5, 8, 12, 16, 20, 25),
+    registry=REGISTRY,
+)
+
+agent_tool_calls_total = Counter(
+    "dataez_agent_tool_calls_total",
+    "Tool invocations by tool name and outcome (ok|error).",
+    ["tool", "outcome"],
+    registry=REGISTRY,
+)
+
+agent_tool_duration_seconds = Histogram(
+    "dataez_agent_tool_duration_seconds",
+    "Tool execution latency by tool name.",
+    ["tool"],
+    buckets=(0.005, 0.025, 0.1, 0.25, 0.5, 1, 2.5, 5, 15, 30),
+    registry=REGISTRY,
+)
+
+# `outcome` distinguishes a real routing decision from every degraded path.
+# A silent fallback to the full toolset defeats the orchestrator entirely,
+# so its rate has to be observable rather than merely logged.
+orchestrator_decisions_total = Counter(
+    "dataez_orchestrator_decisions_total",
+    "Orchestrator routing outcomes (llm_selected|greeting_shortcut|"
+    "attachment_shortcut|fallback_parse_error|fallback_api_error|fallback_no_key).",
+    ["outcome"],
+    registry=REGISTRY,
+)
 
 
-class Metrics:
-    def __init__(self):
-        self._lock = threading.Lock()
-        self._counters: dict[str, int] = defaultdict(int)
-        self._histogram_sum: dict[str, float] = defaultdict(float)
-        self._histogram_count: dict[str, int] = defaultdict(int)
-
-    def inc(self, name: str, labels: dict[str, str] | None = None, value: int = 1):
-        key = self._key(name, labels)
-        with self._lock:
-            self._counters[key] += value
-
-    def observe(self, name: str, value: float, labels: dict[str, str] | None = None):
-        key = self._key(name, labels)
-        with self._lock:
-            self._histogram_sum[key] += value
-            self._histogram_count[key] += 1
-
-    def _key(self, name: str, labels: dict[str, str] | None) -> str:
-        if not labels:
-            return name
-        label_str = ",".join(f'{k}="{v}"' for k, v in sorted(labels.items()))
-        return f"{name}{{{label_str}}}"
-
-    def export(self) -> str:
-        lines = []
-        with self._lock:
-            for key, val in sorted(self._counters.items()):
-                lines.append(f"{key} {val}")
-            for key in sorted(self._histogram_sum.keys()):
-                lines.append(f"{key}_sum {self._histogram_sum[key]:.3f}")
-                lines.append(f"{key}_count {self._histogram_count[key]}")
-        return "\n".join(lines) + "\n"
+def render() -> tuple[bytes, str]:
+    """Return (payload, content_type) for the /metrics endpoint."""
+    return generate_latest(REGISTRY), CONTENT_TYPE_LATEST
 
 
-metrics = Metrics()
+def route_label(request) -> str:
+    """Route template (``/api/projects/{project_id}``) rather than the raw path.
+
+    Falling back to the literal path would reintroduce UUID cardinality, so
+    unmatched requests collapse to a single ``__unmatched__`` series.
+    """
+    route = request.scope.get("route")
+    path = getattr(route, "path", None)
+    return path or "__unmatched__"

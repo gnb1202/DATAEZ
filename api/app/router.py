@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from .config import settings
+from .llm_telemetry import ROLE_ORCHESTRATOR, TurnLedger, track_llm_call
+from .metrics import orchestrator_decisions_total
 from .openai_clients import get_openai_client
 
 logger = logging.getLogger(__name__)
@@ -90,20 +92,24 @@ def select_tools_via_orchestrator(
     question: str,
     has_attachments: bool = False,
     all_tool_names: list[str] | None = None,
+    ledger: TurnLedger | None = None,
 ) -> OrchestratorResult:
     """Orchestrator LLM을 이용해 intent와 필요한 툴 이름 목록을 반환."""
     # Pre-filter: 순수 인사 → LLM 호출 없이 빈 배열 반환
     if _is_pure_greeting(question):
         logger.info("Orchestrator pre-filter: pure greeting detected, no tools")
+        orchestrator_decisions_total.labels(outcome="greeting_shortcut").inc()
         return OrchestratorResult(tools=[], intent="general")
 
     # 파일 첨부 → import_file 포함 필수
     if has_attachments:
         logger.info("Orchestrator pre-filter: attachment detected, forcing import_file")
+        orchestrator_decisions_total.labels(outcome="attachment_shortcut").inc()
         return OrchestratorResult(tools=["list_tables", "describe_table", "import_file"], intent="crud")
 
     if not settings.openai_api_key:
         logger.warning("Orchestrator: no API key, returning fallback")
+        orchestrator_decisions_total.labels(outcome="fallback_no_key").inc()
         return OrchestratorResult(tools=None, intent="general")
 
     tool_list = "\n".join(
@@ -113,15 +119,21 @@ def select_tools_via_orchestrator(
 
     try:
         client = get_openai_client()
-        response = client.chat.completions.create(
+        with track_llm_call(
             model=settings.openai_orchestrator_model,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": question},
-            ],
-            max_completion_tokens=150,
-            temperature=0,
-        )
+            role=ROLE_ORCHESTRATOR,
+            ledger=ledger,
+        ) as call:
+            response = client.chat.completions.create(
+                model=settings.openai_orchestrator_model,
+                messages=[
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": question},
+                ],
+                max_completion_tokens=150,
+                temperature=0,
+            )
+            call.record_usage(response.usage)
         raw = (response.choices[0].message.content or "").strip()
         logger.info("Orchestrator raw response: %s", raw)
 
@@ -146,11 +158,14 @@ def select_tools_via_orchestrator(
         valid_names = set(all_tool_names or list(_TOOL_SUMMARIES.keys()))
         filtered = [name for name in selected if name in valid_names]
         logger.info("Orchestrator selected tools: %s, intent: %s", filtered, intent)
+        orchestrator_decisions_total.labels(outcome="llm_selected").inc()
         return OrchestratorResult(tools=filtered, intent=intent)
 
     except json.JSONDecodeError as exc:
         logger.warning("Orchestrator JSON parse failed: %s — fallback to all tools", exc)
+        orchestrator_decisions_total.labels(outcome="fallback_parse_error").inc()
         return OrchestratorResult(tools=None, intent="general")
     except Exception as exc:
         logger.warning("Orchestrator call failed: %s — fallback to all tools", exc)
+        orchestrator_decisions_total.labels(outcome="fallback_api_error").inc()
         return OrchestratorResult(tools=None, intent="general")

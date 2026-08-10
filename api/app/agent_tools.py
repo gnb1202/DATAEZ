@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 from uuid import uuid4
 from typing import Any
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 from .data_ops import build_chart_data
 from .data_import import import_csv_to_table, append_csv_to_table
+from .metrics import agent_tool_calls_total, agent_tool_duration_seconds
 from .db import (
     create_table_meta,
     create_user_data_table,
@@ -29,7 +31,7 @@ from .sql_executor import (
 )
 
 # ---------------------------------------------------------------------------
-# OpenAI Function Calling tool specifications (12 tools)
+# OpenAI Function Calling tool specifications (14 tools)
 # ---------------------------------------------------------------------------
 
 TOOL_SPECS: list[dict[str, Any]] = [
@@ -588,31 +590,54 @@ class ToolExecutor:
         return None
 
     def execute(self, tool_name: str, arguments: str) -> dict[str, Any]:
+        started = time.monotonic()
+        # Bound the label to known tools: a hallucinated name would otherwise
+        # create an unbounded set of metric series.
+        metric_name = tool_name if tool_name in TOOL_META else "__unknown__"
+
+        def _finish(result: dict[str, Any]) -> dict[str, Any]:
+            outcome = "error" if "error" in result else "ok"
+            agent_tool_calls_total.labels(tool=metric_name, outcome=outcome).inc()
+            agent_tool_duration_seconds.labels(tool=metric_name).observe(
+                time.monotonic() - started
+            )
+            return result
+
         try:
             args = json.loads(arguments) if arguments else {}
         except json.JSONDecodeError:
-            return _error_validation(
-                "잘못된 JSON 형식입니다.",
-                raw_input=arguments[:200] if arguments else "",
+            return _finish(
+                _error_validation(
+                    "잘못된 JSON 형식입니다.",
+                    raw_input=arguments[:200] if arguments else "",
+                )
             )
 
         handler = getattr(self, f"_tool_{tool_name}", None)
         if not handler:
-            return _error_validation(
-                f"알 수 없는 도구: {tool_name}",
-                available_tools=list(TOOL_META.keys()),
+            return _finish(
+                _error_validation(
+                    f"알 수 없는 도구: {tool_name}",
+                    available_tools=list(TOOL_META.keys()),
+                )
             )
 
         # Read-before-Write: mutation 전 자동 describe
         describe_err = self._auto_describe_if_needed(tool_name, args)
         if describe_err is not None:
-            return describe_err
+            return _finish(describe_err)
 
         try:
-            return handler(args)
+            return _finish(handler(args))
         except Exception as exc:
             logger.warning("Tool %s execution failed", tool_name, exc_info=True)
-            return {"error": "tool_execution_error", "message": f"도구 실행 실패: {tool_name}", "detail": str(exc)[:200]}
+            return _finish(
+                {
+                    "error": "tool_execution_error",
+                    "message": f"도구 실행 실패: {tool_name}",
+                    "detail": str(exc)[:200],
+                }
+            )
 
     def _tool_list_tables(self, _args: dict) -> dict[str, Any]:
         """Returns all tables in the project with column summaries."""
