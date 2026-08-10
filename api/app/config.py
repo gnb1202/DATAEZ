@@ -21,8 +21,13 @@ class Settings(BaseSettings):
     s3_prefix: str = "uploads"
     max_upload_size_mb: int = 20
     openai_api_key: str = ""
-    openai_model: str = "gpt-5.4-nano"
-    openai_orchestrator_model: str = "gpt-5.4"
+    # Model tiering follows task difficulty. The worker runs a multi-step loop
+    # that plans SQL, reads schemas, and recovers from tool errors; the
+    # orchestrator does one short classification with a fixed output schema.
+    # These were previously the other way round, spending the stronger model
+    # on routing and leaving the hardest reasoning to the smallest one.
+    openai_model: str = "gpt-5.4"
+    openai_orchestrator_model: str = "gpt-5.4-nano"
     # Judge for LLM-as-a-judge evaluation. Kept separate from the agent models
     # so scoring is not done by the same model that produced the answer.
     openai_judge_model: str = "gpt-4o"

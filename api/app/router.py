@@ -81,11 +81,51 @@ ORCHESTRATOR_PROMPT = """사용자의 데이터 분석 요청을 분석하여 in
 - 반드시 위 목록에 있는 툴 이름만 사용하세요"""
 
 
+# Schema enforced by the API rather than requested in prose. The orchestrator's
+# entire value depends on returning parseable JSON, so the one place where JSON
+# reliability matters should not be left to instruction-following.
+ORCHESTRATOR_SCHEMA = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "tool_routing",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "intent": {
+                    "type": "string",
+                    "enum": ["schema", "crud", "analysis", "general"],
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                },
+            },
+            "required": ["intent", "tools"],
+            "additionalProperties": False,
+        },
+    },
+}
+
+# Degraded routing exposes only read-only tools. The previous behaviour handed
+# back all 14 — including delete_rows and alter_table — and the caller then
+# forced a tool call on the first iteration, so a parse failure could push a
+# greeting straight into a destructive tool.
+SAFE_FALLBACK_TOOLS = [
+    "list_tables",
+    "describe_table",
+    "query_data",
+    "search_schema",
+    "search_documents",
+]
+
+
 @dataclass
 class OrchestratorResult:
     """Orchestrator의 반환 결과: 선택된 툴 + 분류된 intent."""
-    tools: list[str] | None  # None이면 전체 툴 fallback
+    tools: list[str] | None  # None이면 안전 폴백 집합 사용
     intent: str  # "schema", "crud", "analysis", "general"
+    degraded: bool = False  # True면 라우팅 실패로 폴백된 결과
 
 
 def select_tools_via_orchestrator(
@@ -110,62 +150,85 @@ def select_tools_via_orchestrator(
     if not settings.openai_api_key:
         logger.warning("Orchestrator: no API key, returning fallback")
         orchestrator_decisions_total.labels(outcome="fallback_no_key").inc()
-        return OrchestratorResult(tools=None, intent="general")
+        return OrchestratorResult(
+            tools=list(SAFE_FALLBACK_TOOLS), intent="general", degraded=True
+        )
 
     tool_list = "\n".join(
         f"- {name}: {desc}" for name, desc in _TOOL_SUMMARIES.items()
     )
     prompt = ORCHESTRATOR_PROMPT.format(tool_list=tool_list)
 
-    try:
-        client = get_openai_client()
-        with track_llm_call(
-            model=settings.openai_orchestrator_model,
-            role=ROLE_ORCHESTRATOR,
-            ledger=ledger,
-        ) as call:
-            response = client.chat.completions.create(
-                model=settings.openai_orchestrator_model,
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": question},
-                ],
-                max_completion_tokens=150,
-                temperature=0,
+    valid_names = set(all_tool_names or list(_TOOL_SUMMARIES.keys()))
+    last_error: Exception | None = None
+
+    # One retry. A single malformed response used to discard routing entirely;
+    # retrying costs one short call and recovers the common transient case.
+    for attempt in (1, 2):
+        try:
+            parsed = _call_orchestrator(prompt, question, ledger)
+        except json.JSONDecodeError as exc:
+            last_error = exc
+            logger.warning(
+                "Orchestrator JSON parse failed (attempt %d/2): %s", attempt, exc
             )
-            call.record_usage(response.usage)
-        raw = (response.choices[0].message.content or "").strip()
-        logger.info("Orchestrator raw response: %s", raw)
+            continue
+        except Exception as exc:
+            last_error = exc
+            logger.warning("Orchestrator call failed (attempt %d/2): %s", attempt, exc)
+            continue
 
-        parsed: Any = json.loads(raw)
-
-        # 새 형식: {"intent": "...", "tools": [...]}
-        if isinstance(parsed, dict):
-            intent = parsed.get("intent", "general")
-            selected = parsed.get("tools", [])
-        # 하위 호환: 기존 배열 형식 ["tool_a", "tool_b"]
-        elif isinstance(parsed, list):
-            selected = parsed
-            intent = "general"
-        else:
-            raise ValueError(f"Unexpected response type: {type(parsed)}")
-
-        # Validate intent
+        intent = parsed.get("intent", "general")
         if intent not in ("schema", "crud", "analysis", "general"):
             intent = "general"
 
-        # Validate: 존재하는 툴 이름만 허용
-        valid_names = set(all_tool_names or list(_TOOL_SUMMARIES.keys()))
-        filtered = [name for name in selected if name in valid_names]
+        # Hallucinated tool names are dropped rather than trusted.
+        filtered = [name for name in parsed.get("tools", []) if name in valid_names]
         logger.info("Orchestrator selected tools: %s, intent: %s", filtered, intent)
-        orchestrator_decisions_total.labels(outcome="llm_selected").inc()
+        orchestrator_decisions_total.labels(
+            outcome="llm_selected" if attempt == 1 else "llm_selected_retry"
+        ).inc()
         return OrchestratorResult(tools=filtered, intent=intent)
 
-    except json.JSONDecodeError as exc:
-        logger.warning("Orchestrator JSON parse failed: %s — fallback to all tools", exc)
-        orchestrator_decisions_total.labels(outcome="fallback_parse_error").inc()
-        return OrchestratorResult(tools=None, intent="general")
-    except Exception as exc:
-        logger.warning("Orchestrator call failed: %s — fallback to all tools", exc)
-        orchestrator_decisions_total.labels(outcome="fallback_api_error").inc()
-        return OrchestratorResult(tools=None, intent="general")
+    outcome = (
+        "fallback_parse_error"
+        if isinstance(last_error, json.JSONDecodeError)
+        else "fallback_api_error"
+    )
+    logger.warning("Orchestrator degraded to the read-only fallback set: %s", last_error)
+    orchestrator_decisions_total.labels(outcome=outcome).inc()
+    return OrchestratorResult(
+        tools=[t for t in SAFE_FALLBACK_TOOLS if t in valid_names],
+        intent="general",
+        degraded=True,
+    )
+
+
+def _call_orchestrator(
+    prompt: str, question: str, ledger: TurnLedger | None
+) -> dict[str, Any]:
+    """One orchestrator call. Raises on transport or parse failure."""
+    client = get_openai_client()
+    with track_llm_call(
+        model=settings.openai_orchestrator_model,
+        role=ROLE_ORCHESTRATOR,
+        ledger=ledger,
+    ) as call:
+        response = client.chat.completions.create(
+            model=settings.openai_orchestrator_model,
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": question},
+            ],
+            max_completion_tokens=150,
+            temperature=0,
+            response_format=ORCHESTRATOR_SCHEMA,
+        )
+        call.record_usage(response.usage)
+
+    raw = (response.choices[0].message.content or "").strip()
+    logger.info("Orchestrator raw response: %s", raw)
+    parsed = json.loads(raw)
+    if not isinstance(parsed, dict):
+        raise ValueError(f"Expected a JSON object, got {type(parsed).__name__}")
+    return parsed

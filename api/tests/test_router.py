@@ -5,19 +5,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from app.agent_tools import TOOL_SPECS
 from app.router import (
+    SAFE_FALLBACK_TOOLS,
     OrchestratorResult,
     _is_pure_greeting,
     select_tools_via_orchestrator,
 )
 
-ALL_TOOLS = [
-    "list_tables", "describe_table", "query_data",
-    "insert_rows", "update_rows", "delete_rows",
-    "generate_chart", "recommend_charts",
-    "create_table", "alter_table",
-    "cross_query", "import_file",
-]
+# Derived from the real specs rather than hand-listed. The previous literal
+# had gone stale, omitting search_schema and search_documents, so tests could
+# not observe routing decisions involving the RAG tools at all.
+ALL_TOOLS = [spec["function"]["name"] for spec in TOOL_SPECS]
 
 
 # ---------------------------------------------------------------------------
@@ -79,11 +78,12 @@ class TestOrchestratorPreFilters:
         assert result.intent == "crud"
 
     @patch("app.router.settings")
-    def test_no_api_key_returns_fallback(self, mock_settings):
-        """No API key → fallback (tools=None)."""
+    def test_no_api_key_returns_safe_fallback(self, mock_settings):
+        """No API key → degraded routing over the read-only safe set."""
         mock_settings.openai_api_key = ""
         result = select_tools_via_orchestrator("매출 보여줘", False, ALL_TOOLS)
-        assert result.tools is None
+        assert result.degraded is True
+        assert set(result.tools) == set(SAFE_FALLBACK_TOOLS)
         assert result.intent == "general"
 
 
@@ -114,8 +114,12 @@ class TestOrchestratorLLMParsing:
         assert set(result.tools) == {"query_data", "insert_rows"}
 
     @patch("app.router.get_openai_client")
-    def test_legacy_array_format(self, mock_get_client):
-        """Backward compat: old array format ["tool_a", "tool_b"]."""
+    def test_bare_array_is_now_rejected(self, mock_get_client):
+        """The old bare-array format is no longer accepted.
+
+        The response schema requires an object, so an array is malformed and
+        routing degrades rather than silently guessing an intent.
+        """
         client = MagicMock()
         client.chat.completions.create.return_value = self._mock_openai_response(
             json.dumps(["query_data", "generate_chart"])
@@ -123,8 +127,9 @@ class TestOrchestratorLLMParsing:
         mock_get_client.return_value = client
 
         result = select_tools_via_orchestrator("차트 보여줘", False, ALL_TOOLS)
-        assert result.intent == "general"  # array format defaults to general
-        assert set(result.tools) == {"query_data", "generate_chart"}
+        # The bare-array format is no longer accepted: the response schema
+        # requires an object, so an array is a malformed response.
+        assert result.degraded is True
 
     @patch("app.router.get_openai_client")
     def test_invalid_tool_names_filtered(self, mock_get_client):
@@ -152,8 +157,13 @@ class TestOrchestratorLLMParsing:
         assert result.intent == "general"
 
     @patch("app.router.get_openai_client")
-    def test_json_parse_failure_returns_fallback(self, mock_get_client):
-        """Malformed JSON → fallback (tools=None)."""
+    def test_json_parse_failure_degrades_to_read_only_tools(self, mock_get_client):
+        """Malformed JSON → retry, then the read-only safe set.
+
+        Handing back all 14 tools (the previous behaviour) meant a parse
+        failure exposed delete_rows and alter_table while the caller was also
+        forcing a tool call.
+        """
         client = MagicMock()
         client.chat.completions.create.return_value = self._mock_openai_response(
             "이건 JSON이 아닙니다"
@@ -161,19 +171,40 @@ class TestOrchestratorLLMParsing:
         mock_get_client.return_value = client
 
         result = select_tools_via_orchestrator("매출 보여줘", False, ALL_TOOLS)
-        assert result.tools is None
-        assert result.intent == "general"
+        assert result.degraded is True
+        assert set(result.tools) == set(SAFE_FALLBACK_TOOLS)
+        assert "delete_rows" not in result.tools
+        assert "alter_table" not in result.tools
+        assert client.chat.completions.create.call_count == 2  # one retry
 
     @patch("app.router.get_openai_client")
-    def test_api_exception_returns_fallback(self, mock_get_client):
-        """OpenAI API exception → fallback."""
+    def test_api_exception_degrades_after_retry(self, mock_get_client):
+        """OpenAI API exception → one retry, then the read-only safe set."""
         client = MagicMock()
         client.chat.completions.create.side_effect = RuntimeError("API down")
         mock_get_client.return_value = client
 
         result = select_tools_via_orchestrator("매출 보여줘", False, ALL_TOOLS)
-        assert result.tools is None
-        assert result.intent == "general"
+        assert result.degraded is True
+        assert set(result.tools) == set(SAFE_FALLBACK_TOOLS)
+        assert client.chat.completions.create.call_count == 2
+
+    @patch("app.router.get_openai_client")
+    def test_transient_failure_recovers_on_retry(self, mock_get_client):
+        """A single bad response must not discard routing for the whole turn."""
+        client = MagicMock()
+        client.chat.completions.create.side_effect = [
+            self._mock_openai_response("not json"),
+            self._mock_openai_response(
+                json.dumps({"intent": "analysis", "tools": ["query_data"]})
+            ),
+        ]
+        mock_get_client.return_value = client
+
+        result = select_tools_via_orchestrator("매출 보여줘", False, ALL_TOOLS)
+        assert result.degraded is False
+        assert result.tools == ["query_data"]
+        assert result.intent == "analysis"
 
     @patch("app.router.get_openai_client")
     def test_empty_tools_list(self, mock_get_client):

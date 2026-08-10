@@ -77,7 +77,7 @@ def _isolated_agent():
     Routing is covered by the eval suite, and constructing a real executor
     would open a database connection.
     """
-    with patch("app.agent._select_tools", return_value=([], "general")), \
+    with patch("app.agent._select_tools", return_value=([], "general", False)), \
          patch("app.agent.ToolExecutor", return_value=_stub_executor()):
         yield
 
@@ -152,7 +152,7 @@ class TestToolCallAssembly:
 
         with patch("app.agent.get_async_openai_client", return_value=client), \
              patch("app.agent.ToolExecutor", return_value=executor), \
-             patch("app.agent._select_tools", return_value=([{"function": {"name": "list_tables"}}], "schema")):
+             patch("app.agent._select_tools", return_value=([{"function": {"name": "list_tables"}}], "schema", False)):
             steps = await _collect()
 
         tool_steps = [s for s in steps if s.type == "tool_call"]
@@ -182,7 +182,7 @@ class TestToolCallAssembly:
 
         with patch("app.agent.get_async_openai_client", return_value=client), \
              patch("app.agent.ToolExecutor", return_value=executor), \
-             patch("app.agent._select_tools", return_value=([{"function": {"name": "list_tables"}}], "schema")):
+             patch("app.agent._select_tools", return_value=([{"function": {"name": "list_tables"}}], "schema", False)):
             steps = await _collect()
 
         names = [s.tool_name for s in steps if s.type == "tool_call"]

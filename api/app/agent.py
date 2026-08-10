@@ -110,15 +110,19 @@ def _select_tools(
     question: str,
     has_attachments: bool = False,
     ledger: TurnLedger | None = None,
-) -> tuple[list[dict[str, Any]], str]:
-    """Orchestrator LLM을 통해 질문에 필요한 툴과 intent를 반환."""
+) -> tuple[list[dict[str, Any]], str, bool]:
+    """Orchestrator LLM을 통해 질문에 필요한 툴과 intent를 반환.
+
+    Returns (tool_specs, intent, degraded). `degraded` marks a turn whose
+    routing failed and fell back to the read-only safe set.
+    """
     all_tool_names = [t["function"]["name"] for t in TOOL_SPECS]
     result: OrchestratorResult = select_tools_via_orchestrator(
         question, has_attachments, all_tool_names, ledger=ledger
     )
-    if result.tools is None:
-        return TOOL_SPECS, result.intent
-    return [t for t in TOOL_SPECS if t["function"]["name"] in result.tools], result.intent
+    selected = result.tools or []
+    specs = [t for t in TOOL_SPECS if t["function"]["name"] in selected]
+    return specs, result.intent, result.degraded
 
 
 def run_agent(
@@ -139,7 +143,7 @@ def run_agent(
 
     ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
+    active_tools, intent, degraded = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
     logger.info("Orchestrator selected tools=%d, intent=%s: %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     client = get_openai_client()
@@ -171,8 +175,10 @@ def run_agent(
     answer = ""
     total_tokens = 0
 
-    # Greeting/no-tools intent: skip tool forcing entirely
-    skip_tool_forcing = not active_tools
+    # Skip tool forcing when nothing was selected, and when routing degraded.
+    # Forcing a call on a fallback set pushes a greeting into a data tool,
+    # contradicting the system prompt's own edge-case rule.
+    skip_tool_forcing = not active_tools or degraded
 
     for iteration in range(settings.agent_max_iterations):
         # Budget guard
@@ -341,7 +347,7 @@ async def run_agent_streaming(
 
     ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
+    active_tools, intent, degraded = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
     logger.info("Orchestrator selected tools=%d, intent=%s (streaming): %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     async_client = get_async_openai_client()
@@ -366,8 +372,10 @@ async def run_agent_streaming(
 
     messages.append({"role": "user", "content": user_content})
 
-    # Greeting/no-tools intent: skip tool forcing entirely
-    skip_tool_forcing = not active_tools
+    # Skip tool forcing when nothing was selected, and when routing degraded.
+    # Forcing a call on a fallback set pushes a greeting into a data tool,
+    # contradicting the system prompt's own edge-case rule.
+    skip_tool_forcing = not active_tools or degraded
     total_tokens = 0
 
     for iteration in range(settings.agent_max_iterations):
