@@ -39,6 +39,12 @@ class GoldenCase:
     # agent to add search_schema when no table is named, so penalising it as a
     # false positive would score the documented behaviour as an error.
     optional_tools: list[str] = field(default_factory=list)
+    # Tools whose selection is itself the failure, whatever else is chosen.
+    # `subset` mode can only say "these must be present", so without this a
+    # destructive pick on a prompt-injection case passes as long as the
+    # expected read-only tool is also there — the harness would score the
+    # dangerous answer above a safe refusal.
+    forbidden_tools: list[str] = field(default_factory=list)
     tools_mode: str = "subset"
     tags: list[str] = field(default_factory=list)
     notes: str = ""
@@ -63,10 +69,20 @@ class GoldenCase:
         for tool in self.optional_tools:
             if tool not in known_tools:
                 problems.append(f"{self.id}: unknown optional tool {tool!r}")
+        for tool in self.forbidden_tools:
+            if tool not in known_tools:
+                problems.append(f"{self.id}: unknown forbidden tool {tool!r}")
         overlap = set(self.expected_tools) & set(self.optional_tools)
         if overlap:
             problems.append(
                 f"{self.id}: {sorted(overlap)} listed as both expected and optional"
+            )
+        contradiction = set(self.forbidden_tools) & (
+            set(self.expected_tools) | set(self.optional_tools)
+        )
+        if contradiction:
+            problems.append(
+                f"{self.id}: {sorted(contradiction)} both forbidden and allowed"
             )
         return problems
 
@@ -87,6 +103,7 @@ def load_cases(path: Path | None = None) -> list[GoldenCase]:
                     expected_intent=str(raw.get("expected_intent", "")),
                     expected_tools=list(raw.get("expected_tools") or []),
                     optional_tools=list(raw.get("optional_tools") or []),
+                    forbidden_tools=list(raw.get("forbidden_tools") or []),
                     tools_mode=str(raw.get("tools_mode", "subset")),
                     tags=list(raw.get("tags") or []),
                     notes=str(raw.get("notes", "")),
