@@ -51,14 +51,16 @@ def _known_tool_names() -> set[str]:
     return {spec["function"]["name"] for spec in TOOL_SPECS}
 
 
-def _live_router(question: str) -> tuple[list[str] | None, str]:
-    """Call the real orchestrator for one question."""
+def _live_router(question: str) -> tuple[list[str] | None, str, dict]:
+    """Call the real orchestrator for one question, reporting what it cost."""
     from ..agent_tools import TOOL_SPECS
+    from ..llm_telemetry import TurnLedger
     from ..router import select_tools_via_orchestrator
 
     all_names = [spec["function"]["name"] for spec in TOOL_SPECS]
-    result = select_tools_via_orchestrator(question, False, all_names)
-    return result.tools, result.intent
+    ledger = TurnLedger()
+    result = select_tools_via_orchestrator(question, False, all_names, ledger=ledger)
+    return result.tools, result.intent, ledger.summary()
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -27,6 +27,14 @@ def routing_markdown(report: RoutingReport, thresholds: dict[str, float] | None 
     lines.append(f"- tool macro-F1: **{report.macro_f1:.3f}**")
     lines.append(f"- full pass rate: **{_pct(report.pass_rate)}**")
     lines.append(f"- routing fallback rate: **{_pct(report.fallback_rate)}**")
+    if report.total_tokens:
+        # A routing score without its price cannot settle a model choice —
+        # the orchestrator exists to spend less than the loop it feeds.
+        lines.append(f"- routing tokens: **{report.total_tokens:,}**")
+        lines.append(
+            f"- routing cost: **${report.total_cost_usd:.5f}** "
+            f"(${report.cost_per_case_usd:.7f}/case)"
+        )
     lines.append("")
 
     if thresholds:

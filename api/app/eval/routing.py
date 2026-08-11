@@ -36,6 +36,11 @@ class CaseScore:
     tags: list[str] = field(default_factory=list)
     fell_back: bool = False
     error: str = ""
+    # What this routing decision cost. Quality alone cannot settle a model
+    # choice — the orchestrator exists to save money, so a score without a
+    # price beside it does not answer the question the tier was chosen for.
+    tokens: int = 0
+    cost_usd: float = 0.0
 
     @property
     def intent_correct(self) -> bool:
@@ -103,6 +108,8 @@ class CaseScore:
             "fell_back": self.fell_back,
             "tags": self.tags,
             "error": self.error,
+            "tokens": self.tokens,
+            "cost_usd": round(self.cost_usd, 8),
         }
 
 
@@ -132,6 +139,18 @@ class RoutingReport:
         if not self.scores:
             return 0.0
         return sum(s.passed for s in self.scores) / self.total
+
+    @property
+    def total_tokens(self) -> int:
+        return sum(s.tokens for s in self.scores)
+
+    @property
+    def total_cost_usd(self) -> float:
+        return sum(s.cost_usd for s in self.scores)
+
+    @property
+    def cost_per_case_usd(self) -> float:
+        return self.total_cost_usd / self.total if self.scores else 0.0
 
     @property
     def fallback_rate(self) -> float:
@@ -177,21 +196,31 @@ class RoutingReport:
             "tool_macro_f1": round(self.macro_f1, 4),
             "pass_rate": round(self.pass_rate, 4),
             "fallback_rate": round(self.fallback_rate, 4),
+            "total_tokens": self.total_tokens,
+            "total_cost_usd": round(self.total_cost_usd, 6),
+            "cost_per_case_usd": round(self.cost_per_case_usd, 8),
             "by_intent": self.by_intent(),
             "by_tag": self.by_tag(),
             "cases": [s.to_dict() for s in self.scores],
         }
 
 
-# A router call takes a question and returns (tools_or_None, intent). None for
-# tools means the router fell back to the full toolset.
-RouterFn = Callable[[str], tuple[list[str] | None, str]]
+# A router call takes a question and returns (tools_or_None, intent), or
+# (tools_or_None, intent, usage) where usage carries `total_tokens` and
+# `cost_usd`. The two-element form is what a stubbed router in a test needs;
+# the live router adds usage so a run can report what it cost.
+RouterFn = Callable[[str], tuple]
 
 
 def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
     """Run one golden case through `router` and score the result."""
     try:
-        tools, intent = router(case.question)
+        outcome = router(case.question)
+        if len(outcome) == 3:
+            tools, intent, usage = outcome
+        else:
+            tools, intent = outcome
+            usage = None
     except Exception as exc:  # noqa: BLE001 — one bad case must not end the run
         return CaseScore(
             case_id=case.id,
@@ -219,6 +248,8 @@ def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
         optional_tools=case.optional_tools,
         tags=case.tags,
         fell_back=tools is None,
+        tokens=(usage or {}).get("total_tokens", 0),
+        cost_usd=(usage or {}).get("cost_usd", 0.0),
     )
 
 

@@ -240,3 +240,41 @@ class TestGreetingPreFilterRegression:
         from app.router import _is_pure_greeting
 
         assert _is_pure_greeting("안녕하세요, 이번달 매출 좀 보여주세요") is False
+
+
+class TestCostReporting:
+    """A routing score without its price cannot settle a model choice."""
+
+    def _report_with_usage(self, per_case_usage):
+        cases = [GoldenCase(id=f"c{i}", question="q", expected_intent="crud",
+                            expected_tools=["query_data"]) for i in range(3)]
+        return run_routing_eval(
+            cases, lambda q: (["query_data"], "crud", per_case_usage)
+        )
+
+    def test_tokens_and_cost_are_aggregated(self):
+        report = self._report_with_usage({"total_tokens": 120, "cost_usd": 0.00006})
+        assert report.total_tokens == 360
+        assert report.total_cost_usd == pytest.approx(0.00018)
+        assert report.cost_per_case_usd == pytest.approx(0.00006)
+
+    def test_two_tuple_router_still_works(self):
+        """Stubbed routers in tests return no usage; that must not break."""
+        cases = [GoldenCase(id="c1", question="q", expected_intent="crud",
+                            expected_tools=["query_data"])]
+        report = run_routing_eval(cases, lambda q: (["query_data"], "crud"))
+        assert report.total_tokens == 0
+        assert report.total_cost_usd == 0.0
+        assert report.pass_rate == 1.0
+
+    def test_cost_appears_in_the_scorecard(self):
+        report = self._report_with_usage({"total_tokens": 100, "cost_usd": 0.00005})
+        md = routing_markdown(report)
+        assert "routing cost" in md
+        assert "routing tokens" in md
+
+    def test_cost_omitted_when_unmeasured(self):
+        """A dry run should not print a misleading $0.00000."""
+        cases = [GoldenCase(id="c1", question="q", expected_intent="crud")]
+        md = routing_markdown(run_routing_eval(cases, lambda q: ([], "crud")))
+        assert "routing cost" not in md
