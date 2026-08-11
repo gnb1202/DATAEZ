@@ -98,10 +98,17 @@ ORCHESTRATOR_PROMPT = """사용자의 데이터 분석 요청을 분석하여 in
 - 아래 JSON 형식으로만 반환하세요. 설명 없이 JSON만:
 {{"intent": "<intent>", "tools": ["tool_a", "tool_b"]}}
 - intent는 다음 중 하나: "schema", "crud", "analysis", "general"
-  - schema: 장부 생성, 구조 변경 (create_table, alter_table)
-  - crud: 데이터 추가/수정/삭제/조회 (insert_rows, update_rows, delete_rows, query_data)
-  - analysis: 분석, 시각화, 비교 (query_data+generate_chart, cross_query)
-  - general: 위에 해당하지 않는 요청
+  판단 축은 **"장부의 구조에 관한 것인가, 장부 안의 행에 관한 것인가"**입니다.
+  읽기냐 쓰기냐로 나누지 마세요 — 구조를 조회하는 것도 schema입니다.
+  - schema: 장부의 **구조**. 조회와 변경을 모두 포함합니다.
+    · 어떤 장부가 있는지, 장부가 몇 개인지 (list_tables)
+    · 어떤 컬럼이 있는지, 컬럼 타입이 무엇인지 (describe_table)
+    · 어떤 장부를 봐야 하는지 찾기 (search_schema)
+    · 장부 생성, 컬럼 추가/삭제/이름변경/타입변경 (create_table, alter_table)
+  - crud: 장부 **안의 행**을 추가/수정/삭제하거나 그대로 조회
+    (insert_rows, update_rows, delete_rows, query_data)
+  - analysis: 행을 집계·비교·시각화 (query_data+generate_chart, cross_query)
+  - general: 위 어디에도 해당하지 않는 요청 (인사, 능력 질문, 문서 검색 등)
 - 질문이 서로 다른 두 대상을 대조·비교하거나 그 차이를 물으면 cross_query를 선택하세요.
   ("예약 건수와 결제 건수 차이", "장부A와 장부B 비교" 등 — query_data 단독으로는 답할 수 없음)
 - 어떤 장부/컬럼을 봐야 할지 불명확하면 SQL 도구와 함께 search_schema도 포함하세요.
