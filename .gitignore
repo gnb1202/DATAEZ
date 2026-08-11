@@ -42,3 +42,7 @@ PROMPT_ENGINEERING_ANALYSIS.md
 
 # Local storage backend output
 data/
+
+# Eval run artifacts (regenerate with `make eval-report`)
+eval-report.md
+eval-report.json

@@ -32,6 +32,7 @@ class CaseScore:
     expected_tools: list[str]
     actual_tools: list[str]
     tools_mode: str
+    optional_tools: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     fell_back: bool = False
     error: str = ""
@@ -41,16 +42,28 @@ class CaseScore:
         return self.actual_intent == self.expected_intent
 
     @property
+    def _scored_tools(self) -> list[str]:
+        """Selections that count toward precision.
+
+        Optional tools are excluded: they are defensible for this question, so
+        choosing one is neither credit nor error. Leaving them in would score
+        the agent's documented behaviour as a false positive.
+        """
+        optional = set(self.optional_tools)
+        return [t for t in self.actual_tools if t not in optional]
+
+    @property
     def true_positives(self) -> int:
         return len(set(self.expected_tools) & set(self.actual_tools))
 
     @property
     def precision(self) -> float:
-        if not self.actual_tools:
+        scored = self._scored_tools
+        if not scored:
             # Selecting nothing is perfect precision only when nothing was
             # expected; otherwise it is a total miss.
             return 1.0 if not self.expected_tools else 0.0
-        return self.true_positives / len(self.actual_tools)
+        return self.true_positives / len(scored)
 
     @property
     def recall(self) -> float:
@@ -66,7 +79,7 @@ class CaseScore:
     @property
     def tools_pass(self) -> bool:
         if self.tools_mode == "exact":
-            return set(self.actual_tools) == set(self.expected_tools)
+            return set(self._scored_tools) == set(self.expected_tools)
         return set(self.expected_tools).issubset(set(self.actual_tools))
 
     @property
@@ -188,6 +201,7 @@ def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
             expected_tools=case.expected_tools,
             actual_tools=[],
             tools_mode=case.tools_mode,
+            optional_tools=case.optional_tools,
             tags=case.tags,
             error=f"{type(exc).__name__}: {exc}"[:200],
         )
@@ -202,6 +216,7 @@ def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
         # its precision cost visible instead of hidden behind a None.
         actual_tools=list(tools) if tools is not None else [],
         tools_mode=case.tools_mode,
+        optional_tools=case.optional_tools,
         tags=case.tags,
         fell_back=tools is None,
     )
