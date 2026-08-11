@@ -6,6 +6,7 @@ Orchestrator LLM이 질문을 보고 필요한 툴을 직접 선택한다.
 
 import json
 import logging
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -32,13 +33,39 @@ _DATA_KW = [
     "보여", "알려", "통계", "장부", "테이블", "컬럼", "데이터", "파일",
 ]
 
+# Characters that may remain once greeting words are stripped before the
+# message stops counting as "only a greeting". Sized from the polite endings
+# Korean greetings carry — 안녕**하세요**, 고마워**요 잘 쓸게요** — and below the
+# length of the shortest real request.
+_GREETING_RESIDUE_MAX = 5
+
+_NON_WORD = re.compile(r"[^0-9a-z가-힣]+")
+
 
 def _is_pure_greeting(question: str) -> bool:
-    """데이터 관련 키워드 없이 인사만 포함된 경우 True."""
+    """True when the message is nothing but a greeting.
+
+    The earlier rule was "contains a greeting word and no data keyword", which
+    made `_DATA_KW` a whitelist that has to enumerate every way a user might
+    phrase a request. It cannot be complete, and each gap silently discards a
+    real request without ever consulting the model: "수고하셨습니다. 어제 것 좀
+    정리해주세요" matched 수고, missed on 정리, and was answered as a greeting.
+
+    Asking what is *left* after removing the greeting is a bounded question.
+    The data keywords are kept as a fast reject — their presence settles the
+    matter — but they are no longer what the decision rests on.
+    """
     q = question.lower().strip()
-    has_greeting = any(kw in q for kw in _GREETING_KW)
-    has_data = any(kw in q for kw in _DATA_KW)
-    return has_greeting and not has_data
+    if not q or not any(kw in q for kw in _GREETING_KW):
+        return False
+    if any(kw in q for kw in _DATA_KW):
+        return False
+
+    residue = q
+    for kw in _GREETING_KW:
+        residue = residue.replace(kw, " ")
+    residue = _NON_WORD.sub("", residue)
+    return len(residue) <= _GREETING_RESIDUE_MAX
 
 
 # ---------------------------------------------------------------------------
@@ -56,7 +83,7 @@ _TOOL_SUMMARIES: dict[str, str] = {
     "recommend_charts": "[조회] 데이터에 적합한 차트 유형 추천",
     "create_table": "[변경] 새 장부(테이블) 생성",
     "alter_table": "[변경] 장부 구조 변경 (컬럼 추가/삭제/변경)",
-    "cross_query": "[조회] 여러 장부를 JOIN하여 교차 분석",
+    "cross_query": "[조회] 2~3개 장부를 JOIN하여 교차 분석. 서로 다른 두 대상을 대조·비교·차이를 묻는 질문(예: 'A 건수와 B 건수 차이')이면 query_data가 아니라 이 도구",
     "import_file": "[변경] CSV/XLSX 파일을 장부로 가져오기",
     "search_schema": "[조회] 자연어로 관련 장부/컬럼 의미 검색 (Hybrid RAG, SQL 도구 호출 전 사용)",
     "search_documents": "[조회] 업로드된 매뉴얼/정책 문서에서 답 검색 (Hybrid RAG)",
@@ -75,6 +102,8 @@ ORCHESTRATOR_PROMPT = """사용자의 데이터 분석 요청을 분석하여 in
   - crud: 데이터 추가/수정/삭제/조회 (insert_rows, update_rows, delete_rows, query_data)
   - analysis: 분석, 시각화, 비교 (query_data+generate_chart, cross_query)
   - general: 위에 해당하지 않는 요청
+- 질문이 서로 다른 두 대상을 대조·비교하거나 그 차이를 물으면 cross_query를 선택하세요.
+  ("예약 건수와 결제 건수 차이", "장부A와 장부B 비교" 등 — query_data 단독으로는 답할 수 없음)
 - 어떤 장부/컬럼을 봐야 할지 불명확하면 SQL 도구와 함께 search_schema도 포함하세요.
 - 정의·규칙·정책 등 데이터로 답할 수 없는 질문이면 search_documents를 포함하세요.
 - 인사/일반 대화처럼 툴이 필요 없으면: {{"intent": "general", "tools": []}}

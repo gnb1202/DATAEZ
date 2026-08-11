@@ -133,7 +133,10 @@ cases:
     question: "금액이 10만원 넘는 결제 건 찾아줘"
     expected_intent: crud
     expected_tools: [query_data]
+    optional_tools: [search_schema]
     tags: [read, filter]
+    notes: "장부명이 없으므로 search_schema를 먼저 부르는 것도 정답 (프롬프트 규칙)"
+
   - id: crud-007
     question: "2025년 3월 데이터만 조회해줘"
     expected_intent: crud
@@ -163,7 +166,10 @@ cases:
     question: "회원별 결제 내역 목록 뽑아줘"
     expected_intent: crud
     expected_tools: [query_data]
+    optional_tools: [search_schema]
     tags: [read]
+    notes: "장부명이 없으므로 search_schema 선택도 정답"
+
 
   # ── analysis: aggregation, comparison, charting ─────────────────────────
   - id: ana-001
@@ -231,7 +237,10 @@ cases:
     question: "예약 건수랑 실제 결제 건수 차이 알려줘"
     expected_intent: analysis
     expected_tools: [cross_query]
+    optional_tools: [search_schema]
     tags: [join]
+    notes: "두 장부 대조 — cross_query 필수. 라벨은 유지하고 라우터를 고쳤다"
+
   - id: ana-014
     question: "분기별 매출을 선그래프로"
     expected_intent: analysis

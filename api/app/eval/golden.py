@@ -33,6 +33,12 @@ class GoldenCase:
     question: str
     expected_intent: str
     expected_tools: list[str] = field(default_factory=list)
+    # Tools that are defensible here but not demanded: not counted as a miss
+    # when absent, not counted against precision when present. Needed because
+    # some selections are genuinely optional — the system prompt tells the
+    # agent to add search_schema when no table is named, so penalising it as a
+    # false positive would score the documented behaviour as an error.
+    optional_tools: list[str] = field(default_factory=list)
     tools_mode: str = "subset"
     tags: list[str] = field(default_factory=list)
     notes: str = ""
@@ -54,6 +60,14 @@ class GoldenCase:
         for tool in self.expected_tools:
             if tool not in known_tools:
                 problems.append(f"{self.id}: unknown tool {tool!r}")
+        for tool in self.optional_tools:
+            if tool not in known_tools:
+                problems.append(f"{self.id}: unknown optional tool {tool!r}")
+        overlap = set(self.expected_tools) & set(self.optional_tools)
+        if overlap:
+            problems.append(
+                f"{self.id}: {sorted(overlap)} listed as both expected and optional"
+            )
         return problems
 
 
@@ -72,6 +86,7 @@ def load_cases(path: Path | None = None) -> list[GoldenCase]:
                     question=str(raw.get("question", "")),
                     expected_intent=str(raw.get("expected_intent", "")),
                     expected_tools=list(raw.get("expected_tools") or []),
+                    optional_tools=list(raw.get("optional_tools") or []),
                     tools_mode=str(raw.get("tools_mode", "subset")),
                     tags=list(raw.get("tags") or []),
                     notes=str(raw.get("notes", "")),

@@ -171,3 +171,72 @@ class TestGates:
         md = routing_markdown(report, {"intent_accuracy": 0.9})
         assert "L1 Routing Scorecard" in md
         assert "intent accuracy" in md
+
+
+class TestOptionalTools:
+    """Some selections are defensible but not required.
+
+    The system prompt tells the agent to add search_schema when no table is
+    named, so scoring it as a false positive would penalise the documented
+    behaviour. Optional tools are neither credited nor penalised.
+    """
+
+    def _score_with_optional(self, actual, mode="subset"):
+        case = GoldenCase(
+            id="opt", question="q", expected_intent="crud",
+            expected_tools=["query_data"], optional_tools=["search_schema"],
+            tools_mode=mode,
+        )
+        return score_case(case, lambda q: (actual, "crud"))
+
+    def test_optional_tool_does_not_cost_precision(self):
+        s = self._score_with_optional(["search_schema", "query_data"])
+        assert s.precision == 1.0
+        assert s.f1 == 1.0
+        assert s.passed
+
+    def test_optional_tool_is_not_required(self):
+        s = self._score_with_optional(["query_data"])
+        assert s.recall == 1.0
+        assert s.passed
+
+    def test_non_optional_extras_still_cost_precision(self):
+        """Only the listed tools are exempt."""
+        s = self._score_with_optional(["query_data", "delete_rows"])
+        assert s.precision == pytest.approx(0.5)
+
+    def test_exact_mode_ignores_optional_tools(self):
+        s = self._score_with_optional(["search_schema", "query_data"], mode="exact")
+        assert s.tools_pass
+
+    def test_optional_overlapping_expected_is_rejected(self):
+        bad = GoldenCase(id="x", question="q", expected_intent="crud",
+                         expected_tools=["query_data"], optional_tools=["query_data"])
+        assert any("both expected and optional" in p for p in bad.validate(KNOWN_TOOLS))
+
+    def test_unknown_optional_tool_is_rejected(self):
+        bad = GoldenCase(id="x", question="q", expected_intent="crud",
+                         optional_tools=["not_a_tool"])
+        assert bad.validate(KNOWN_TOOLS)
+
+
+class TestGreetingPreFilterRegression:
+    """A greeting word plus a real request must reach the model."""
+
+    def test_greeting_with_request_is_not_short_circuited(self):
+        from app.router import _is_pure_greeting
+
+        # "수고" matched the greeting list while "정리" was absent from the
+        # data-keyword whitelist, so this was answered as a greeting.
+        assert _is_pure_greeting("수고하셨습니다. 어제 것 좀 정리해주세요") is False
+
+    def test_plain_greetings_still_short_circuit(self):
+        from app.router import _is_pure_greeting
+
+        for text in ("안녕하세요", "고마워요", "hi"):
+            assert _is_pure_greeting(text) is True, text
+
+    def test_greeting_plus_data_request_reaches_the_model(self):
+        from app.router import _is_pure_greeting
+
+        assert _is_pure_greeting("안녕하세요, 이번달 매출 좀 보여주세요") is False

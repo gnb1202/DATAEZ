@@ -20,13 +20,29 @@ from .golden import GOLDEN_DIR, load_cases, validate_cases
 from .report import check_gates, routing_json, routing_markdown, summary_line
 from .routing import run_routing_eval
 
-# Deliberately conservative starting gates. They exist to catch regressions,
-# not to certify quality — tighten them as the routing layer improves.
+# Gates exist to catch regressions, not to certify quality.
+#
+# These were chosen before any measurement existed. The first live run against
+# gpt-5.4-nano scored intent 0.926, macro-F1 0.744, fallback 0.000, so the F1
+# gate is currently above the measured baseline and fails. That is left as-is
+# deliberately: lowering a threshold because the score came in under it turns
+# the gate into a record of whatever the model happens to do.
+#
+# The gap is concentrated in vague and anaphoric questions ("그거 다시 보여줘"),
+# where the router returns no tools. See KNOWN_LIMITATIONS below.
 DEFAULT_THRESHOLDS = {
     "intent_accuracy": 0.90,
     "tool_macro_f1": 0.85,
     "max_fallback_rate": 0.05,
 }
+
+# L1 scores the router in isolation: it receives the question and nothing else.
+# An anaphoric reference is genuinely unresolvable that way, so cases tagged
+# `anaphora` measure something this harness cannot fairly ask of it. Resolving
+# them belongs to an L2 behavioural test that replays a conversation.
+KNOWN_LIMITATIONS = """\
+L1 evaluates routing without conversation history. Cases tagged `anaphora`
+depend on prior turns and are expected to under-score here."""
 
 
 def _known_tool_names() -> set[str]:
