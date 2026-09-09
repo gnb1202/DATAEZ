@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS sample_workspaces (
+    user_id UUID PRIMARY KEY,
+    project_id UUID NOT NULL UNIQUE REFERENCES projects(id) ON DELETE CASCADE
+);
+ALTER TABLE sample_workspaces ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON sample_workspaces FROM PUBLIC;

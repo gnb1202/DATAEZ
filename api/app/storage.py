@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 from uuid import uuid4
 
@@ -28,15 +29,20 @@ class StorageService:
     @property
     def _s3_client(self):
         if self._s3_client_cache is None:
-            self._s3_client_cache = (
-                boto3.client("s3", region_name=settings.aws_region)
-                if settings.aws_region
-                else boto3.client("s3")
-            )
+            from botocore.config import Config
+            options = {"config": Config(signature_version="s3v4", s3={"addressing_style":"path"},
+                request_checksum_calculation="when_required", response_checksum_validation="when_required")}
+            if settings.aws_region: options["region_name"] = settings.aws_region
+            if settings.s3_endpoint_url: options["endpoint_url"] = settings.s3_endpoint_url
+            if settings.s3_access_key_id: options["aws_access_key_id"] = settings.s3_access_key_id
+            if settings.s3_secret_access_key: options["aws_secret_access_key"] = settings.s3_secret_access_key
+            self._s3_client_cache = boto3.client("s3", **options)
         return self._s3_client_cache
 
     def upload_bytes(self, content: bytes, filename: str) -> str:
-        key = f"{settings.s3_prefix}/{uuid4()}-{filename}"
+        safe_name = Path(filename.replace("\\", "/")).name
+        safe_name = re.sub(r"[^a-zA-Z0-9가-힣._-]", "_", safe_name)[:180]
+        key = f"{settings.s3_prefix}/{uuid4()}-{safe_name}"
 
         if settings.storage_backend == "s3":
             if not settings.s3_bucket:
@@ -52,10 +58,55 @@ class StorageService:
         return str(local_path)
 
     def read_bytes(self, storage_key: str) -> bytes:
+        if storage_key.startswith("ledger-staging/"):
+            return self.read_staged(storage_key)
         if settings.storage_backend == "s3":
             if not settings.s3_bucket:
                 raise ValueError("S3_BUCKET is required when STORAGE_BACKEND=s3")
             response = self._s3_client.get_object(Bucket=settings.s3_bucket, Key=storage_key)
             return response["Body"].read()
 
-        return Path(storage_key).read_bytes()
+        target = Path(storage_key).resolve()
+        if not target.is_relative_to(self._local_root.resolve()):
+            raise ValueError("File path escapes storage root")
+        return target.read_bytes()
+
+    @staticmethod
+    def staged_key(batch_id: str) -> str:
+        # No original filename or client-supplied path enters a storage key.
+        from uuid import UUID
+        return f"ledger-staging/{UUID(batch_id).hex}.bin"
+
+    def _staged_location(self, key: str):
+        if not re.fullmatch(r"ledger-staging/[0-9a-f]{32}\.bin", key):
+            raise ValueError("Invalid ledger staging key")
+        if settings.storage_backend == "s3":
+            if not settings.s3_bucket:
+                raise ValueError("S3_BUCKET is required")
+            return f"{settings.s3_prefix}/{key}"
+        root = self._local_root.resolve()
+        target = (root / key).resolve()
+        if not target.is_relative_to(root):
+            raise ValueError("Staging path escapes storage root")
+        return target
+
+    def write_staged(self, key: str, content: bytes) -> None:
+        target = self._staged_location(key)
+        if settings.storage_backend == "s3":
+            self._s3_client.put_object(Bucket=settings.s3_bucket, Key=target, Body=content)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(content)
+
+    def read_staged(self, key: str) -> bytes:
+        target = self._staged_location(key)
+        if settings.storage_backend == "s3":
+            return self._s3_client.get_object(Bucket=settings.s3_bucket, Key=target)["Body"].read()
+        return target.read_bytes()
+
+    def delete_staged(self, key: str) -> None:
+        target = self._staged_location(key)
+        if settings.storage_backend == "s3":
+            self._s3_client.delete_object(Bucket=settings.s3_bucket, Key=target)
+        else:
+            target.unlink(missing_ok=True)

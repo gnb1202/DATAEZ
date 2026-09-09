@@ -63,7 +63,7 @@ def _fallback_summary(question: str, table_data: list[dict]) -> str:
     return f"요청하신 '{question}'에 대한 결과를 생성했습니다. 상위 {min(len(table_data), 5)}개 행을 먼저 확인해 주세요."
 
 
-def generate_embeddings(texts: list[str]) -> list[list[float]]:
+def generate_embeddings(texts: list[str], *, ledger=None, background=False) -> list[list[float]]:
     """Embed a batch of texts via OpenAI. Returns float vectors aligned to input order.
 
     Raises on API failure — callers should decide whether to retry or skip.
@@ -71,18 +71,23 @@ def generate_embeddings(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []
     client = get_openai_client()
+    if background:
+        client = client.with_options(timeout=30.0, max_retries=0)
     with track_llm_call(
-        model=settings.openai_embedding_model, role=ROLE_EMBEDDING
+        model=settings.openai_embedding_model, role=ROLE_EMBEDDING, ledger=ledger
     ) as call:
         response = client.embeddings.create(
             model=settings.openai_embedding_model,
             input=texts,
         )
         call.record_usage(response.usage)
-    return [item.embedding for item in response.data]
+    items = sorted(response.data, key=lambda item: item.index)
+    if [item.index for item in items] != list(range(len(texts))):
+        raise ValueError('Embedding response does not align with input texts')
+    return [item.embedding for item in items]
 
 
-def embed_one(text: str) -> list[float]:
+def embed_one(text: str, *, ledger=None, background=False) -> list[float]:
     """Convenience wrapper for single-text embedding."""
-    vectors = generate_embeddings([text])
+    vectors = generate_embeddings([text], ledger=ledger, background=background)
     return vectors[0]

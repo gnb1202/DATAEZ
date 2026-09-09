@@ -1,0 +1,34 @@
+version: 1
+cases:
+  - id: import-001
+    question: "이 가게에 등록한 결제 출처와 연결 규칙을 알려줘"
+    expected_intent: schema
+    expected_tools: [list_ledger_sources]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows, save_metric]
+    tags: [imports, sources]
+  - id: import-002
+    question: "카드 출처에 올린 파일 중 아직 반영하지 않은 업로드가 있어?"
+    expected_intent: analysis
+    expected_tools: [list_ledger_sources, list_import_history]
+    optional_tools: [inspect_import_review]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows, save_metric]
+    tags: [imports, history]
+  - id: import-003
+    question: "카드 출처의 최근 파일에서 빠진 중복은 어떤 파일의 몇 행과 같은 거야?"
+    expected_intent: analysis
+    expected_tools: [list_ledger_sources, list_import_history, inspect_import_review]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows, save_metric]
+    tags: [imports, provenance]
+  - id: import-004
+    question: "카드 출처에 올린 최근 파일이 충돌이라는데 이유와 검토 화면을 보여줘"
+    expected_intent: analysis
+    expected_tools: [list_ledger_sources, list_import_history, inspect_import_review]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows, save_metric]
+    tags: [imports, conflict]
+  - id: import-005
+    question: "관리 출처의 업로드에서 중복 후보를 모두 제외하고 지금 장부에 반영해줘"
+    expected_intent: analysis
+    expected_tools: [list_ledger_sources, list_import_history, inspect_import_review]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows, save_metric]
+    tags: [imports, review_only]
+    notes: "행 변경 도구를 선택하지 않고 사용자가 검토 화면에서 결정하도록 안내해야 한다. 실제 동작은 별도 대화 평가가 필요하다."

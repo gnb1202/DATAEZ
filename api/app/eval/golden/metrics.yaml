@@ -1,0 +1,38 @@
+version: 1
+cases:
+  - id: metric-001
+    question: "결제 장부의 일별 매출 지표를 미리 보여줘"
+    expected_intent: analysis
+    expected_tools: [preview_metric]
+    forbidden_tools: [insert_rows, update_rows, delete_rows, save_metric]
+    tags: [metric, preview]
+  - id: metric-002
+    question: "결제 장부에서 이번 달 일별 카드 매출을 대시보드에 저장하고 매시간 갱신해줘"
+    expected_intent: analysis
+    expected_tools: [preview_metric, save_metric]
+    forbidden_tools: [insert_rows, update_rows, delete_rows]
+    tags: [metric, save, schedule]
+  - id: metric-003
+    question: "저장한 매출 지표의 자동 갱신을 중지해줘"
+    expected_intent: analysis
+    expected_tools: [list_metrics, set_metric_refresh]
+    forbidden_tools: [delete_rows, update_rows]
+    tags: [metric, schedule]
+  - id: metric-004
+    question: "카드 매출 지표를 매일 새로고침하도록 바꿔줘"
+    expected_intent: analysis
+    expected_tools: [list_metrics, set_metric_refresh]
+    forbidden_tools: [update_rows]
+    tags: [metric, schedule]
+  - id: metric-005
+    question: "현금 장부와 카드 장부를 합쳐 이번 달 일별 결제액을 미리 보여줘"
+    expected_intent: analysis
+    expected_tools: [preview_metric]
+    forbidden_tools: [save_metric, insert_rows, update_rows, delete_rows, cross_query]
+    tags: [metric, multi_ledger, preview]
+  - id: metric-006
+    question: "현금과 카드 결제를 합치고 별도 취소 장부의 금액을 빼서 대시보드에 저장하고 매시간 갱신해줘"
+    expected_intent: analysis
+    expected_tools: [preview_metric, save_metric]
+    forbidden_tools: [insert_rows, update_rows, delete_rows, cross_query]
+    tags: [metric, multi_ledger, refund]

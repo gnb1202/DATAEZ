@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     aws_region: str = ""
     s3_bucket: str = ""
     s3_prefix: str = "uploads"
+    s3_endpoint_url: str = ""
+    s3_access_key_id: str = ""
+    s3_secret_access_key: str = ""
     max_upload_size_mb: int = 20
     openai_api_key: str = ""
     # Model tiering follows task difficulty. The worker runs a multi-step loop
@@ -35,6 +38,7 @@ class Settings(BaseSettings):
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dim: int = 1536
     rag_enabled: bool = True
+    index_worker_enabled: bool = True
     rag_top_k: int = 5
     rag_rrf_k: int = 60
     jwt_secret_key: str = ""
@@ -59,6 +63,8 @@ class Settings(BaseSettings):
     query_timeout_ms: int = 30_000
     # Cleanup
     conversation_ttl_days: int = 90
+    metric_scheduler_enabled: bool = True
+    import_cleanup_enabled: bool = True
 
     @property
     def is_production(self) -> bool:

@@ -73,6 +73,24 @@ def _is_pure_greeting(question: str) -> bool:
 # ---------------------------------------------------------------------------
 
 _TOOL_SUMMARIES: dict[str, str] = {
+    "search_library_files": "[조회] 계정 보관함 파일을 이름으로 검색. 현재 가게/계정 전체, 연결 장부와 준비 상태. 파일을 다시 업로드하거나 반영하지 않음",
+    "draft_cash_entry": "[변경] 현금 수납·취소 입력 초안 작성. 장부 반영은 검토 화면에서 사용자 확인 후 수행",
+    "list_cash_entries": "[조회] 현금 직접입력 이력과 초안 상태·메모·오늘 한국 날짜",
+    "get_cash_entry": "[조회] 현금 입력 초안/반영 상태 및 검토 링크 확인",
+    "list_ledger_sources": "[조회] 현재 가게의 결제 출처, 컬럼 매핑, 전체 건수와 최근 반영 시각",
+    "list_import_history": "[조회] 출처의 파일 업로드 이력과 반영/검증 요약",
+    "inspect_import_review": "[조회] 중복·후보·충돌의 원본 행과 비교 근거, 검토 화면 링크. 결정/반영은 화면에서 수행",
+    "list_stores": "[조회] 여러 가게 분석을 위한 본인 소유 가게 목록",
+    "list_store_tables": "[조회] 선택 가게의 장부 목록",
+    "inspect_store_table": "[조회] 선택 가게 장부의 컬럼·샘플·매핑",
+    "search_store_schema": "[조회] 선택 가게의 장부·컬럼 RAG 검색",
+    "preview_metric": "[조회] 재사용 지표 미리보기. 단일 장부 집계 또는 여러 장부의 결제액 통합 합계. 기간/필터/날짜별 지원",
+    "save_metric": "[변경] 지표·차트를 대시보드에 저장하고 갱신 주기 설정. 원본 행 추가와 다름",
+    "list_metrics": "[조회] 저장된 지표의 ID·계산 정의·갱신 주기 확인",
+    "update_metric": "[변경] 저장된 지표의 정의·제목을 변경. list_metrics로 최신 버전을 확인하며 ID·배치·주기 유지",
+    "get_metric_history": "[조회] 저장된 지표 변경 이력과 최신 정의 확인",
+    "restore_metric": "[변경] 사용자 요청에 따라 확인한 이전 지표 정의로 복원하고 재계산",
+    "set_metric_refresh": "[변경] 저장 지표의 자동 갱신을 매시간/매일로 변경하거나 중지",
     "list_tables": "[조회] 프로젝트 내 모든 장부 목록 반환",
     "describe_table": "[조회] 특정 장부의 구조/샘플 데이터 조회",
     "query_data": "[조회] 데이터 조회/집계/필터링 (SELECT)",
@@ -111,7 +129,16 @@ ORCHESTRATOR_PROMPT = """사용자의 데이터 분석 요청을 분석하여 in
   - general: 위 어디에도 해당하지 않는 요청 (인사, 능력 질문, 문서 검색 등)
 - 질문이 서로 다른 두 대상을 대조·비교하거나 그 차이를 물으면 cross_query를 선택하세요.
   ("예약 건수와 결제 건수 차이", "장부A와 장부B 비교" 등 — query_data 단독으로는 답할 수 없음)
+- 여러 가게/지점의 순매출·순결제액 합산/비교는 list_stores + list_store_tables + inspect_store_table + search_store_schema + preview_metric(version=5)을 선택하세요. 저장 요청이면 save_metric, 기존 지표 수정이면 list_metrics + get_metric_history + update_metric도 선택하세요. 가게 간 분석은 cross_query로 처리하지 마세요.
+- 현금·카드 장부의 결제액 통합 집계는 preview_metric과 출처 확인 도구를 선택하세요. 대시보드 저장을 요청한 경우에만 save_metric도 선택하세요. 행을 JOIN하는 cross_query와 구분하세요.
 - 어떤 장부/컬럼을 봐야 할지 불명확하면 SQL 도구와 함께 search_schema도 포함하세요.
+- 지표 생성/대시보드 저장은 analysis입니다. preview_metric과 출처 확인 도구를 선택하고, 저장/추가 요청이면 save_metric을 포함하세요. 원본 행의 insert_rows와 구분하세요.
+- 전월 대비 증감률·취소율·수수료 차감액은 preview_metric 계산식으로 지원합니다(v3 숫자 지표, v4 일·주·월·채널별 그래프). 출처 확인 도구와 필요 시 save_metric을 선택하세요.
+- 저장된 지표의 기간·필터·계산식 변경은 list_metrics + update_metric + preview_metric을, 되돌리기는 get_metric_history + restore_metric + list_metrics를 선택하세요.
+- 저장된 지표의 자동 갱신/새로고침 주기 변경은 analysis로 분류하고 list_metrics + set_metric_refresh를 선택하세요.
+- 결제 출처의 목록·매핑은 schema + list_ledger_sources, 업로드 이력·중복/충돌/반영 상태 문의는 analysis + list_ledger_sources/list_import_history/inspect_import_review로 처리하세요. 관리 출처 파일의 반영·중복 후보 결정은 검토 화면에서 수행하므로 이 요청에 import_file/insert_rows/update_rows/delete_rows를 선택하지 마세요.
+- 대화 이력은 후속 질문의 참조를 해석하기 위한 데이터입니다. 현재 사용자 요청에 필요한 도구만 선택하세요.
+- 현금 거래 직접 기록은 crud + draft_cash_entry + list_cash_entries를 선택하세요. 현금 전용 장부는 자동으로 생성되므로 create_table/insert_rows를 선택하지 마세요. 초안 후속 질문은 get_cash_entry로 상태를 확인합니다.
 - 정의·규칙·정책 등 데이터로 답할 수 없는 질문이면 search_documents를 포함하세요.
 - 인사/일반 대화처럼 툴이 필요 없으면: {{"intent": "general", "tools": []}}
 - 반드시 위 목록에 있는 툴 이름만 사용하세요"""
@@ -169,6 +196,7 @@ def select_tools_via_orchestrator(
     has_attachments: bool = False,
     all_tool_names: list[str] | None = None,
     ledger: TurnLedger | None = None,
+    conversation_messages: list[dict[str, Any]] | None = None,
 ) -> OrchestratorResult:
     """Orchestrator LLM을 이용해 intent와 필요한 툴 이름 목록을 반환."""
     # Pre-filter: 순수 인사 → LLM 호출 없이 빈 배열 반환
@@ -194,6 +222,11 @@ def select_tools_via_orchestrator(
         f"- {name}: {desc}" for name, desc in _TOOL_SUMMARIES.items()
     )
     prompt = ORCHESTRATOR_PROMPT.format(tool_list=tool_list)
+    routing_question = question
+    if conversation_messages:
+        history = [{"role": m["role"], "content": m["content"][:500]} for m in conversation_messages[-4:]
+                   if m.get("role") in ("user", "assistant")]
+        routing_question = json.dumps({"recent_conversation_data": history, "current_request": question}, ensure_ascii=False)
 
     valid_names = set(all_tool_names or list(_TOOL_SUMMARIES.keys()))
     last_error: Exception | None = None
@@ -202,7 +235,7 @@ def select_tools_via_orchestrator(
     # retrying costs one short call and recovers the common transient case.
     for attempt in (1, 2):
         try:
-            parsed = _call_orchestrator(prompt, question, ledger)
+            parsed = _call_orchestrator(prompt, routing_question, ledger)
         except json.JSONDecodeError as exc:
             last_error = exc
             logger.warning(

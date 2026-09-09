@@ -35,7 +35,7 @@ class AgentStep:
         if self.tool_output:
             # Truncate large outputs for storage
             output_str = json.dumps(self.tool_output, ensure_ascii=False, default=str)
-            if len(output_str) > 3000:
+            if len(output_str) > 3000 and self.tool_name != "search_library_files":
                 d["tool_output"] = {"_truncated": True, "summary": output_str[:3000] + "..."}
             else:
                 d["tool_output"] = self.tool_output
@@ -110,6 +110,7 @@ def _select_tools(
     question: str,
     has_attachments: bool = False,
     ledger: TurnLedger | None = None,
+    conversation_messages: list[dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], str, bool]:
     """Orchestrator LLM을 통해 질문에 필요한 툴과 intent를 반환.
 
@@ -118,11 +119,97 @@ def _select_tools(
     """
     all_tool_names = [t["function"]["name"] for t in TOOL_SPECS]
     result: OrchestratorResult = select_tools_via_orchestrator(
-        question, has_attachments, all_tool_names, ledger=ledger
+        question, has_attachments, all_tool_names, ledger=ledger, conversation_messages=conversation_messages
     )
     selected = result.tools or []
+    if any(word in question for word in ("보관함", "저장소", "파일 찾아", "파일 불러")):
+        selected = list(dict.fromkeys([*selected, "search_library_files"]))
+    if set(selected) & {"list_ledger_sources", "list_import_history", "inspect_import_review"}:
+        selected = list(set(selected) | {"list_ledger_sources", "list_import_history", "inspect_import_review"})
+    if "restore_metric" in selected:
+        selected = list(dict.fromkeys([*selected, "get_metric_history"]))
+    if "draft_cash_entry" in selected:
+        selected = list(dict.fromkeys([*selected, "list_cash_entries", "get_cash_entry"]))
+    if set(selected) & {"preview_metric", "save_metric", "list_metrics", "set_metric_refresh", "update_metric", "get_metric_history", "restore_metric"}:
+        selected = list(set(selected) | {"list_tables", "describe_table", "search_schema", "preview_metric", "list_metrics", "get_metric_history"})
+    if set(selected) & {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema"}:
+        selected = list(set(selected) | {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema", "preview_metric", "list_metrics", "get_metric_history"})
     specs = [t for t in TOOL_SPECS if t["function"]["name"] in selected]
     return specs, result.intent, result.degraded
+
+
+def _tool_result_content(tool_name: str, output: dict[str, Any]) -> str:
+    """Keep history pages valid and navigable inside the model context budget.
+
+    Cutting the JSON at 4,000 characters hid older batches while preserving a
+    misleading total. Full evidence stays in AgentStep; details remain available
+    through inspect_import_review. Both sync and streaming loops use this view.
+    """
+    if tool_name in ('list_stores','list_store_tables','inspect_store_table','search_store_schema','search_library_files'):
+        return json.dumps(output, ensure_ascii=False, default=str, separators=(',', ':'))
+    if tool_name == 'list_metrics' and isinstance(output.get('metrics'), list):
+        compact = [{k:v for k,v in m.items() if k != 'definition'} for m in output['metrics']]
+        return json.dumps({'metrics':compact,'hint':'변경할 지표의 전체 정의는 get_metric_history로 확인하세요.'},ensure_ascii=False,default=str)
+    if tool_name == "preview_metric" and "metric_definition" in output:
+        # Full chart/SQL remain in AgentStep and the persisted chart. Give the
+        # model valid JSON and explicit sample coverage instead of broken JSON.
+        page = {k:v for k,v in output.items() if k not in ('execution', 'data')}
+        page['evidence_limits'] = (
+            'value/data는 저장 정의의 기간·필터를 적용한 집계값입니다. 여기에 없는 승인/취소 건수나 원인을 '
+            '원본 sample_rows에서 추정하지 마세요. 장부 목록/describe_table의 row_count는 전체 장부 행 수이며 '
+            '이번 집계의 포함 건수가 아닙니다. 추가 건수가 필요하면 같은 기간·필터의 count를 실제 계산하세요.')
+        if isinstance(output.get('data'), list):
+            page['total_groups'] = len(output['data'])
+            page['data'] = output['data'][:5]
+            page['data_is_sample'] = len(output['data']) > len(page['data'])
+            page['hint'] = '전체 집계표·SQL은 차트 상세에 있습니다. 표본으로 전체 통계나 추세를 추정하지 마세요.'
+        return json.dumps(page, ensure_ascii=False, default=str, separators=(',', ':'))
+    if tool_name == "list_import_history" and isinstance(output.get("batches"), list):
+        page = {k: v for k, v in output.items() if k != "batches"}
+        page["batches"] = []
+        page["hint"] = "next_offset이 있으면 같은 출처의 다음 이력을 계속 조회하세요. 특정 파일을 찾기 전 다른 파일로 대신 답하지 마세요. 상세 근거는 inspect_import_review로 조회하세요."
+
+        def encoded():
+            return json.dumps(page, ensure_ascii=False, default=str, separators=(",", ":"))
+
+        for batch in output["batches"]:
+            summary = batch.get("summary") or {}
+            result = batch.get("result") or {}
+            compact = {k: batch.get(k) for k in ("id", "filename", "status", "created_at", "committed_at", "review_url")}
+            compact["summary"] = {k: summary[k] for k in ("row_count", "counts", "amount", "can_commit") if k in summary}
+            compact["result"] = {k: result[k] for k in ("rows_inserted", "duplicates_skipped", "total_row_count", "amount") if k in result}
+            if batch.get("error"):
+                error = batch["error"]
+                compact["error"] = {"code": error.get("code"), "message": str(error.get("message", ""))[:180], "issue_count": len(error.get("issues") or [])}
+            page["batches"].append(compact)
+            if len(encoded()) > 3600 and len(page["batches"]) > 1:
+                page["batches"].pop()
+                break
+        offset = output.get("offset", 0)
+        count = len(page["batches"])
+        page["returned_count"] = count
+        page["next_offset"] = offset + count if count and offset + count < output.get("total", 0) else None
+        return encoded()
+    collection = {'get_metric_history': 'revisions', 'list_cash_entries': 'entries'}.get(tool_name)
+    if collection and isinstance(output.get(collection), list):
+        page = {k:v for k,v in output.items() if k not in (collection, 'metric')}
+        if 'metric' in output:
+            page['metric'] = {k:output['metric'][k] for k in ('id','title','definition_revision')}
+        page[collection] = []
+        page['hint'] = 'next_offset이 있으면 해당 offset으로 계속 조회하세요. 이 페이지에 없다는 이유로 전체 이력에 없다고 판단하지 마세요.'
+        def encoded_page():
+            return json.dumps(page, ensure_ascii=False, default=str, separators=(',',':'))
+        for item in output[collection]:
+            page[collection].append(item)
+            if len(encoded_page()) > 3600 and len(page[collection]) > 1:
+                page[collection].pop()
+                break
+        count = len(page[collection]); offset = output.get('offset', 0)
+        page['returned_count'] = count
+        page['next_offset'] = offset+count if count and offset+count < output.get('total', 0) else None
+        return encoded_page()
+    content = json.dumps(output, ensure_ascii=False, default=str)
+    return content if len(content) <= 4000 else content[:4000] + "... (truncated)"
 
 
 def run_agent(
@@ -133,6 +220,7 @@ def run_agent(
     conversation_messages: list[dict[str, str]],
     question: str,
     attached_files: list[dict[str, Any]] | None = None,
+    library_refs: list[dict[str, Any]] | None = None,
 ) -> AgentResult:
     """Run the agent loop with function calling against project tables."""
     if not settings.openai_api_key:
@@ -143,15 +231,26 @@ def run_agent(
 
     ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent, degraded = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
+    active_tools, intent, degraded = _select_tools(question, has_attachments=has_attachments, ledger=ledger, conversation_messages=conversation_messages)
     logger.info("Orchestrator selected tools=%d, intent=%s: %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     client = get_openai_client()
-    executor = ToolExecutor(user_id, project_id, attached_files=attached_files)
+    executor = ToolExecutor(user_id, project_id, attached_files=attached_files, ledger=ledger, **({"library_refs":library_refs} if library_refs else {}))
+    if library_refs:
+        from .library_agent import SCOPED_TOOLS
+        active_tools = [tool for tool in active_tools if tool["function"]["name"] in SCOPED_TOOLS]
+        selected_names = {tool["function"]["name"] for tool in active_tools}
+        selected_names |= {"list_tables", "describe_table", "query_data", "cross_query", "generate_chart", "search_documents"}
+        if any(ref["project_id"] != project_id for ref in library_refs):
+            selected_names |= {"list_stores", "list_store_tables", "inspect_store_table", "preview_metric"}
+        active_tools = [tool for tool in TOOL_SPECS if tool["function"]["name"] in selected_names]
+        tables_info = executor._tables
 
     system_prompt = build_system_prompt(
         project_name, tables_info, intent=intent, has_attachments=has_attachments,
     )
+    from .library_agent import prompt as library_prompt
+    system_prompt += library_prompt(library_refs)
     messages: list[dict[str, Any]] = [{"role": "system", "content": system_prompt}]
 
     # Add compressed conversation history
@@ -246,14 +345,12 @@ def run_agent(
                 ))
 
                 # Collect charts and table data
-                if tool_name == "generate_chart" and "chart_type" in tool_output:
+                if tool_name in ("generate_chart", "preview_metric") and "chart_type" in tool_output:
                     charts.append(tool_output)
                 if tool_name in ("query_data", "cross_query") and "data" in tool_output:
                     table_data = tool_output["data"]
 
-                tool_result_str = json.dumps(tool_output, ensure_ascii=False, default=str)
-                if len(tool_result_str) > 4000:
-                    tool_result_str = tool_result_str[:4000] + "... (truncated)"
+                tool_result_str = _tool_result_content(tool_name, tool_output)
 
                 messages.append({
                     "role": "tool",
@@ -336,6 +433,7 @@ async def run_agent_streaming(
     conversation_messages: list[dict[str, str]],
     question: str,
     attached_files: list[dict[str, Any]] | None = None,
+    library_refs: list[dict[str, Any]] | None = None,
 ):
     """Async generator that yields AgentStep objects in real-time."""
     if not settings.openai_api_key:
@@ -347,15 +445,26 @@ async def run_agent_streaming(
 
     ledger = TurnLedger()
     has_attachments = bool(attached_files)
-    active_tools, intent, degraded = _select_tools(question, has_attachments=has_attachments, ledger=ledger)
+    active_tools, intent, degraded = await asyncio.to_thread(_select_tools, question, has_attachments=has_attachments, ledger=ledger, conversation_messages=conversation_messages)
     logger.info("Orchestrator selected tools=%d, intent=%s (streaming): %s", len(active_tools), intent, [t["function"]["name"] for t in active_tools])
 
     async_client = get_async_openai_client()
-    executor = ToolExecutor(user_id, project_id, attached_files=attached_files)
+    executor = ToolExecutor(user_id, project_id, attached_files=attached_files, ledger=ledger, **({"library_refs":library_refs} if library_refs else {}))
+    if library_refs:
+        from .library_agent import SCOPED_TOOLS
+        active_tools = [tool for tool in active_tools if tool["function"]["name"] in SCOPED_TOOLS]
+        selected_names = {tool["function"]["name"] for tool in active_tools}
+        selected_names |= {"list_tables", "describe_table", "query_data", "cross_query", "generate_chart", "search_documents"}
+        if any(ref["project_id"] != project_id for ref in library_refs):
+            selected_names |= {"list_stores", "list_store_tables", "inspect_store_table", "preview_metric"}
+        active_tools = [tool for tool in TOOL_SPECS if tool["function"]["name"] in selected_names]
+        tables_info = executor._tables
 
     system_prompt = build_system_prompt(
         project_name, tables_info, intent=intent, has_attachments=has_attachments,
     )
+    from .library_agent import prompt as library_prompt
+    system_prompt += library_prompt(library_refs)
     messages: list[dict[str, Any]] = [{"role": "system", "content": system_prompt}]
 
     for msg in build_conversation_context(conversation_messages):
@@ -506,9 +615,7 @@ async def run_agent_streaming(
                     tool_output=tool_output,
                 )
 
-                tool_result_str = json.dumps(tool_output, ensure_ascii=False, default=str)
-                if len(tool_result_str) > 4000:
-                    tool_result_str = tool_result_str[:4000] + "... (truncated)"
+                tool_result_str = _tool_result_content(tool_name, tool_output)
 
                 messages.append({
                     "role": "tool",

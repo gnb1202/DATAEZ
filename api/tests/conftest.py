@@ -11,4 +11,8 @@ os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/tes
 os.environ.setdefault("OPENAI_API_KEY", "test-key-for-unit-tests")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-for-unit-tests-only")
 os.environ.setdefault("STORAGE_BACKEND", "local")
+os.environ.setdefault("METRIC_SCHEDULER_ENABLED", "false")
+os.environ.setdefault("IMPORT_CLEANUP_ENABLED", "false")
 os.environ.setdefault("S3_BUCKET", "test-bucket")
+
+os.environ.setdefault("INDEX_WORKER_ENABLED", "false")

@@ -45,15 +45,17 @@ class TestToolMeta:
                 assert not meta["mutation"], f"{name}: read_only=True but mutation=True"
 
     def test_known_mutation_tools(self):
-        expected_mutations = {"insert_rows", "update_rows", "delete_rows", "create_table", "alter_table", "import_file"}
+        expected_mutations = {"insert_rows", "update_rows", "delete_rows", "create_table", "alter_table", "import_file", "save_metric", "set_metric_refresh", "update_metric", "restore_metric", "draft_cash_entry"}
         actual_mutations = {name for name, meta in TOOL_META.items() if meta["mutation"]}
         assert actual_mutations == expected_mutations
 
     def test_known_read_only_tools(self):
         expected_reads = {
-            "list_tables", "describe_table", "query_data",
+            "list_stores", "list_store_tables", "inspect_store_table", "search_store_schema",
+            "list_tables", "describe_table", "query_data", "search_library_files",
             "generate_chart", "recommend_charts", "cross_query",
-            "search_schema", "search_documents",
+            "search_schema", "search_documents", "preview_metric", "list_metrics", "get_metric_history", "list_cash_entries", "get_cash_entry",
+            "list_ledger_sources", "list_import_history", "inspect_import_review",
         }
         actual_reads = {name for name, meta in TOOL_META.items() if meta["read_only"]}
         assert actual_reads == expected_reads
@@ -121,7 +123,15 @@ MOCK_TABLES = [
 
 
 @pytest.fixture
-def executor():
+def _isolated_audit():
+    # These are dispatch/unit tests; audit persistence and embeddings are
+    # covered separately. Letting either reach a real DB made the suite hang.
+    with patch("app.agent_tools.record_audit"):
+        yield
+
+
+@pytest.fixture
+def executor(_isolated_audit):
     """ToolExecutor with mocked DB calls."""
     with patch("app.agent_tools.list_table_metas", return_value=MOCK_TABLES), \
          patch("app.agent_tools.get_user_table_name", side_effect=lambda uid, tid: f"ut_{uid}_{tid}"):
@@ -173,6 +183,8 @@ class TestToolDescribeTable:
         result = executor.execute("describe_table", json.dumps({"table_name": "매출"}))
         assert result["table_name"] == "매출"
         assert result["row_count"] == 100
+        assert result["row_count_scope"] == "entire_table_before_metric_period_and_filters"
+        assert result["sample_row_count"] == 1  # The fetched sample is not the 100-row ledger.
         assert len(result["columns"]) == 3
         assert "sample_rows" in result
 
