@@ -3,6 +3,7 @@
 ## Development Setup
 
 ### Prerequisites
+
 - Python 3.12+
 - Node.js 20+
 - Docker & Docker Compose
@@ -22,15 +23,22 @@ make test                                    # or: python -m pytest tests/ -q
 uvicorn app.main:app --reload --port 8000
 ```
 
-The test suite mocks Postgres, Redis, OpenAI, and S3, so it runs with no
-infrastructure. The `OPENAI_API_KEY` above only has to satisfy startup
-validation.
+The default tests use mocks or skip optional external fixtures. They do not all
+run against a real database. A placeholder model key suffices for offline tests;
+real chat and search embedding require a usable key.
+
+Before starting `uvicorn`, also set `DATABASE_URL` to an initialized development
+PostgreSQL database (`db/init.sql`, pgvector when RAG is enabled), `REDIS_URL`
+to your development Redis, and a writable `LOCAL_STORAGE_PATH`. Prefer the full
+Compose setup below for a ready database/network. Python settings do not read
+the root `.env` automatically; `uvicorn --env-file ../.env` can load it, but
+host database URLs and paths still need their own values.
 
 ### Frontend (Web)
 
 ```bash
 cd web
-npm install
+npm ci
 npm run dev
 npx tsc --noEmit     # type check
 npm run build
@@ -46,7 +54,8 @@ docker compose up --build
 ## Branch strategy
 
 - `main` — always green
-- `feat/<description>`, `fix/<description>`, `docs/<description>`
+- `codex/<description>` for Codex work; `feat/`, `fix/`, `docs/` remain valid
+  for manually created branches
 
 Keep one concern per branch. A PR that changes routing behaviour and also
 reformats a module is two reviews pretending to be one.
@@ -54,7 +63,8 @@ reformats a module is two reviews pretending to be one.
 ## Pull requests
 
 1. Branch from `main`
-2. Make the change **with tests that fail without it**
+2. Add regression coverage for changed behavior where needed; documentation and
+   low-impact visual changes can use focused review/build checks
 3. Verify:
    - `cd api && make test`
    - `cd api && make eval-validate` if you touched `app/eval/` or tool names
@@ -176,3 +186,64 @@ documents nothing.
 | `test_document_processor.py` | Chunking |
 | `test_rate_limiter.py` | Sliding window |
 | `test_integration.py` | Endpoints via TestClient |
+
+New data/metric tests include `test_file_scopes.py`, `test_file_library.py`,
+`test_widget_saves.py`, `test_dashboard_metrics_postgres.py`,
+`test_ledger_imports_postgres.py`, `test_event_review_postgres.py`,
+`test_formula_revisions.py`, `test_grouped_formula_metrics.py`,
+`test_cash_entries.py`, `test_store_metrics.py` and `test_index_jobs.py`.
+
+### Offline checks on Windows
+
+From the repository root, after installing Python dependencies:
+
+```powershell
+$env:PYTHONUTF8='1'
+python -m pytest api/tests/ -q
+python -m pytest scripts/nl-eval/test_oracle.py scripts/nl-eval/test_report.py -q
+python scripts/pg-eval/verify_samples.py
+
+$env:APP_ENV='development'
+$env:OPENAI_API_KEY='sk-ci-validation-only'
+$env:JWT_SECRET_KEY='ci-only-insecure-secret'
+$env:STORAGE_BACKEND='local'
+Push-Location api
+python -m app.eval.run --validate-only
+Pop-Location
+
+npm.cmd --prefix web ci
+npm.cmd --prefix web run build
+```
+
+The placeholder environment above is for offline validation. Use a separate
+terminal with real configuration when starting the app. `make` commands are
+optional aliases in `api/Makefile`, not a requirement on Windows.
+
+### Optional real database, browser and model checks
+
+- `DATAEZ_TEST_DATABASE_URL` selects a disposable local PostgreSQL test server.
+  Tests create isolated schemas/databases and clean up their own objects.
+- `DATAEZ_RAG_TEST_DATABASE_URL` selects the local pgvector test server for
+  search and the related metric fixtures. Never point either variable at user data.
+- `npm ci --prefix scripts/sql-eval` enables PGlite SQL checks; these do not
+  substitute for psycopg transaction and concurrent-lock tests.
+- `npm ci --prefix scripts/ui-eval` installs Playwright. Current workspace
+  fixtures use local Microsoft Edge. Start the actual web app, set `UI_BASE_URL`
+  if it differs from `http://127.0.0.1:3132/dashboard`, and run the desired script.
+
+```powershell
+node scripts/ui-eval/workspace.cjs
+node scripts/ui-eval/file-library.cjs
+node scripts/ui-eval/analysis-dashboard.cjs
+```
+
+Those three scripts use API fixtures and do not call a real LLM. For actual
+browser/API/DB/LLM execution, use the prerequisites and isolated orchestration in
+[workspace live acceptance](docs/WORKSPACE_LIVE_ACCEPTANCE.md). Stop another
+Next.js process in the same checkout before that harness rebuilds the app.
+Live model evaluation spends tokens and is run separately from ordinary CI.
+
+Keep complete-run scores, partial regressions and skipped checks separate.
+[The validation index](docs/README.md#검증-근거) links current and historical
+reports. Raw artifacts and authentication sessions are ignored by Git; publish
+only synthetic, credential-free evidence.

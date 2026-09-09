@@ -4,6 +4,12 @@ All settings come from environment variables. The authoritative defaults live
 in [`api/app/config.py`](../api/app/config.py); [`.env.example`](../.env.example)
 is a working local template.
 
+Updated 2026-09-10. Docker Compose reads the root `.env` and passes configured
+values to the API. A directly started Python process does not automatically
+read that file: export its variables or use `uvicorn --env-file ../.env` from
+`api/`. Override `DATABASE_URL`, `REDIS_URL` and `LOCAL_STORAGE_PATH` for a host
+process; Compose network names and container paths are not host defaults.
+
 Validation runs at startup and **fails fast** — a misconfigured deployment does
 not boot into a half-working state.
 
@@ -63,10 +69,17 @@ Requires the `vector` extension. The compose stack uses `pgvector/pgvector:pg16`
 | `S3_BUCKET` | — | Required when `STORAGE_BACKEND=s3` |
 | `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | — | S3 only |
 | `S3_PREFIX` | `uploads` | |
+| `S3_ENDPOINT_URL` | empty | Optional private S3-compatible endpoint |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | empty | Explicit server-side credentials for the S3-compatible client |
 | `MAX_UPLOAD_SIZE_MB` | `20` | |
 
 The S3 client is constructed lazily, so a local-only deployment never needs AWS
 configuration present.
+
+Original files are read through authenticated API routes with owner/store checks.
+The S3-compatible adapter is available, but remote provider acceptance has not
+been performed in the latest workspace test. Storage credentials must remain
+server-side and must not use a `NEXT_PUBLIC_` prefix.
 
 ## Models
 
@@ -94,6 +107,7 @@ models, or spend is counted at zero and logged as a warning.
 | `RAG_ENABLED` | `true` | |
 | `RAG_TOP_K` | `5` | Results returned; the candidate pool is `4 × k` |
 | `RAG_RRF_K` | `60` | RRF damping constant |
+| `INDEX_WORKER_ENABLED` | `true` | Runs durable search jobs when RAG is enabled; disabling it leaves jobs pending |
 
 Korean text is analysed into morphemes before indexing and querying. See
 [ARCHITECTURE.md](ARCHITECTURE.md#retrieval) for why.
@@ -139,3 +153,16 @@ arg. Deploying to another host requires rebuilding the web image.
 | Variable | Default |
 |---|---|
 | `CONVERSATION_TTL_DAYS` | `90` |
+
+## Background jobs
+
+| Variable | Default | Effect |
+|---|---|---|
+| `METRIC_SCHEDULER_ENABLED` | `true` | Executes due saved metrics; poll interval 15 seconds |
+| `INDEX_WORKER_ENABLED` | `true` | Executes search indexing/retry jobs; poll interval 5 seconds |
+| `IMPORT_CLEANUP_ENABLED` | `true` | Expires pending import staging; poll interval 60 seconds |
+
+Widget schedules are stored separately: `0` (manual), `3600` (hourly) or
+`86400` (every 24 hours). These are recalculation schedules, not PG collection
+schedules. API processes must stay running for background execution. Details
+and retained-file policy: [Deployment](DEPLOYMENT.md), [file scope](FILE_SCOPE_AND_FIRST_USE.md).

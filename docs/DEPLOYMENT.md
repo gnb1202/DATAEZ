@@ -1,5 +1,8 @@
 # Deployment
 
+Updated 2026-09-10. This is a local/deployment runbook; the current work has not
+published a live service. [Integration and validation record](RELEASE_INTEGRATION.md)
+
 ## Local
 
 ```bash
@@ -21,18 +24,37 @@ curl -s localhost:8000/metrics | head
 
 ## Migrations
 
-`db/migrations/*.sql` runs automatically on a **fresh** database, mounted into
-`/docker-entrypoint-initdb.d`. Postgres only executes those on first
-initialisation, so an existing volume never sees them.
+Compose mounts **only `db/init.sql` and `001_pgvector_rag.sql`** into
+`/docker-entrypoint-initdb.d`. Postgres executes those on a fresh data volume,
+not on every startup. It does not automatically mount all numbered migrations.
 
 For existing databases, `ensure_*` functions run at startup and converge the
 schema — including migrating `content_tsv` off the generated column introduced
-by 001.
+by 001, saved metric schedules, imports, indexing jobs, file scope and samples.
+The numbered SQL files document equivalent schema changes; the API startup
+code is also required for runtime initialization and existing-data adoption.
+Back up an existing database before upgrading and verify `/ready` after startup.
 
 | Migration | Purpose |
 |---|---|
 | `001_pgvector_rag.sql` | `schema_embeddings`, `document_chunks`, HNSW + GIN indexes |
 | `002_korean_fts.sql` | `content_tsv` from generated column to app-populated |
+| `003_metric_scheduling.sql` | Widget intervals, next due time and failures |
+| `004_ledger_imports.sql` | Sources, import batches and row provenance |
+| `005_event_review.sql` | Event decisions and duplicate/conflict review |
+| `006_attribute_restoration.sql` | Optional payment-attribute restoration audit |
+| `007_search_index_jobs.sql` | Durable catalog/document search work |
+| `008_metric_definition_revisions.sql` | Definition revisions and restoration |
+| `009_cash_entries.sql` | Reviewed cash records and idempotency |
+| `010_file_library.sql` | Account-owned retained-file catalog |
+| `011_widget_save_keys.sql` | Stable widget save keys and payload hashes |
+| `012_original_file_analysis.sql` | Original-file analysis binding and write guard function |
+| `013_sample_workspace.sql` | Per-account sample store mapping |
+
+`main.py` calls the idempotent `ensure_*` functions before serving requests.
+`ensure_library()` includes the original-file schema and sample mapping. The
+source-analysis write trigger is installed when the immutable table is created.
+Do not remove a Docker volume merely to apply a newer schema.
 
 ### After 002: reindex
 
@@ -41,8 +63,10 @@ sparse half of the hybrid search until re-analysed. Embeddings are untouched,
 so this costs no API calls and is safe to re-run:
 
 ```bash
-docker compose exec api python /app/../scripts/reindex_fts.py
-# or locally:
+# The image copies app/, not repository scripts/. Copy this helper explicitly.
+docker compose cp scripts/reindex_fts.py api:/tmp/reindex_fts.py
+docker compose exec -e PYTHONPATH=/app api python /tmp/reindex_fts.py
+# Or locally with database/model/JWT environment configured:
 cd api && python ../scripts/reindex_fts.py
 ```
 
@@ -77,8 +101,14 @@ Known constraints, stated rather than discovered later:
 - **In-memory rate limiting is per-process.** Keep Redis reachable in any
   multi-replica deployment; the fallback is a degraded mode, not a design.
 - **Local storage is container-local.** Multiple replicas need S3.
-- **Ingestion is synchronous.** Chunking and embedding run inside the upload
-  request, so a large PDF holds a connection for its duration.
+- **Import and indexing are distinct.** File parsing and transactional row
+  import use request paths. Search chunking/embedding runs through durable DB
+  jobs with retries; a retained file is not necessarily ready for document search.
+- **Schedulers run in API processes.** Due metrics and indexing workers stop
+  while all API processes are offline. Widget due times and job state persist
+  in PostgreSQL and are picked up after restart.
+- **Load validation is pending.** Row locks prevent workers claiming the same
+  due metric, but synthetic acceptance does not establish production capacity.
 
 ## Streaming behind a proxy
 
