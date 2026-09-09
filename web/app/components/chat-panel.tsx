@@ -2,9 +2,10 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Send, Loader2, Sparkles, CheckCircle2, ChevronDown, ChevronUp, Brain, Paperclip, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Message, StreamingStep } from "../lib/api";
+import type { Composer } from "../hooks/use-workspace-analysis";
+import { referenceScope, referenceKey } from "../lib/file-library";
 import MessageBubble from "./message-bubble";
 
 const QUICK_PROMPTS = [
@@ -28,6 +29,7 @@ const TOOL_LABELS: Record<string, string> = {
   alter_table: "구조 변경",
   cross_query: "교차 분석",
   import_file: "파일 가져오기",
+  search_library_files: "보관함 파일 찾기",
 };
 
 function summarizeToolInput(toolName: string, input: Record<string, unknown>): string {
@@ -67,6 +69,12 @@ function summarizeToolInput(toolName: string, input: Record<string, unknown>): s
 }
 
 type ChatPanelProps = {
+  composer?: Composer;
+  onOpenLibrary?: (search?: string) => void;
+  onComposerChange?: (value: Composer) => void;
+  onOpenResult?: (messageId: string) => void;
+  draft?: {id:string;text:string}|null;
+  onDraftConsumed?: () => void;
   messages: Message[];
   onSend: (message: string, file?: File | null) => Promise<void>;
   loading: boolean;
@@ -80,16 +88,32 @@ type ChatPanelProps = {
 
 const ALLOWED_FILE_TYPES = ".csv,.xlsx,.xls";
 
-export default function ChatPanel({ messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onPinChart }: ChatPanelProps) {
-  const [input, setInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onPinChart }: ChatPanelProps) {
+  const [localInput, setLocalInput] = useState("");
+  const input = composer?.text ?? localInput;
+  const setInput = (text: string) => {
+    if (onComposerChange && composer) onComposerChange({ ...composer, text });
+    else setLocalInput(text);
+  };
+  // Legacy callers inject a draft; the workspace uses a controlled composer.
+  useEffect(() => { if (draft) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronize an explicit external draft
+    setLocalInput(draft.text); onDraftConsumed?.();
+  } }, [draft, onDraftConsumed]);
+  const [localFile, setLocalFile] = useState<File | null>(null);
+  const attachedFile = composer ? composer.file : localFile;
+  const setAttachedFile = (file: File | null) => {
+    if (onComposerChange && composer) onComposerChange({ ...composer, file });
+    else setLocalFile(file);
+  };
   const [stepsExpanded, setStepsExpanded] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const region = scrollRef.current;
+    region?.scrollTo({ top: region.scrollHeight, behavior: "instant" });
   }, [messages, loading, streamingSteps, streamingAnswer]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -97,8 +121,7 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
     if (!input.trim() || loading || disabled) return;
     const msg = input;
     const file = attachedFile;
-    setInput("");
-    setAttachedFile(null);
+    if (!composer) { setLocalInput(""); setLocalFile(null); }
     await onSend(msg, file);
   };
 
@@ -121,9 +144,9 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
   const hasSteps = streamingSteps && streamingSteps.length > 0;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex min-h-0 flex-col h-full">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-4 space-y-6">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-6">
         {messages.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <div className="h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
@@ -157,6 +180,8 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
                 key={msg.message_id}
                 message={msg}
                 showSuggestions={isLastAssistant && !loading}
+                onOpenResult={onOpenResult}
+                onOpenLibrary={onOpenLibrary}
                 onPinChart={onPinChart}
                 onSuggestionClick={handleQuickPrompt}
               />
@@ -230,16 +255,18 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
         )}
 
         {streamError && (
-          <div className="mx-4 mb-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <div role="status" className="mb-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
             {streamError}
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+
       </div>
 
       {/* Input area */}
-      <div className="border-t border-border bg-background px-4 lg:px-6 py-3">
+      <div className="shrink-0 border-t border-border bg-[var(--chat)] px-3 py-3">
+        {onOpenLibrary && <div className="mb-2 flex items-center justify-between gap-2"><button type="button" disabled={disabled || loading || !!attachedFile} onClick={() => onOpenLibrary()} className="rounded px-1 py-1 text-xs text-accent hover:underline disabled:opacity-40">보관함에서 선택</button><span className="text-[10px] text-muted-foreground">{attachedFile ? "기기에서 첨부됨" : "계정에 저장된 파일 사용"}</span></div>}
+        {!!composer?.libraryFiles?.length && <div className="mb-3 space-y-2" aria-label="선택한 보관 파일"><div className="flex max-h-28 flex-wrap gap-1 overflow-auto">{composer.libraryFiles.map((ref) => <span key={referenceKey(ref)} className="inline-flex max-w-full items-center gap-1 rounded-md border border-border bg-secondary px-2 py-1 text-xs"><span className="truncate" title={`${ref.project_name} · ${ref.table_name || "문서"}`}>{ref.filename} · {ref.project_name} · {referenceScope(ref)}</span><button type="button" aria-label={`${ref.filename} 선택 해제`} disabled={loading} onClick={() => onComposerChange?.({ ...composer, libraryFiles: composer.libraryFiles?.filter((item) => referenceKey(item) !== referenceKey(ref)) })}><X size={13} /></button></span>)}</div><p className="text-[10px] leading-4 text-muted-foreground">표시된 파일별 범위로 분석합니다. 선택은 다음 질문에도 유지됩니다.</p></div>}
         {/* Attached file indicator */}
         {attachedFile && (
           <div className="flex items-center gap-2 mb-2 px-1">
@@ -248,6 +275,7 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
               {attachedFile.name}
               <button
                 type="button"
+                aria-label="첨부 파일 제거"
                 onClick={() => setAttachedFile(null)}
                 className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
               >
@@ -269,32 +297,35 @@ export default function ChatPanel({ messages, onSend, loading, disabled, streami
             variant="ghost"
             size="icon"
             onClick={handleFileSelect}
-            disabled={disabled || loading}
+            disabled={disabled || loading || !!composer?.libraryFiles?.length}
             className="rounded-xl shrink-0 text-muted-foreground hover:text-accent"
             title="CSV/XLSX 파일 첨부"
+            aria-label="CSV/XLSX 파일 첨부"
           >
             <Paperclip className="h-5 w-5" />
           </Button>
           <textarea
+            aria-label="분석 요청"
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
                 e.preventDefault();
                 handleSubmit(e);
               }
             }}
-            placeholder={disabled ? "프로젝트를 선택하세요" : "데이터를 추가/수정/삭제하거나 분석을 요청하세요..."}
+            placeholder={disabled ? "가게를 선택하세요" : "매출에 대해 물어보세요…"}
             rows={1}
             disabled={disabled || loading}
-            className="flex-1 rounded-xl border border-input bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-accent disabled:opacity-50 transition-all duration-200 max-h-32"
+            className="min-w-0 flex-1 rounded-xl border border-input bg-[var(--surface-input)] px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-accent disabled:opacity-50 transition-all duration-200 max-h-32"
           />
           <Button
             type="submit"
+            aria-label="분석 요청 보내기"
             disabled={loading || disabled || !input.trim()}
             size="icon"
-            className="rounded-xl shrink-0 bg-accent text-accent-foreground hover:bg-accent/90"
+            className="rounded-xl shrink-0 bg-primary text-primary-foreground hover:bg-[var(--action-hover)]"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />

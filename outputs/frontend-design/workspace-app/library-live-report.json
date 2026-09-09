@@ -1,0 +1,1324 @@
+{
+  "passed": true,
+  "real_postgres": true,
+  "real_models": true,
+  "api_transport": "FastAPI TestClient",
+  "real_embeddings": false,
+  "browser_evaluated": false,
+  "worker_model": "gpt-5.4",
+  "turns": [
+    {
+      "case": "discovery",
+      "message_id": "ba116ae1-9350-45c5-bf7b-bb4a67556c11",
+      "role": "assistant",
+      "content": "찾았습니다. 카드매출 관련 파일 후보는 1개입니다.\n\n1. **카드매출.csv**\n   - 파일 ID: 7709e2c5-ec76-4a40-b862-2fa87011fb75\n   - 가게: 성수점\n   - 상태: **linked**\n   - 연결 장부: **카드매출.csv · 7709e2c5**\n   - 연결 행 수: **2건**\n   - 파일 크기: **51바이트**\n   - 업로드 시각: **2026-09-09 23:38:30**\n\n요청하신 대로 **파일 후보만 확인**했고, **분석이나 가져오기는 하지 않았습니다**.",
+      "steps": [
+        {
+          "type": "tool_call",
+          "tool_name": "search_library_files",
+          "tool_input": {
+            "query": "카드매출",
+            "offset": 0
+          },
+          "tool_output": {
+            "files": [
+              {
+                "file_id": "7709e2c5-ec76-4a40-b862-2fa87011fb75",
+                "filename": "카드매출.csv",
+                "size_bytes": 51,
+                "created_at": "2026-09-09T23:38:30.233848",
+                "content_hash": "8d5194fab5748795bd89fa914f04396aa0f9dddf86150bfcd50497db388dd5f4",
+                "status": "linked",
+                "project_id": "c8bd8a58-2f22-4b7a-840d-b0c2e71bf96f",
+                "project_name": "성수점",
+                "bindings": [
+                  {
+                    "kind": "ledger",
+                    "table_id": "8629b012-1a54-4136-8e05-c3b2b970576d",
+                    "row_count": 2,
+                    "project_id": "c8bd8a58-2f22-4b7a-840d-b0c2e71bf96f",
+                    "table_name": "카드매출.csv · 7709e2c5",
+                    "project_name": "성수점"
+                  }
+                ],
+                "kind": "table"
+              }
+            ],
+            "total": 1,
+            "offset": 0,
+            "limit": 10,
+            "next_offset": null,
+            "hint": "파일은 후보입니다. 사용자에게 보관함에서 분석할 연결과 범위를 선택하도록 안내하세요. 파일 재선택으로 거래를 추가하지 마세요."
+          }
+        },
+        {
+          "type": "answer",
+          "content": "찾았습니다. 카드매출 관련 파일 후보는 1개입니다.\n\n1. **카드매출.csv**\n   - 파일 ID: 7709e2c5-ec76-4a40-b862-2fa87011fb75\n   - 가게: 성수점\n   - 상태: **linked**\n   - 연결 장부: **카드매출.csv · 7709e2c5**\n   - 연결 행 수: **2건**\n   - 파일 크기: **51바이트**\n   - 업로드 시각: **2026-09-09 23:38:30**\n\n요청하신 대로 **파일 후보만 확인**했고, **분석이나 가져오기는 하지 않았습니다**.\n\n---SUGGESTIONS---\n보관함 다시 검색|다른 파일도 찾기|연결 장부만 보기"
+        }
+      ],
+      "charts": [],
+      "table_data": [],
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 15029,
+        "completion_tokens": 231,
+        "total_tokens": 15260,
+        "cost_usd": 0.018625,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1919,
+            "cost_usd": 0.000103
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 13341,
+            "cost_usd": 0.018523
+          }
+        }
+      },
+      "suggestions": [
+        "보관함 다시 검색",
+        "다른 파일도 찾기",
+        "연결 장부만 보기"
+      ],
+      "mutations_performed": false,
+      "schema_changed": false
+    },
+    {
+      "case": "scoped_chart",
+      "message_id": "ef1386f0-f152-4427-8aa5-94e9ab794da8",
+      "content": "미리보기 결과입니다. **2026년 9월 일별 amount 합계는 2일치, 총 2개 막대**로 확인됐습니다.\n\n- 사용 장부: **카드매출.csv · 7709e2c5**\n- 기준 컬럼: **paid_at**\n- 집계 방식: **일별 amount 합계**\n- 기간: **2026-09-01 ~ 2026-09-30**\n- 대시보드 저장: **하지 않음**\n\n일별 합계:\n- **2026-09-01: 100.01**\n- **2026-09-02: 200.02**\n\n핵심 포인트:\n- 9월 데이터는 현재 **2일**만 있습니다.\n- **2026-09-02가 2026-09-01보다 100.01 더 높습니다.**\n- 이번 미리보기는 **선택한 파일에 연결된 장부만** 사용했습니다.",
+      "steps": [
+        {
+          "type": "meta",
+          "tool_name": "library_references",
+          "tool_output": {
+            "files": [
+              {
+                "file_id": "7709e2c5-ec76-4a40-b862-2fa87011fb75",
+                "filename": "카드매출.csv",
+                "content_hash": "8d5194fab5748795bd89fa914f04396aa0f9dddf86150bfcd50497db388dd5f4",
+                "kind": "ledger",
+                "table_id": "8629b012-1a54-4136-8e05-c3b2b970576d",
+                "row_count": 2,
+                "project_id": "c8bd8a58-2f22-4b7a-840d-b0c2e71bf96f",
+                "table_name": "카드매출.csv · 7709e2c5",
+                "project_name": "성수점",
+                "query_table_name": "카드매출.csv · 7709e2c5",
+                "scope": "linked_ledger"
+              }
+            ],
+            "scope_note": "선택 파일에 연결된 장부 전체를 분석합니다. 원본 파일의 행만 집계하는 것은 아닙니다."
+          }
+        },
+        {
+          "type": "tool_call",
+          "tool_name": "preview_metric",
+          "tool_input": {
+            "version": 1,
+            "table_name": "카드매출.csv · 7709e2c5",
+            "operation": "sum",
+            "column": "amount",
+            "group_by": "paid_at",
+            "chart_type": "bar",
+            "date_column": "paid_at",
+            "time_range": "all",
+            "filters": [
+              {
+                "column": "paid_at",
+                "operator": ">=",
+                "value": "2026-09-01"
+              },
+              {
+                "column": "paid_at",
+                "operator": "<=",
+                "value": "2026-09-30"
+              }
+            ],
+            "date_grain": "day"
+          },
+          "tool_output": {
+            "execution": {
+              "sql": "SELECT date_trunc(%s, \"paid_at\")::date AS dimension, SUM(\"amount\") AS value, COUNT(*) FILTER (WHERE \"amount\" IS NULL) AS missing_values FROM \"ut_da8862bd_8629b012\" WHERE \"paid_at\" >= %s AND \"paid_at\" <= %s GROUP BY 1 ORDER BY 1 NULLS LAST LIMIT %s",
+              "parameters": [
+                "day",
+                "2026-09-01",
+                "2026-09-30",
+                1001
+              ],
+              "timezone": "Asia/Seoul",
+              "dialect": "PostgreSQL",
+              "parameterized": true
+            },
+            "metric_definition": {
+              "version": 1,
+              "table_id": "8629b012-1a54-4136-8e05-c3b2b970576d",
+              "operation": "sum",
+              "column": "amount",
+              "group_by": "paid_at",
+              "date_grain": "day",
+              "chart_type": "bar",
+              "date_column": "paid_at",
+              "time_range": "all",
+              "filters": [
+                {
+                  "column": "paid_at",
+                  "operator": ">=",
+                  "value": "2026-09-01"
+                },
+                {
+                  "column": "paid_at",
+                  "operator": "<=",
+                  "value": "2026-09-30"
+                }
+              ]
+            },
+            "calculated_at": "2026-09-09T14:38:40.918682+00:00",
+            "source_table_name": "카드매출.csv · 7709e2c5",
+            "source_updated_at": "2026-09-09T23:38:30.298522",
+            "refresh_error": null,
+            "period_label": "전체 기간",
+            "label": "카드매출.csv · 7709e2c5 · sum",
+            "calculation_label": "합계 (amount) · paid_at >= 2026-09-01, paid_at <= 2026-09-30",
+            "chart_type": "bar",
+            "x_key": "dimension",
+            "y_key": "value",
+            "data": [
+              {
+                "dimension": "2026-09-01",
+                "value": "100.01"
+              },
+              {
+                "dimension": "2026-09-02",
+                "value": "200.02"
+              }
+            ],
+            "saved": false,
+            "title": "지표 미리보기"
+          }
+        },
+        {
+          "type": "token",
+          "content": "미"
+        },
+        {
+          "type": "token",
+          "content": "리"
+        },
+        {
+          "type": "token",
+          "content": "보기"
+        },
+        {
+          "type": "token",
+          "content": " 결과"
+        },
+        {
+          "type": "token",
+          "content": "입니다"
+        },
+        {
+          "type": "token",
+          "content": "."
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "년"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "9"
+        },
+        {
+          "type": "token",
+          "content": "월"
+        },
+        {
+          "type": "token",
+          "content": " 일"
+        },
+        {
+          "type": "token",
+          "content": "별"
+        },
+        {
+          "type": "token",
+          "content": " amount"
+        },
+        {
+          "type": "token",
+          "content": " 합"
+        },
+        {
+          "type": "token",
+          "content": "계"
+        },
+        {
+          "type": "token",
+          "content": "는"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "2"
+        },
+        {
+          "type": "token",
+          "content": "일"
+        },
+        {
+          "type": "token",
+          "content": "치"
+        },
+        {
+          "type": "token",
+          "content": ","
+        },
+        {
+          "type": "token",
+          "content": " 총"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "2"
+        },
+        {
+          "type": "token",
+          "content": "개"
+        },
+        {
+          "type": "token",
+          "content": " 막"
+        },
+        {
+          "type": "token",
+          "content": "대"
+        },
+        {
+          "type": "token",
+          "content": "**"
+        },
+        {
+          "type": "token",
+          "content": "로"
+        },
+        {
+          "type": "token",
+          "content": " 확인"
+        },
+        {
+          "type": "token",
+          "content": "됐"
+        },
+        {
+          "type": "token",
+          "content": "습니다"
+        },
+        {
+          "type": "token",
+          "content": ".\n\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 사용"
+        },
+        {
+          "type": "token",
+          "content": " 장"
+        },
+        {
+          "type": "token",
+          "content": "부"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "카"
+        },
+        {
+          "type": "token",
+          "content": "드"
+        },
+        {
+          "type": "token",
+          "content": "매"
+        },
+        {
+          "type": "token",
+          "content": "출"
+        },
+        {
+          "type": "token",
+          "content": ".csv"
+        },
+        {
+          "type": "token",
+          "content": " ·"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "770"
+        },
+        {
+          "type": "token",
+          "content": "9"
+        },
+        {
+          "type": "token",
+          "content": "e"
+        },
+        {
+          "type": "token",
+          "content": "2"
+        },
+        {
+          "type": "token",
+          "content": "c"
+        },
+        {
+          "type": "token",
+          "content": "5"
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 기준"
+        },
+        {
+          "type": "token",
+          "content": " 컬"
+        },
+        {
+          "type": "token",
+          "content": "럼"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "paid"
+        },
+        {
+          "type": "token",
+          "content": "_at"
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 집"
+        },
+        {
+          "type": "token",
+          "content": "계"
+        },
+        {
+          "type": "token",
+          "content": " 방식"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "일"
+        },
+        {
+          "type": "token",
+          "content": "별"
+        },
+        {
+          "type": "token",
+          "content": " amount"
+        },
+        {
+          "type": "token",
+          "content": " 합"
+        },
+        {
+          "type": "token",
+          "content": "계"
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 기간"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "01"
+        },
+        {
+          "type": "token",
+          "content": " ~"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "30"
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 대"
+        },
+        {
+          "type": "token",
+          "content": "시"
+        },
+        {
+          "type": "token",
+          "content": "보"
+        },
+        {
+          "type": "token",
+          "content": "드"
+        },
+        {
+          "type": "token",
+          "content": " 저장"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "하지"
+        },
+        {
+          "type": "token",
+          "content": " 않"
+        },
+        {
+          "type": "token",
+          "content": "음"
+        },
+        {
+          "type": "token",
+          "content": "**\n\n"
+        },
+        {
+          "type": "token",
+          "content": "일"
+        },
+        {
+          "type": "token",
+          "content": "별"
+        },
+        {
+          "type": "token",
+          "content": " 합"
+        },
+        {
+          "type": "token",
+          "content": "계"
+        },
+        {
+          "type": "token",
+          "content": ":\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "01"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "100"
+        },
+        {
+          "type": "token",
+          "content": "."
+        },
+        {
+          "type": "token",
+          "content": "01"
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "02"
+        },
+        {
+          "type": "token",
+          "content": ":"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "200"
+        },
+        {
+          "type": "token",
+          "content": "."
+        },
+        {
+          "type": "token",
+          "content": "02"
+        },
+        {
+          "type": "token",
+          "content": "**\n\n"
+        },
+        {
+          "type": "token",
+          "content": "핵"
+        },
+        {
+          "type": "token",
+          "content": "심"
+        },
+        {
+          "type": "token",
+          "content": " 포"
+        },
+        {
+          "type": "token",
+          "content": "인트"
+        },
+        {
+          "type": "token",
+          "content": ":\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "9"
+        },
+        {
+          "type": "token",
+          "content": "월"
+        },
+        {
+          "type": "token",
+          "content": " 데이터"
+        },
+        {
+          "type": "token",
+          "content": "는"
+        },
+        {
+          "type": "token",
+          "content": " 현재"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "2"
+        },
+        {
+          "type": "token",
+          "content": "일"
+        },
+        {
+          "type": "token",
+          "content": "**"
+        },
+        {
+          "type": "token",
+          "content": "만"
+        },
+        {
+          "type": "token",
+          "content": " 있습니다"
+        },
+        {
+          "type": "token",
+          "content": ".\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "02"
+        },
+        {
+          "type": "token",
+          "content": "가"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "202"
+        },
+        {
+          "type": "token",
+          "content": "6"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "09"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": "01"
+        },
+        {
+          "type": "token",
+          "content": "보다"
+        },
+        {
+          "type": "token",
+          "content": " "
+        },
+        {
+          "type": "token",
+          "content": "100"
+        },
+        {
+          "type": "token",
+          "content": "."
+        },
+        {
+          "type": "token",
+          "content": "01"
+        },
+        {
+          "type": "token",
+          "content": " 더"
+        },
+        {
+          "type": "token",
+          "content": " 높"
+        },
+        {
+          "type": "token",
+          "content": "습니다"
+        },
+        {
+          "type": "token",
+          "content": "."
+        },
+        {
+          "type": "token",
+          "content": "**\n"
+        },
+        {
+          "type": "token",
+          "content": "-"
+        },
+        {
+          "type": "token",
+          "content": " 이번"
+        },
+        {
+          "type": "token",
+          "content": " 미"
+        },
+        {
+          "type": "token",
+          "content": "리"
+        },
+        {
+          "type": "token",
+          "content": "보기"
+        },
+        {
+          "type": "token",
+          "content": "는"
+        },
+        {
+          "type": "token",
+          "content": " **"
+        },
+        {
+          "type": "token",
+          "content": "선"
+        },
+        {
+          "type": "token",
+          "content": "택"
+        },
+        {
+          "type": "token",
+          "content": "한"
+        },
+        {
+          "type": "token",
+          "content": " 파일"
+        },
+        {
+          "type": "token",
+          "content": "에"
+        },
+        {
+          "type": "token",
+          "content": " 연결"
+        },
+        {
+          "type": "token",
+          "content": "된"
+        },
+        {
+          "type": "token",
+          "content": " 장"
+        },
+        {
+          "type": "token",
+          "content": "부"
+        },
+        {
+          "type": "token",
+          "content": "만"
+        },
+        {
+          "type": "token",
+          "content": "**"
+        },
+        {
+          "type": "token",
+          "content": " 사용"
+        },
+        {
+          "type": "token",
+          "content": "했습니다"
+        },
+        {
+          "type": "token",
+          "content": ".\n\n"
+        },
+        {
+          "type": "token",
+          "content": "---"
+        },
+        {
+          "type": "token",
+          "content": "S"
+        },
+        {
+          "type": "token",
+          "content": "UG"
+        },
+        {
+          "type": "token",
+          "content": "GEST"
+        },
+        {
+          "type": "token",
+          "content": "IONS"
+        },
+        {
+          "type": "token",
+          "content": "---\n"
+        },
+        {
+          "type": "token",
+          "content": "실"
+        },
+        {
+          "type": "token",
+          "content": "제"
+        },
+        {
+          "type": "token",
+          "content": " 막"
+        },
+        {
+          "type": "token",
+          "content": "대"
+        },
+        {
+          "type": "token",
+          "content": "차"
+        },
+        {
+          "type": "token",
+          "content": "트"
+        },
+        {
+          "type": "token",
+          "content": " 보여"
+        },
+        {
+          "type": "token",
+          "content": "줘"
+        },
+        {
+          "type": "token",
+          "content": "|"
+        },
+        {
+          "type": "token",
+          "content": "9"
+        },
+        {
+          "type": "token",
+          "content": "월"
+        },
+        {
+          "type": "token",
+          "content": " 총"
+        },
+        {
+          "type": "token",
+          "content": "합"
+        },
+        {
+          "type": "token",
+          "content": " 계산"
+        },
+        {
+          "type": "token",
+          "content": "해"
+        },
+        {
+          "type": "token",
+          "content": "줘"
+        },
+        {
+          "type": "token",
+          "content": "|"
+        },
+        {
+          "type": "token",
+          "content": "일"
+        },
+        {
+          "type": "token",
+          "content": "별"
+        },
+        {
+          "type": "token",
+          "content": " 표"
+        },
+        {
+          "type": "token",
+          "content": "로"
+        },
+        {
+          "type": "token",
+          "content": " 보여"
+        },
+        {
+          "type": "token",
+          "content": "줘"
+        },
+        {
+          "type": "answer",
+          "content": "미리보기 결과입니다. **2026년 9월 일별 amount 합계는 2일치, 총 2개 막대**로 확인됐습니다.\n\n- 사용 장부: **카드매출.csv · 7709e2c5**\n- 기준 컬럼: **paid_at**\n- 집계 방식: **일별 amount 합계**\n- 기간: **2026-09-01 ~ 2026-09-30**\n- 대시보드 저장: **하지 않음**\n\n일별 합계:\n- **2026-09-01: 100.01**\n- **2026-09-02: 200.02**\n\n핵심 포인트:\n- 9월 데이터는 현재 **2일**만 있습니다.\n- **2026-09-02가 2026-09-01보다 100.01 더 높습니다.**\n- 이번 미리보기는 **선택한 파일에 연결된 장부만** 사용했습니다.\n\n---SUGGESTIONS---\n실제 막대차트 보여줘|9월 총합 계산해줘|일별 표로 보여줘"
+        }
+      ],
+      "charts": [
+        {
+          "execution": {
+            "sql": "SELECT date_trunc(%s, \"paid_at\")::date AS dimension, SUM(\"amount\") AS value, COUNT(*) FILTER (WHERE \"amount\" IS NULL) AS missing_values FROM \"ut_da8862bd_8629b012\" WHERE \"paid_at\" >= %s AND \"paid_at\" <= %s GROUP BY 1 ORDER BY 1 NULLS LAST LIMIT %s",
+            "parameters": [
+              "day",
+              "2026-09-01",
+              "2026-09-30",
+              1001
+            ],
+            "timezone": "Asia/Seoul",
+            "dialect": "PostgreSQL",
+            "parameterized": true
+          },
+          "metric_definition": {
+            "version": 1,
+            "table_id": "8629b012-1a54-4136-8e05-c3b2b970576d",
+            "operation": "sum",
+            "column": "amount",
+            "group_by": "paid_at",
+            "date_grain": "day",
+            "chart_type": "bar",
+            "date_column": "paid_at",
+            "time_range": "all",
+            "filters": [
+              {
+                "column": "paid_at",
+                "operator": ">=",
+                "value": "2026-09-01"
+              },
+              {
+                "column": "paid_at",
+                "operator": "<=",
+                "value": "2026-09-30"
+              }
+            ]
+          },
+          "calculated_at": "2026-09-09T14:38:40.918682+00:00",
+          "source_table_name": "카드매출.csv · 7709e2c5",
+          "source_updated_at": "2026-09-09T23:38:30.298522",
+          "refresh_error": null,
+          "period_label": "전체 기간",
+          "label": "카드매출.csv · 7709e2c5 · sum",
+          "calculation_label": "합계 (amount) · paid_at >= 2026-09-01, paid_at <= 2026-09-30",
+          "chart_type": "bar",
+          "x_key": "dimension",
+          "y_key": "value",
+          "data": [
+            {
+              "dimension": "2026-09-01",
+              "value": "100.01"
+            },
+            {
+              "dimension": "2026-09-02",
+              "value": "200.02"
+            }
+          ],
+          "saved": false,
+          "title": "지표 미리보기"
+        }
+      ],
+      "table_data": [],
+      "suggestions": [
+        "실제 막대차트 보여줘",
+        "9월 총합 계산해줘",
+        "일별 표로 보여줘"
+      ],
+      "mutations_performed": false,
+      "schema_changed": false,
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 23560,
+        "completion_tokens": 384,
+        "total_tokens": 23944,
+        "cost_usd": 0.030394,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2189,
+            "cost_usd": 0.000121
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 21755,
+            "cost_usd": 0.030274
+          }
+        }
+      }
+    },
+    {
+      "case": "external_store_only",
+      "message_id": "9b10d544-fb07-492f-9f16-eded47ea8d63",
+      "role": "assistant",
+      "content": "조회 결과입니다. **연남점 파일에 연결된 장부만 사용한 amount 전체 합계는 123.45입니다.**\n\n| 장부 | 집계 | 결과 |\n|---|---:|---:|\n| 연남점 · 연남점.csv · 7c72ae5a · 677a3c17 | amount 합계 | 123.45 |\n\n- 사용 범위: **선택한 연남점 파일에 연결된 장부 1개만 포함**\n- 포함 제외: **다른 장부는 포함하지 않음**\n- 기간: **전체 기간**\n- 행 수 참고: 현재 연결 장부 기준 **1행**",
+      "steps": [
+        {
+          "type": "meta",
+          "tool_name": "library_references",
+          "tool_output": {
+            "files": [
+              {
+                "file_id": "7c72ae5a-4856-48c9-86b5-fa1256098daa",
+                "filename": "연남점.csv",
+                "content_hash": "c5124a22582cf290687755dee412e9c9597e9c01019e72f7529ffd3af7df72a4",
+                "kind": "ledger",
+                "table_id": "677a3c17-01de-4fc4-bf79-d6a0a277127e",
+                "row_count": 1,
+                "project_id": "c2375fb7-7790-4a3f-9584-8c3857503364",
+                "table_name": "연남점.csv · 7c72ae5a",
+                "project_name": "연남점",
+                "query_table_name": "연남점 · 연남점.csv · 7c72ae5a · 677a3c17",
+                "scope": "linked_ledger"
+              }
+            ],
+            "scope_note": "선택 파일에 연결된 장부 전체를 분석합니다. 원본 파일의 행만 집계하는 것은 아닙니다."
+          }
+        },
+        {
+          "type": "tool_call",
+          "tool_name": "query_data",
+          "tool_input": {
+            "table_name": "연남점 · 연남점.csv · 7c72ae5a · 677a3c17",
+            "operation": "sum",
+            "value_column": "amount",
+            "limit": 50
+          },
+          "tool_output": {
+            "data": [
+              {
+                "result": "123.45"
+              }
+            ],
+            "columns": []
+          }
+        },
+        {
+          "type": "answer",
+          "content": "조회 결과입니다. **연남점 파일에 연결된 장부만 사용한 amount 전체 합계는 123.45입니다.**\n\n| 장부 | 집계 | 결과 |\n|---|---:|---:|\n| 연남점 · 연남점.csv · 7c72ae5a · 677a3c17 | amount 합계 | 123.45 |\n\n- 사용 범위: **선택한 연남점 파일에 연결된 장부 1개만 포함**\n- 포함 제외: **다른 장부는 포함하지 않음**\n- 기간: **전체 기간**\n- 행 수 참고: 현재 연결 장부 기준 **1행**\n\n---SUGGESTIONS---\n원본 행 보여줘|평균 금액 조회|막대그래프로 보여줘"
+        }
+      ],
+      "charts": [],
+      "table_data": [
+        {
+          "result": "123.45"
+        }
+      ],
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 24609,
+        "completion_tokens": 240,
+        "total_tokens": 24849,
+        "cost_usd": 0.030053,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2457,
+            "cost_usd": 0.00013
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 22392,
+            "cost_usd": 0.029924
+          }
+        }
+      },
+      "suggestions": [
+        "원본 행 보여줘",
+        "평균 금액 조회",
+        "막대그래프로 보여줘"
+      ],
+      "mutations_performed": false,
+      "schema_changed": false
+    }
+  ]
+}

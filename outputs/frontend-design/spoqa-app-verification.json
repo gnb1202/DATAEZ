@@ -1,0 +1,14 @@
+{
+  "scope": "Built Next.js login screen only; authenticated data flows were not exercised.",
+  "build": "npm run build passed, including TypeScript",
+  "fontFamily": "spoqaHanSansNeo, notoSansKR, \"Noto Sans KR\", ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+  "headingGlyphs": [
+    {
+      "familyName": "Spoqa Han Sans Neo Bold",
+      "postScriptName": "SpoqaHanSansNeo-Bold",
+      "isCustomFont": true,
+      "glyphCount": 14
+    }
+  ],
+  "lint": "Blocked by existing ESLint 9 and legacy .eslintrc.json / Next config format mismatch."
+}

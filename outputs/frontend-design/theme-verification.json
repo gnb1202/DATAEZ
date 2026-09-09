@@ -1,0 +1,61 @@
+{
+  "prototype": true,
+  "checks": [
+    "First visit defaults to dark even with a light OS",
+    "dark: canvas, series and tooltip use the shared tokens",
+    "dark: selected text, status and data colors meet contrast targets",
+    "dark: file library and preview dialog follow the theme",
+    "light: canvas, series and tooltip use the shared tokens",
+    "light: selected text, status and data colors meet contrast targets",
+    "light: file library and preview dialog follow the theme",
+    "Theme switching retains scope, chart type, amounts, messages and save state",
+    "Explicit preference survives reload",
+    "OS changes do not override an explicit preference",
+    "System option follows live OS changes",
+    "Light theme works at 390px without page overflow",
+    "Palette sheet shows both themes from shared tokens",
+    "Palette selection opens the workspace in the chosen theme",
+    "Theme still works when browser storage is unavailable",
+    "No browser runtime errors"
+  ],
+  "ratios": {
+    "dark": {
+      "text/bg": 15.65,
+      "text-secondary/bg": 10.75,
+      "muted/bg": 7.88,
+      "muted/panel": 7.02,
+      "muted/chat": 7.45,
+      "muted/surface-selected": 5.57,
+      "action-text/action-bg": 5.26,
+      "success-text/success-surface": 7,
+      "warning-text/warning-surface": 7.52,
+      "info-text/info-surface": 7.91,
+      "error-text/error-surface": 7.19,
+      "text/tooltip-bg": 12.93,
+      "chart-primary/panel": 7.26,
+      "chart-secondary/panel": 8.17,
+      "chart-cancel/panel": 7.22,
+      "line-control/panel": 4.61
+    },
+    "light": {
+      "text/bg": 14.18,
+      "text-secondary/bg": 7.39,
+      "muted/bg": 5.5,
+      "muted/panel": 5.9,
+      "muted/chat": 5.6,
+      "muted/surface-selected": 4.78,
+      "action-text/action-bg": 6.48,
+      "success-text/success-surface": 5.1,
+      "warning-text/warning-surface": 5.4,
+      "info-text/info-surface": 5.78,
+      "error-text/error-surface": 5.34,
+      "text/tooltip-bg": 15.22,
+      "chart-primary/panel": 6.48,
+      "chart-secondary/panel": 5.33,
+      "chart-cancel/panel": 5.73,
+      "line-control/panel": 3.57
+    }
+  },
+  "errors": [],
+  "scope": "Selected contrast pairs and browser interactions; not a complete accessibility audit."
+}

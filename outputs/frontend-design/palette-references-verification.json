@@ -1,0 +1,29 @@
+{
+  "verifiedOn": "2026-09-09",
+  "scope": "Standalone palette reference comparison; no production application changes",
+  "browser": "Codex in-app browser",
+  "checks": {
+    "threeEChartsSvgCharts": "passed",
+    "darkLightControls": "passed",
+    "lineBarControls": "passed",
+    "sameAmountsAcrossCandidates": "passed: net 16800000, gross 17410000, refunds 610000",
+    "sampleTable": "passed: 7 daily rows plus total, expands and collapses",
+    "desktopHorizontalOverflow": false,
+    "mobileHorizontalOverflow": false,
+    "mobileContentWidth": 375,
+    "pageConsoleErrors": [],
+    "javascriptSyntax": "passed: node --check"
+  },
+  "sampledContrastMinimums": {
+    "description": "Computed from six dark/light proposals, for text against panel and button text against action background; not a full accessibility audit",
+    "primaryText": 13.86,
+    "secondaryText": 5.90,
+    "accentOnPanel": 5.41,
+    "actionTextOnAction": 5.26
+  },
+  "limitations": [
+    "No user preference has been selected or applied to the existing workspace",
+    "Multiple-store chart series and all eventual production states are outside this comparison",
+    "Brand observations come from public references, not authenticated customer accounts"
+  ]
+}

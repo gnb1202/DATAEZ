@@ -14,6 +14,23 @@ const TOOL_ICONS: Record<string, typeof Search> = {
 };
 
 const TOOL_LABELS: Record<string, string> = {
+  list_stores: "비교 대상 가게 확인",
+  list_store_tables: "가게별 장부 확인",
+  inspect_store_table: "가게별 집계 기준 확인",
+  search_store_schema: "가게별 자료 검색",
+  draft_cash_entry: "현금 입력 초안 작성",
+  list_cash_entries: "현금 입력 이력 조회",
+  get_cash_entry: "현금 입력 상태 확인",
+  list_ledger_sources: "결제 출처 확인",
+  list_import_history: "파일 반영 이력 확인",
+  inspect_import_review: "중복·충돌 근거 확인",
+  preview_metric: "지표 미리보기",
+  save_metric: "대시보드 지표 저장",
+  list_metrics: "저장 지표 확인",
+  update_metric: "저장 지표 수정",
+  get_metric_history: "지표 변경 이력 확인",
+  restore_metric: "이전 지표 정의 복원",
+  set_metric_refresh: "자동 갱신 설정",
   profile_data: "데이터 구조 파악",
   query_data: "데이터 조회",
   detect_anomaly: "이상치 탐지",
@@ -37,7 +54,7 @@ function StepDetail({ step }: { step: AgentStep }) {
       >
         <Icon className="h-3.5 w-3.5 text-accent flex-shrink-0" />
         <span className="text-xs font-medium text-foreground flex-1">{label}</span>
-        <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />
+        {step.tool_output?.error ? <AlertTriangle className="h-3.5 w-3.5 text-destructive flex-shrink-0" /> : <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
         {expanded ? (
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         ) : (

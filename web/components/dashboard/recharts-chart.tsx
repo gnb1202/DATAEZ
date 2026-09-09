@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useId, memo } from "react";
+import { useId, memo } from "react";
+import { exactMetricValue } from "./metric-analysis-dialog";
 import {
   AreaChart,
   Area,
@@ -17,23 +18,12 @@ import {
   Legend,
 } from "recharts";
 
-const CHART_COLORS = [
-  "oklch(0.7 0.18 220)",   // blue (primary)
-  "oklch(0.7 0.18 145)",   // green
-  "oklch(0.7 0.18 30)",    // orange
-  "oklch(0.7 0.18 310)",   // purple
-  "oklch(0.7 0.18 60)",    // yellow
-  "oklch(0.7 0.18 0)",     // red
-];
-
+const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 const TOOLTIP_STYLE = {
-  backgroundColor: "oklch(0.12 0.005 260)",
-  border: "1px solid oklch(0.22 0.005 260)",
-  borderRadius: "8px",
-  fontSize: "12px",
+  backgroundColor: "var(--tooltip-bg)", color: "var(--foreground)",
+  border: "1px solid var(--tooltip-line)", borderRadius: "8px", fontSize: "12px",
 };
-
-const AXIS_TICK = { fill: "oklch(0.65 0 0)", fontSize: 12 };
+const AXIS_TICK = { fill: "var(--muted-foreground)", fontSize: 12 };
 
 type RechartsChartProps = {
   chartType: "line" | "bar" | "pie";
@@ -42,6 +32,8 @@ type RechartsChartProps = {
   yKey: string;
   data: Record<string, unknown>[];
   height?: number;
+  fill?: boolean;
+  unit?: string;
 };
 
 export const RechartsChart = memo(function RechartsChart({
@@ -51,14 +43,10 @@ export const RechartsChart = memo(function RechartsChart({
   yKey,
   data,
   height = 300,
+  fill = false,
+  unit,
 }: RechartsChartProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
   const gradientId = useId().replace(/:/g, "");
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 200);
-    return () => clearTimeout(timer);
-  }, []);
 
   if (!data || data.length === 0) {
     return (
@@ -70,13 +58,21 @@ export const RechartsChart = memo(function RechartsChart({
 
   const formatValue = (value: unknown): string => {
     if (typeof value !== "number") return String(value ?? "");
-    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
-    if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+    if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
     return value.toLocaleString();
   };
 
+  // Metric amounts remain exact decimal strings in storage/API. Recharts
+  // (especially Pie) requires numbers for geometry; convert only at rendering.
+  const plotData = data.map((row) => {
+    const value = row[yKey];
+    const numeric = value == null || value === "" ? null : Number(value);
+    return { ...row, [xKey]: row[xKey] ?? "(분류 미제공)", [yKey]: numeric !== null && Number.isFinite(numeric) ? numeric : null, __exactValue: value };
+  });
+
   return (
-    <div className="bg-card border border-border rounded-xl p-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className={`bg-card border border-border rounded-xl animate-in fade-in slide-in-from-bottom-4 duration-500 ${fill ? "h-full min-h-0 flex flex-col p-2" : "p-5"}`}>
       {title && (
         <h3 className="text-base font-semibold text-foreground mb-4">
           {title}
@@ -84,14 +80,14 @@ export const RechartsChart = memo(function RechartsChart({
       )}
 
       <div
-        className={`transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-        style={{ height }}
+        className={fill ? "flex-1 min-h-0" : ""}
+        style={fill ? undefined : { height }}
       >
         <ResponsiveContainer width="100%" height="100%">
           {chartType === "pie" ? (
             <PieChart>
               <Pie
-                data={data}
+                data={plotData}
                 dataKey={yKey}
                 nameKey={xKey}
                 cx="50%"
@@ -103,7 +99,7 @@ export const RechartsChart = memo(function RechartsChart({
                 label={({ name, percent }: { name?: string; percent?: number }) =>
                   `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
                 }
-                labelLine={{ stroke: "oklch(0.45 0 0)" }}
+                labelLine={{ stroke: "var(--muted-foreground)" }}
               >
                 {data.map((_, idx) => (
                   <Cell
@@ -113,16 +109,17 @@ export const RechartsChart = memo(function RechartsChart({
                 ))}
               </Pie>
               <Tooltip
+                cursor={{ fill: "var(--accent-surface)", stroke: "var(--line-strong)" }}
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: "oklch(0.95 0 0)", fontWeight: 600 }}
-                itemStyle={{ color: "oklch(0.65 0 0)" }}
-                formatter={(value: unknown) => [formatValue(value), ""]}
+                labelStyle={{ color: "var(--foreground)", fontWeight: 700 }}
+                itemStyle={{ color: "var(--muted-foreground)" }}
+                formatter={(value: unknown, _name, item) => [exactMetricValue(item.payload?.__exactValue ?? value, unit), ""]}
               />
               <Legend
                 iconType="circle"
                 iconSize={8}
                 formatter={(value: string) => (
-                  <span style={{ color: "oklch(0.65 0 0)", fontSize: 12 }}>
+                  <span style={{ color: "var(--muted-foreground)", fontSize: 12 }}>
                     {value}
                   </span>
                 )}
@@ -130,12 +127,12 @@ export const RechartsChart = memo(function RechartsChart({
             </PieChart>
           ) : chartType === "bar" ? (
             <BarChart
-              data={data}
+              data={plotData}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="oklch(0.22 0.005 260)"
+                stroke="var(--chart-grid)"
                 vertical={false}
               />
               <XAxis
@@ -153,10 +150,11 @@ export const RechartsChart = memo(function RechartsChart({
                 dx={-10}
               />
               <Tooltip
+                cursor={{ fill: "var(--accent-surface)", stroke: "var(--line-strong)" }}
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: "oklch(0.95 0 0)", fontWeight: 600 }}
-                itemStyle={{ color: "oklch(0.65 0 0)" }}
-                formatter={(value: unknown) => [formatValue(value), ""]}
+                labelStyle={{ color: "var(--foreground)", fontWeight: 700 }}
+                itemStyle={{ color: "var(--muted-foreground)" }}
+                formatter={(value: unknown, _name, item) => [exactMetricValue(item.payload?.__exactValue ?? value, unit), ""]}
               />
               <Bar
                 dataKey={yKey}
@@ -169,7 +167,7 @@ export const RechartsChart = memo(function RechartsChart({
           ) : (
             /* line → AreaChart (sales-ops style) */
             <AreaChart
-              data={data}
+              data={plotData}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <defs>
@@ -183,7 +181,7 @@ export const RechartsChart = memo(function RechartsChart({
                   <stop
                     offset="0%"
                     stopColor={CHART_COLORS[0]}
-                    stopOpacity={0.4}
+                    stopOpacity={0.16}
                   />
                   <stop
                     offset="100%"
@@ -194,7 +192,7 @@ export const RechartsChart = memo(function RechartsChart({
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="oklch(0.22 0.005 260)"
+                stroke="var(--chart-grid)"
                 vertical={false}
               />
               <XAxis
@@ -212,10 +210,11 @@ export const RechartsChart = memo(function RechartsChart({
                 dx={-10}
               />
               <Tooltip
+                cursor={{ fill: "var(--accent-surface)", stroke: "var(--line-strong)" }}
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: "oklch(0.95 0 0)", fontWeight: 600 }}
-                itemStyle={{ color: "oklch(0.65 0 0)" }}
-                formatter={(value: unknown) => [formatValue(value), ""]}
+                labelStyle={{ color: "var(--foreground)", fontWeight: 700 }}
+                itemStyle={{ color: "var(--muted-foreground)" }}
+                formatter={(value: unknown, _name, item) => [exactMetricValue(item.payload?.__exactValue ?? value, unit), ""]}
               />
               <Area
                 type="monotone"

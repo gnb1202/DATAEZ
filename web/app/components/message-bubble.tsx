@@ -12,13 +12,18 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import type { Message, AgentStep, ChartData } from "../lib/api";
+import { referenceScope, messageReferences, type LibraryFile } from "../lib/file-library";
 import ReasoningSteps from "./reasoning-steps";
-import { RechartsChart } from "@/components/dashboard/recharts-chart";
+import { ImportReviewLinks } from "./import-review-links";
+import { EChartsChart } from "@/components/dashboard/echarts-chart";
+import { MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
 
 type MessageBubbleProps = {
   message: Message;
+  onOpenLibrary?: (search?: string) => void;
   showSuggestions?: boolean;
   onSuggestionClick?: (suggestion: string) => void;
+  onOpenResult?: (messageId: string) => void;
   onPinChart?: (chart: ChartData) => void;
 };
 
@@ -27,7 +32,11 @@ function MessageBubble({
   showSuggestions,
   onSuggestionClick,
   onPinChart,
+  onOpenResult,
+  onOpenLibrary,
 }: MessageBubbleProps) {
+  const references = messageReferences(message.steps);
+  const candidates = message.steps?.flatMap((step) => step.tool_name === "search_library_files" && Array.isArray(step.tool_output?.files) ? step.tool_output.files as LibraryFile[] : []) || [];
   const isUser = message.role === "user";
 
   // Strip any leftover suggestions marker from content display
@@ -57,33 +66,43 @@ function MessageBubble({
 
       {/* Content */}
       <div className={cn("flex-1 min-w-0", isUser && "flex flex-col items-end")}>
+        {!!references.length && <div className="mb-2 max-w-full space-y-1 text-xs text-muted-foreground" aria-label="분석에 사용한 보관 파일">{references.map((file) => <div key={file.file_id} className="break-all">{onOpenLibrary ? <button className="text-left text-accent hover:underline" onClick={() => onOpenLibrary(file.filename)}>{file.filename}</button> : <span>{file.filename}</span>} · {file.project_name}<span className="block text-[10px]">{`${referenceScope(file)}${file.table_name ? ` · ${file.table_name}` : ""}`}</span></div>)}</div>}
+        {!!candidates.length && <div className="mb-3 space-y-2 rounded-lg border border-border p-3"><p className="text-xs font-medium">보관함에서 찾은 파일</p>{candidates.map((file) => <button key={file.file_id} disabled={!onOpenLibrary} onClick={() => onOpenLibrary?.(file.filename)} className="block w-full rounded bg-secondary px-2 py-2 text-left text-xs hover:text-accent"><span className="break-all">{file.filename}</span><span className="mt-1 block text-muted-foreground">{file.project_name || file.bindings?.[0]?.project_name || "가게 미지정"} · 확인하고 선택 →</span></button>)}<p className="text-[10px] text-muted-foreground">파일과 분석 범위를 확인한 뒤 선택해주세요.</p></div>}
         {isUser ? (
           <div className="bg-accent text-accent-foreground rounded-2xl rounded-tr-md px-4 py-2.5 max-w-[80%]">
-            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
           </div>
         ) : (
           <div className="max-w-full space-y-3">
             {/* Mutation badges */}
             <MutationBadges steps={message.steps} />
 
+            {onOpenResult && (message.charts?.length || message.table_data?.length) ? (
+              <button onClick={() => onOpenResult(message.message_id)} className="w-full rounded-xl border border-border bg-card p-3 text-left text-sm hover:border-accent focus-visible:border-accent">
+                <span className="mb-1 block font-medium">{message.charts?.[0]?.title || "분석 결과"}</span>
+                <span className="text-xs text-accent">결과 보기 →</span>
+              </button>
+            ) : null}
             {/* Charts */}
-            {message.charts && message.charts.length > 0 && (
+            {!onOpenResult && message.charts && message.charts.length > 0 && (
               <div className="space-y-3">
                 {message.charts.map((chart, idx) => (
                   <div key={idx} className="relative group/chart">
-                    <RechartsChart
+                    <EChartsChart
                       chartType={chart.chart_type as "line" | "bar" | "pie"}
                       title={chart.title}
                       xKey={chart.x_key}
                       yKey={chart.y_key}
                       data={chart.data}
+                      unit={chart.unit}
                       height={260}
                     />
+                    {!!chart.metric_definition && <MetricAnalysisDialog data={chart} title={chart.title || "미리보기"} />}
                     {onPinChart && (
                       <button
                         onClick={() => onPinChart(chart)}
                         aria-label="대시보드에 고정"
-                        className="absolute top-2 right-2 opacity-0 group-hover/chart:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm border border-border rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-accent hover:border-accent flex items-center gap-1.5"
+                        className="absolute top-2 right-2 transition-colors bg-background/80 backdrop-blur-sm border border-border rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-accent hover:border-accent flex items-center gap-1.5"
                       >
                         <Pin className="h-3 w-3" />
                         고정
@@ -95,7 +114,7 @@ function MessageBubble({
             )}
 
             {/* Data table */}
-            {message.table_data && message.table_data.length > 0 && (
+            {!onOpenResult && message.table_data && message.table_data.length > 0 && (
               <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -116,7 +135,7 @@ function MessageBubble({
                         {Object.values(row).map((val, vIdx) => (
                           <TableCell
                             key={vIdx}
-                            className="text-sm text-foreground font-mono"
+                            className="text-sm text-foreground font-sans numeric"
                           >
                             {String(val ?? "")}
                           </TableCell>
@@ -136,13 +155,15 @@ function MessageBubble({
             {/* Answer text */}
             {displayContent && (
               <div className="bg-card border border-border rounded-2xl rounded-tl-md px-4 py-3">
-                <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">
                   {displayContent}
                 </p>
                 {/* Referenced tables */}
                 <ReferencedTables steps={message.steps} />
               </div>
             )}
+
+            <ImportReviewLinks steps={message.steps} />
 
             {/* Suggestion buttons */}
             {hasSuggestions && (

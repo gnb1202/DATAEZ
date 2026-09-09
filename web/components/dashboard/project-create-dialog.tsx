@@ -25,36 +25,38 @@ export function ProjectCreateDialog({
   onCreate,
   loading,
 }: ProjectCreateDialogProps) {
+  const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await onCreate(name.trim(), description.trim());
-    setName("");
-    setDescription("");
-    onClose();
+    setError("");
+    try {
+      await onCreate(name.trim(), description.trim());
+      setName(""); setDescription(""); onClose();
+    } catch (e) { setError(e instanceof Error ? e.message : "가게를 만들지 못했습니다."); }
   };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(v) => {
-        if (!v) onClose();
+        if (!v && !loading) { setError(""); onClose(); }
       }}
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FolderKanban className="h-5 w-5 text-accent" />
-            새 프로젝트
+            새 가게
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="project-name">프로젝트 이름</Label>
+            <Label htmlFor="project-name">가게 이름</Label>
             <Input
               id="project-name"
               value={name}
@@ -72,6 +74,7 @@ export function ProjectCreateDialog({
               placeholder="예: 강남점 매출/재고 관리"
             />
           </div>
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <Button
             type="submit"
             disabled={!name.trim() || loading}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="금융·매출 플랫폼 공식 레퍼런스와 DATA:EZ의 블루, 인디고, 민트 팔레트를 비교합니다.">
+  <title>DATA:EZ — 금융·매출 플랫폼 컬러 리서치</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="palette-references.css">
+  <script defer src="vendor/echarts-6.0.0.min.js"></script>
+  <script defer src="palette-references.js"></script>
+</head>
+<body data-mode="dark">
+  <a class="skip" href="#main">본문으로 이동</a>
+  <header class="page-header"><a class="wordmark" href="index.html">DATA:EZ</a><span>COLOR RESEARCH / 2026.09.09</span><a class="back" href="palette.html">현재 팔레트 ↗</a></header>
+  <main id="main">
+    <section class="intro" aria-labelledby="title">
+      <div><p class="eyebrow">금융 · 결제 · 매출 관리</p><h1 id="title">돈의 흐름을 보여주는 색.</h1><p class="lead">공식 서비스에서 참고할 원칙을 찾고,<br>같은 DATA:EZ 화면에 세 가지 방향을 올려봤습니다.</p></div>
+      <a class="source-jump" href="#references">공식 레퍼런스 5개 살펴보기 ↓</a>
+    </section>
+    <aside class="recommendation"><strong>확정 · A. 차콜 + 블루 · 2026.09.09</strong><p>선택·실행은 블루, 분석 가능 상태는 그린, 취소금액은 로즈. 각 색의 역할을 구분하기 쉽고, 현재의 차분한 다크 화면도 유지할 수 있습니다.</p></aside>
+    <section aria-labelledby="comparison-title">
+      <div class="section-top"><div><h2 id="comparison-title">확정안과 비교 후보</h2><p>모든 후보에 같은 Spoqa 글꼴·수치·레이아웃을 사용합니다.</p></div><div class="controls"><fieldset><legend class="sr-only">미리보기 밝기</legend><button type="button" data-mode="dark" aria-pressed="true">다크</button><button type="button" data-mode="light" aria-pressed="false">라이트</button></fieldset><fieldset><legend class="sr-only">차트 종류</legend><button type="button" data-chart="line" aria-pressed="true">선</button><button type="button" data-chart="bar" aria-pressed="false">막대</button></fieldset></div></div>
+      <p class="scope-note">아래 HEX는 DATA:EZ용 색상입니다. A안을 최종 선택했습니다. 다른 회사의 공식 팔레트를 복제한 값이 아닙니다. 선택은 이 비교 화면에만 반영됩니다.</p>
+      <div class="candidates" id="candidates"></div>
+      <p class="sample-note">합성 데이터 · 2026.9.1–9.7 · 강남점 · 결제 17,410,000원 − 취소 610,000원 = 순결제 16,800,000원 · 수수료 차감 전</p>
+      <details class="data-detail"><summary>동일한 샘플 데이터 확인</summary><div class="table-wrap"><table><caption>후보별 차트에 공통으로 사용하는 일별 금액 (원)</caption><thead><tr><th scope="col">날짜</th><th scope="col">결제액</th><th scope="col">취소금액</th><th scope="col">순결제액</th></tr></thead><tbody id="sample-rows"></tbody></table></div></details>
+    </section>
+    <section id="references" class="references" aria-labelledby="references-title">
+      <div class="section-top"><div><p class="eyebrow">OFFICIAL SOURCES</p><h2 id="references-title">어디에서 무엇을 참고했나</h2></div><span class="muted">공식 문서 · 공개 제품 화면 · 공식 데모</span></div>
+      <p class="scope-note">색감 설명은 공개 화면을 보고 정리한 관찰입니다. 토스 TDS 수치만 공식 문서의 HEX이며, 공개 홍보 화면은 현재 로그인 후 제품 화면과 다를 수 있습니다.</p>
+      <article class="reference-row"><div class="reference-name"><span>01 / 국내 금융</span><h3>토스 TDS</h3><a href="https://tossmini-docs.toss.im/tds-mobile/foundation/colors/" target="_blank" rel="noopener noreferrer">공식 색상표 ↗</a></div><div><h4>밝은 회색·짙은 글자·블루</h4><p>공식 표에서 blue500은 #3182F6, grey50은 #F9FAFB, grey900은 #191F28입니다. 배경과 글자를 단계별로 나누고, 강조색과 상태색을 별도로 관리하는 기준을 참고합니다.</p><div class="official-colors" aria-label="토스 TDS 공식 색상"><span><i style="background:#3182f6"></i>#3182F6</span><span><i style="background:#f9fafb"></i>#F9FAFB</span><span><i style="background:#191f28"></i>#191F28</span></div></div><p class="takeaway">A안에 반영<br><strong>선택과 실행의 색을 명확하게</strong></p></article>
+      <article class="reference-row"><div class="reference-name"><span>02 / 사업자 금융</span><h3>Mercury</h3><a href="https://demo.mercury.com/dashboard" target="_blank" rel="noopener noreferrer">공식 데모 ↗</a><a href="https://support.mercury.com/hc/en-us/articles/37538153196948-Enabling-dark-mode" target="_blank" rel="noopener noreferrer">테마 안내 ↗</a></div><div><h4>잉크색 바탕·인디고·낮은 채도의 보조색</h4><p>공식 데모의 다크 화면에서 어두운 패널 층위, 인디고 버튼과 잔액 그래프를 확인했습니다. 큰 금액은 밝은 글자로 두고, 컬러는 행동과 추세에 집중합니다.</p><p>공식 안내는 웹·모바일의 다크·라이트·시스템 설정을 설명합니다. 2022년 <a href="https://mercury.com/blog/december-2022-product-updates" target="_blank" rel="noopener noreferrer">설계 글 ↗</a>은 용도별 색상 토큰을 도입한 배경도 다룹니다.</p></div><p class="takeaway">B안에 반영<br><strong>다크 화면의 깊이와 차분함</strong></p></article>
+      <article class="reference-row"><div class="reference-name"><span>03 / 결제 데이터 분석</span><h3>Stripe Sigma</h3><a href="https://stripe.com/en-de/sigma" target="_blank" rel="noopener noreferrer">공식 제품 화면 ↗</a></div><div><h4>중립적인 분석 화면·여러 계열의 차트색</h4><p>공개 예시의 흰색·회색 작업 화면 위에 보라·블루·청록 차트를 사용합니다. 자연어·SQL로 보고서를 만들고, 차트와 대시보드로 연결하는 기능이 DATA:EZ의 목표와 특히 가깝습니다.</p></div><p class="takeaway">전체 후보에 반영<br><strong>화면 강조색과 데이터 계열을 구분</strong></p></article>
+      <article class="reference-row"><div class="reference-name"><span>04 / 국내 매장 관리</span><h3>캐시노트</h3><a href="https://info.cashnote.kr/main" target="_blank" rel="noopener noreferrer">공식 장부 소개 ↗</a></div><div><h4>밝은 화면·블루 계열·결제수단별 구분</h4><p>공개 장부 이미지에서 큰 매출 합계, 결제수단별 금액, 실적 캘린더를 함께 보여줍니다. 우리 사용자인 소상공인에게 어떤 숫자를 먼저 보여줄지 참고하기 좋습니다.</p></div><p class="takeaway">정보 순서에 반영<br><strong>합계 → 결제수단 → 일별 흐름</strong></p></article>
+      <article class="reference-row"><div class="reference-name"><span>05 / POS·다점포 매출</span><h3>Square</h3><a href="https://squareup.com/us/en/point-of-sale/features/dashboard/analytics" target="_blank" rel="noopener noreferrer">공식 분석 화면 ↗</a><a href="https://squareup.com/help/us/en/article/5381-in-app-summaries-and-reports" target="_blank" rel="noopener noreferrer">현재 보고서 안내 ↗</a></div><div><h4>회색·흰색 바탕·블루 차트·표의 조합</h4><p>공식 홍보 페이지의 공개 예시는 블루 차트와 집계표를 함께 배치합니다. 과거 UI가 포함된 예시이므로 형태를 참고하고, 기능 범위는 별도의 보고서 안내를 확인했습니다.</p><p>보고서 안내의 가게·기간·결제수단 구분, 선·막대 전환, 지표 정의는 다점포 분석에 참고할 만합니다.</p></div><p class="takeaway">분석 구성에 반영<br><strong>그래프에서 근거 숫자까지</strong></p></article>
+    </section>
+    <section class="rules" aria-label="DATA:EZ 색상 적용 원칙"><article><span>01</span><h3>대표 금액은 글자로 읽게</h3><p>큰 금액은 기본 텍스트색을 사용합니다. 중요한 숫자마다 서로 다른 색을 붙이지 않습니다.</p></article><article><span>02</span><h3>테마마다 밝기를 다시 조정</h3><p>다크에서는 밝은 선, 라이트에서는 짙은 선을 사용합니다. 동일한 HEX를 양쪽에 그대로 적용하지 않습니다.</p></article><article><span>03</span><h3>취소와 오류를 구별</h3><p>취소금액은 집계 데이터입니다. 라벨·범례를 붙이고, 파일 처리 실패 같은 오류 상태는 별도로 안내합니다.</p></article></section>
+  </main>
+  <footer><span>DATA:EZ · 팔레트 비교용 시안 · 차콜 + 블루 확정</span><a href="palette.html">확정 팔레트로 돌아가기 ↗</a></footer>
+</body>
+</html>

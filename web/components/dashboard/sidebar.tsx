@@ -1,220 +1,56 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { LayoutDashboard, Database, History, Settings, Plus, PanelLeftClose, PanelLeftOpen, Store, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Section } from "@/app/dashboard/page";
 import type { Project } from "@/app/lib/api";
-import {
-  LayoutDashboard,
-  Bot,
-  Settings,
-  BarChart3,
-  ChevronLeft,
-  ChevronRight,
-  TableProperties,
-  Plus,
-  ChevronDown,
-  FolderKanban,
-} from "lucide-react";
+import type { Section } from "@/app/dashboard/page";
 
-interface SidebarProps {
+export interface SidebarProps {
   activeSection: Section;
   onSectionChange: (section: Section) => void;
   collapsed: boolean;
-  onCollapsedChange: (collapsed: boolean) => void;
+  onCollapsedChange: (value: boolean) => void;
   projects: Project[];
   selectedProjectId: string;
-  onSelectProject: (projectId: string) => void;
+  onSelectProject: (id: string) => void;
   onCreateProject: () => void;
+  onNewAnalysis: () => void;
+  email: string;
+  mobile?: boolean;
 }
-
-type NavItem = { id: Section; label: string; icon: React.ElementType };
-
-const navItems: NavItem[] = [
-  { id: "dashboard", label: "대시보드", icon: LayoutDashboard },
-  { id: "ai-chat", label: "AI 분석", icon: Bot },
-  { id: "tables", label: "장부 관리", icon: TableProperties },
-  { id: "settings", label: "설정", icon: Settings },
+const navigation = [
+  { id: "dashboard" as const, label: "대시보드", icon: LayoutDashboard },
+  { id: "tables" as const, label: "데이터 관리", icon: Database },
+  { id: "history" as const, label: "분석 이력", icon: History },
 ];
-
-export function Sidebar({
-  activeSection,
-  onSectionChange,
-  collapsed,
-  onCollapsedChange,
-  projects,
-  selectedProjectId,
-  onSelectProject,
-  onCreateProject,
-}: SidebarProps) {
-  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const selectedProject = projects.find((p) => p.id === selectedProjectId);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    if (!projectMenuOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setProjectMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [projectMenuOpen]);
-
+export function Sidebar({ activeSection, onSectionChange, collapsed, onCollapsedChange, projects, selectedProjectId, onSelectProject, onCreateProject, onNewAnalysis, email, mobile }: SidebarProps) {
+  const compact = collapsed && !mobile;
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-out flex flex-col",
-        collapsed ? "w-[72px]" : "w-[260px]"
-      )}
-    >
-      {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-white">
-            <BarChart3 className="w-5 h-5 text-accent-foreground" />
-          </div>
-          <span
-            className={cn(
-              "font-semibold text-lg text-sidebar-foreground whitespace-nowrap transition-all duration-300",
-              collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-            )}
-          >
-            DATAEZ
-          </span>
-        </div>
+    <div className={cn("flex h-full shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground", compact ? "w-[76px]" : "w-[232px]", mobile && "w-full border-0")}>
+      <div className="flex h-[76px] shrink-0 items-center justify-between gap-2 px-5">
+        <button onClick={() => onSectionChange("dashboard")} aria-label="DATA:EZ 대시보드" className="text-lg font-bold tracking-tight">{compact ? "D:" : "DATA:EZ"}</button>
+        {!compact && !mobile && <button aria-label="메뉴 접기" onClick={() => onCollapsedChange(true)} className="rounded p-1 text-muted-foreground hover:text-foreground"><PanelLeftClose size={17} /></button>}
       </div>
-
-      {/* Project Selector */}
-      {!collapsed && (
-        <div className="px-3 pt-3 pb-1">
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setProjectMenuOpen(!projectMenuOpen)}
-              aria-expanded={projectMenuOpen}
-              aria-haspopup="listbox"
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent text-sm transition-colors"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <FolderKanban className="w-4 h-4 text-accent shrink-0" />
-                <span className="truncate text-sidebar-foreground font-medium">
-                  {selectedProject?.name || "프로젝트 선택"}
-                </span>
-              </div>
-              <ChevronDown
-                className={cn(
-                  "w-4 h-4 text-muted-foreground shrink-0 transition-transform",
-                  projectMenuOpen && "rotate-180"
-                )}
-              />
-            </button>
-
-            {projectMenuOpen && (
-              <div role="listbox" aria-label="프로젝트 목록" className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg z-50 py-1 max-h-48 overflow-y-auto">
-                {projects.map((p) => (
-                  <button
-                    key={p.id}
-                    role="option"
-                    aria-selected={p.id === selectedProjectId}
-                    onClick={() => {
-                      onSelectProject(p.id);
-                      setProjectMenuOpen(false);
-                    }}
-                    className={cn(
-                      "w-full text-left px-3 py-2 text-sm transition-colors",
-                      p.id === selectedProjectId
-                        ? "bg-accent/10 text-accent font-medium"
-                        : "text-popover-foreground hover:bg-secondary"
-                    )}
-                  >
-                    {p.name}
-                  </button>
-                ))}
-                <div className="border-t border-border mt-1 pt-1" role="none">
-                  <button
-                    onClick={() => {
-                      onCreateProject();
-                      setProjectMenuOpen(false);
-                    }}
-                    role="option"
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    새 프로젝트
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Divider */}
-      <div className="px-3 pt-2">
-        <div className="border-t border-sidebar-border" />
+      <div className="px-3">
+        {compact ? <button onClick={() => onCollapsedChange(false)} aria-label="가게 선택 메뉴 펼치기" className="flex h-11 w-full items-center justify-center rounded-lg border border-border"><Store size={18} /></button> : <>
+          <label className="mb-2 block px-1 text-[11px] text-muted-foreground">현재 작업 가게</label>
+          <select aria-label="현재 작업 가게" value={selectedProjectId} onChange={(event) => onSelectProject(event.target.value)} className="h-11 w-full min-w-0 rounded-lg border border-border bg-[var(--surface-input)] px-2 text-sm">
+            {!projects.length && <option value="">가게를 추가하세요</option>}
+            {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+          </select>
+          <button onClick={onCreateProject} className="mt-2 flex items-center gap-1 px-1 py-1 text-xs text-muted-foreground hover:text-foreground"><Plus size={13} />가게 추가</button>
+        </>}
+        <button onClick={onNewAnalysis} title="새 분석" aria-label="새 분석" className="mt-7 mb-6 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[var(--line-strong)] bg-card text-sm font-medium hover:bg-secondary"><Plus size={17} />{!compact && "새 분석"}</button>
       </div>
-
-      {/* Navigation */}
-      <nav aria-label="메인 메뉴" className="flex-1 px-3 py-3 space-y-1 overflow-hidden">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeSection === item.id;
-
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-foreground"
-                  : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-              )}
-            >
-              <span
-                className={cn(
-                  "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-accent transition-all duration-300",
-                  isActive ? "opacity-100" : "opacity-0"
-                )}
-              />
-              <Icon
-                className={cn(
-                  "w-5 h-5 shrink-0 transition-transform duration-200",
-                  isActive ? "text-accent" : "group-hover:scale-110"
-                )}
-              />
-              <span
-                className={cn(
-                  "whitespace-nowrap transition-all duration-300",
-                  collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
-                )}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+      <nav aria-label="작업 메뉴" className="space-y-1 px-3">
+        {navigation.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => onSectionChange(id)} title={label} aria-label={label} aria-current={activeSection === id ? "page" : undefined} className={cn("flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors", compact && "justify-center px-0", activeSection === id ? "bg-sidebar-accent text-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground")}><Icon size={18} />{!compact && label}</button>)}
       </nav>
-
-      {/* Collapse button */}
-      <div className="p-3 border-t border-sidebar-border">
-        <button
-          onClick={() => onCollapsedChange(!collapsed)}
-          aria-label={collapsed ? "사이드바 펼치기" : "사이드바 접기"}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200"
-        >
-          {collapsed ? (
-            <ChevronRight className="w-5 h-5" />
-          ) : (
-            <>
-              <ChevronLeft className="w-5 h-5" />
-              <span>접기</span>
-            </>
-          )}
+      <div className="mt-auto space-y-2 p-3">
+        {compact && <button aria-label="메뉴 펼치기" onClick={() => onCollapsedChange(false)} className="flex h-10 w-full items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary"><PanelLeftOpen size={18} /></button>}
+        <button onClick={() => onSectionChange("settings")} title="설정 및 계정" aria-label="설정 및 계정" aria-current={activeSection === "settings" ? "page" : undefined} className={cn("flex w-full items-center gap-3 rounded-lg p-3 text-muted-foreground hover:bg-secondary", compact && "justify-center", activeSection === "settings" && "bg-sidebar-accent text-foreground")}>
+          <Settings size={18} className="shrink-0" />{!compact && <span className="min-w-0 flex-1 text-left"><span className="block text-sm text-foreground">설정 및 계정</span><span className="mt-1 block truncate text-[11px]">{email}</span></span>}{!compact && <ArrowUpRight size={13} />}
         </button>
       </div>
-    </aside>
+    </div>
   );
 }

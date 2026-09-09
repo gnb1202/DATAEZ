@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import type { Message, StreamingStep } from "@/app/lib/api";
 import ReasoningSteps from "@/app/components/reasoning-steps";
-import { RechartsChart } from "./recharts-chart";
+import { EChartsChart } from "./echarts-chart";
 
 const TOOL_LABELS: Record<string, string> = {
   profile_data: "데이터 구조 파악",
@@ -104,7 +104,7 @@ export function AnalysisResultDisplay({
       {result.charts && result.charts.length > 0 && (
         <div className="space-y-4">
           {result.charts.map((chart, idx) => (
-            <RechartsChart
+            <EChartsChart
               key={idx}
               chartType={chart.chart_type as "line" | "bar" | "pie"}
               title={chart.title}
