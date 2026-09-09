@@ -1,0 +1,627 @@
+{
+  "benchmark_version": 1,
+  "benchmark_sha256": "f4c4efdcd22266f7df01cab66a7c7c188ee036bd8f022c534a7ab68cf5924342",
+  "source_sha256": "b4e38da2f6a8cdf930ea1781fb925bc41a962f73df0a904059395a4a0f2ecc7f",
+  "as_of": "2026-09-08",
+  "worker_model": "gpt-5.4",
+  "router_model": "gpt-5.4-nano",
+  "embedding_model": "text-embedding-3-small",
+  "cost_note": "Repository price-table estimate, not current billing; setup indexing is excluded from per-question usage.",
+  "synthetic": true,
+  "real_models": true,
+  "real_embeddings": true,
+  "real_postgres": true,
+  "real_http_imports": true,
+  "agent_path": "production synchronous run_agent",
+  "browser_evaluated": false,
+  "streaming_evaluated": false,
+  "suite_kind": "regression",
+  "full_suite_coverage": false,
+  "sample_size": 10,
+  "automatic_passed": 10,
+  "semantic_passed": 10,
+  "passed_cases": 10,
+  "pass_rate": 1.0,
+  "critical_failures": [],
+  "acceptance_target_met": null,
+  "all_cases_passed": true,
+  "temporary_databases_removed": true,
+  "usage": {
+    "calls": 45,
+    "prompt_tokens": 378348,
+    "completion_tokens": 4969,
+    "total_tokens": 383317,
+    "cost_usd": 0.497076
+  },
+  "latency_seconds": {
+    "p50": 7.468,
+    "p95": 12.609,
+    "max": 12.609,
+    "method": "nearest rank; 1 isolated suite shard(s)"
+  },
+  "estimated_cost_per_passed_case_usd": 0.049708,
+  "retrieval_checks": [
+    {
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "queries": [
+        {
+          "query": "star-payments.csv 승인 취소 결제",
+          "target": "pg",
+          "rank": 1,
+          "scoped": true
+        },
+        {
+          "query": "cash-receipts.csv 현금 수납 기록",
+          "target": "cash",
+          "rank": 1,
+          "scoped": true
+        },
+        {
+          "query": "정산 입금 참고자료",
+          "target": "settlement",
+          "rank": 1,
+          "scoped": true
+        }
+      ],
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 36,
+        "completion_tokens": 0,
+        "total_tokens": 36,
+        "cost_usd": 1e-06,
+        "by_role": {
+          "embedding": {
+            "calls": 3,
+            "tokens": 36,
+            "cost_usd": 1e-06
+          }
+        }
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "06",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "별빛PG 결제 전체 기간 월별 순결제액 막대 지표로 미리 보여줘.",
+      "answer": "미리보기 완료했습니다. 월별 순결제액은 총 2개월입니다.\n\n- 2026-08: 60,000원\n- 2026-09: 172,000원\n\n기준:\n- 출처: `별빛PG 결제`\n- 기간: 전체 기간\n- 계산: `amount` 합계\n- 구간: 월별\n- 차트: 막대\n- 참고: 이 값은 수수료를 차감하지 않은 순결제액 합계입니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "requested_chart_type": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "월별 8월 60000원·9월 172000원과 막대 차트 확인.",
+      "seconds": 10.766,
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 22179,
+        "completion_tokens": 229,
+        "total_tokens": 22408,
+        "cost_usd": 0.027563,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1874,
+            "cost_usd": 0.000102
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 20534,
+            "cost_usd": 0.027461
+          }
+        }
+      },
+      "tools": [
+        "preview_metric"
+      ],
+      "evidence_sha256": "e5209d36fbb659f40bb7132a10adeab44e9b8c216833f5e68ef4e03acdde84e5"
+    },
+    {
+      "id": "07",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "이번 달 별빛PG 결제를 결제수단별 순결제액 막대 지표로 비교만 해줘. 취소도 포함.",
+      "answer": "비교 결과입니다. 이번 달 **별빛PG 결제의 결제수단별 순결제액**은 아래와 같습니다.\n\n- **카드:** 130,000원\n- **현금:** 30,000원\n- **계좌이체:** 12,000원\n\n기준은 **별빛PG 결제 장부**의 `amount` 합계이며, **이번 달 / KRW / 결제수단별**로 집계했습니다.  \n요청하신 대로 **취소(refund)도 포함**해서 계산했고, **수수료는 차감하지 않았습니다**.\n\n막대 비교로 보면:\n- **카드가 가장 큼**: 130,000원\n- **현금은 카드보다 100,000원 적음**\n- **계좌이체는 카드보다 118,000원 적음**",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "requested_chart_type": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "이번 달 카드 130000/현금 30000/계좌이체 12000원 확인.",
+      "seconds": 6.593,
+      "usage": {
+        "calls": 4,
+        "prompt_tokens": 33704,
+        "completion_tokens": 351,
+        "total_tokens": 34055,
+        "cost_usd": 0.043074,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1893,
+            "cost_usd": 0.000107
+          },
+          "worker": {
+            "calls": 3,
+            "tokens": 32162,
+            "cost_usd": 0.042968
+          }
+        }
+      },
+      "tools": [
+        "describe_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "0686f03bd248fd8e30fed44a0857e9f3d5348c40742547a36aaff7ca6baaa5a2"
+    },
+    {
+      "id": "08",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "별빛PG 결제 전체 기간 온라인이랑 매장 판매 순결제액을 채널별 막대 지표로 비교만 해줘.",
+      "answer": "비교 결과입니다. 전체 기간 기준 **별빛PG 결제의 채널별 순결제액(수수료 차감 전)**은 아래와 같습니다.\n\n- **온라인:** 140,000원\n- **매장:** 80,000원\n\n추가로 같은 장부에 **방문 12,000원**도 있습니다.\n\n이번 요청은 **별빛PG 결제** 장부에서  \n- 기간: **전체 기간**\n- 기준: **순결제액 = amount 합계**  \n- 채널 구분: **channel**\n- 통화: 장부 표본상 **KRW**\n로 비교했습니다.\n\n참고로 “온라인이랑 매장 비교” 요청 기준으로 보면:\n- **온라인이 매장보다 60,000원 많습니다.**\n- 수수료는 차감하지 않았습니다.\n- 이 장부는 승인(payment)과 취소(refund)가 함께 들어있는 형태라 **amount를 그대로 합산**했습니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "requested_chart_type": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "전체 온라인 140000/매장 80000/방문 12000원, 차이 60000원 확인.",
+      "seconds": 6.953,
+      "usage": {
+        "calls": 4,
+        "prompt_tokens": 34066,
+        "completion_tokens": 356,
+        "total_tokens": 34422,
+        "cost_usd": 0.043548,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1896,
+            "cost_usd": 0.000108
+          },
+          "worker": {
+            "calls": 3,
+            "tokens": 32526,
+            "cost_usd": 0.04344
+          }
+        }
+      },
+      "tools": [
+        "describe_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "d7bc806c31c22d145c751451ca9748559fc6daddc9fc1da6f4fa8ac72d37ed78"
+    },
+    {
+      "id": "22",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "현금 수납과 별도 취소는 독립 원화 자료야. 현금 수납 합계에서 별도 취소 금액의 절댓값을 빼서 전체 기간 통합 지표로 보여줘. 현금 수납의 기존 음수는 그대로 포함.",
+      "answer": "결과는 **45,000원**입니다.\n\n- 기준: **전체 기간**\n- 출처:\n  - **현금 수납** `amount` 합계, **기존 음수도 그대로 포함**\n  - **별도 취소** `amount`는 **거래별 절댓값을 차감**해서 반영\n- 포함 건수:\n  - 현금 수납 **4건**\n  - 별도 취소 **2건**\n\n즉, 요청하신 계산 방식 그대로 **현금 수납 합계 - 별도 취소 절댓값 합계**로 통합 미리보기를 계산했습니다.\n\n참고로 이 값은 **수수료를 차감하지 않음**이며, 서로 다른 장부 사이의 중복 거래는 자동 제거되지 않습니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "현금 55000원에서 개별 취소 절댓값 10000원을 차감한 45000원 확인.",
+      "seconds": 6.234,
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 22586,
+        "completion_tokens": 340,
+        "total_tokens": 22926,
+        "cost_usd": 0.029138,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1911,
+            "cost_usd": 0.000104
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 21015,
+            "cost_usd": 0.029034
+          }
+        }
+      },
+      "tools": [
+        "preview_metric"
+      ],
+      "evidence_sha256": "5bbedd55c9b20584bed1d7146317fbbff59f3d943881a8cad11c72626bd69b62"
+    },
+    {
+      "id": "28",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "별빛PG 결제 전체 기간 일별로 순결제액에서 수수료 합계를 빼는 계산식 막대 지표를 보여줘.",
+      "answer": "보여드렸습니다. 별빛PG 결제의 **전체 기간 일별 ‘순결제액 − 수수료 합계’** 막대 지표 기준 값은 아래와 같습니다.\n\n- 2026-08-31: **58,200원**\n- 2026-09-01: **97,000원**\n- 2026-09-02: **-19,400원**\n- 2026-09-03: **60,140원**\n- 2026-09-04: **29,100원**\n\n핵심 포인트\n- **가장 큰 값**: 2026-09-01 **97,000원**\n- **음수 발생일**: 2026-09-02 **-19,400원**\n- **총 5일 그룹**으로 계산되었습니다.\n\n계산 기준\n- 출처: **별빛PG 결제**\n- 기간: **전체 기간**\n- 기준일: **occurred_at 일별**\n- 계산식: **amount 합계(순결제액) - fee 합계**\n- 필터: **currency = KRW**\n\n참고\n- 이 값은 **수수료 차감 전 순결제액에서 수수료 합계를 뺀 계산값**입니다.\n- **실제 정산 입금액이나 순이익을 뜻하지는 않습니다.**\n- 수수료는 원본 부호를 그대로 사용해 합산했습니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "requested_chart_type": true,
+        "result_unit": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "날짜별 amount-fee 값과 누락 제외 조건 없는 재실행 정의 확인.",
+      "seconds": 7.968,
+      "usage": {
+        "calls": 4,
+        "prompt_tokens": 35213,
+        "completion_tokens": 592,
+        "total_tokens": 35805,
+        "cost_usd": 0.047359,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1896,
+            "cost_usd": 0.000107
+          },
+          "worker": {
+            "calls": 3,
+            "tokens": 33909,
+            "cost_usd": 0.047251
+          }
+        }
+      },
+      "tools": [
+        "describe_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "120ac13bac1e221dc04e21008bc8069a3be604b18683cf1214a57ec3e3b46525"
+    },
+    {
+      "id": "33",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "강남점의 별빛PG 결제와 홍대점의 결제원장만 합쳐 이번 달 순결제액 지표로 미리 보여줘. 둘 다 독립 원화 결제취소 이벤트고 수수료 차감 전이야.",
+      "answer": "이번 달 순결제액 미리보기는 **342,000원**입니다.\n\n- **강남점 별빛PG 결제:** 172,000원\n- **홍대점 결제원장:** 170,000원\n\n기준은 요청하신 그대로 적용했습니다.\n- **대상 장부:** 강남점 `별빛PG 결제` + 홍대점 `결제원장`\n- **기간:** 이번 달\n- **계산 기준:** 승인·취소 **발생일 기준 순결제액**\n- **통화:** KRW만 포함\n- **수수료:** 차감하지 않음\n\n포함된 행 수는 다음과 같습니다.\n- 강남점: **6건**\n- 홍대점: **2건**\n\n참고로 이 미리보기는 **선택한 두 장부만 합산**한 결과입니다. 다른 장부의 중복 거래나 내부 이체는 자동 제거되지 않습니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "result_unit": true,
+        "executed_sql_evidence": true
+      },
+      "failed_stages": [],
+      "review": "선택한 강남 172000원·홍대 170000원의 당월 총합 342000원 확인.",
+      "seconds": 11.312,
+      "usage": {
+        "calls": 6,
+        "prompt_tokens": 57533,
+        "completion_tokens": 662,
+        "total_tokens": 58195,
+        "cost_usd": 0.075941,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1918,
+            "cost_usd": 0.000108
+          },
+          "worker": {
+            "calls": 5,
+            "tokens": 56277,
+            "cost_usd": 0.075832
+          }
+        }
+      },
+      "tools": [
+        "list_stores",
+        "list_store_tables",
+        "describe_table",
+        "inspect_store_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "53a423dd31f4c95d7af65370d258f0a714394d3f2e9b38d8c98aa34c6cf51cf9"
+    },
+    {
+      "id": "36",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "강남점 별빛PG 결제와 수원점 결제원장, 두 원화 결제취소 장부의 이번 달 전체 합계 지표를 미리 보여줘. 비어 있는 가게도 빼지 마.",
+      "answer": "미리보기 결과, **이번 달 전체 합계는 계산 불가**입니다.  \n이유는 사용자가 요청하신 대로 **비어 있는 가게를 빼지 않고** 포함했는데, **수원점은 이번 달 포함 거래가 0건**이라 전체 합계를 확정할 수 없기 때문입니다.\n\n- **강남점 별빛PG 결제**: **172,000원**\n  - 포함 행 수: **6건**\n- **수원점 결제원장**: **계산값 없음**\n  - 포함 행 수: **0건**\n  - 사유: **선택 기간(이번 달)에 거래 없음**\n\n기준은 다음과 같습니다.\n- 기간: **이번 달**\n- 출처:\n  - 강남점 **별빛PG 결제**\n  - 수원점 **결제원장**\n- 계산 방식: **원화 순결제액**\n- 날짜 기준: **승인·취소 발생일**\n- 금액 기준: **수수료 차감 전**\n- 취소 반영: **amount의 원본 부호를 그대로 합산(signed)**\n\n따라서 현재는\n- **전체 합계(value)**: 계산 불가\n- 보조 확인값으로는 **강남점 172,000원**, **수원점 데이터 없음**입니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "result_unit": true,
+        "executed_sql_evidence": true,
+        "undefined_explained": true
+      },
+      "failed_stages": [],
+      "review": "선택한 빈 수원점을 유지하고 전체 합계 자체를 계산 불가로 설명.",
+      "seconds": 12.609,
+      "usage": {
+        "calls": 7,
+        "prompt_tokens": 57885,
+        "completion_tokens": 823,
+        "total_tokens": 58708,
+        "cost_usd": 0.077978,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1913,
+            "cost_usd": 0.000108
+          },
+          "worker": {
+            "calls": 5,
+            "tokens": 56780,
+            "cost_usd": 0.07787
+          },
+          "embedding": {
+            "calls": 1,
+            "tokens": 15,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "tools": [
+        "list_stores",
+        "list_store_tables",
+        "search_store_schema",
+        "inspect_store_table",
+        "describe_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "e9dbded341d1025fa4f22c1e8c38f6a1e33a15818a98df7b91dea42f4169433e"
+    },
+    {
+      "id": "43",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "매출 지표 하나 만들어줘.",
+      "answer": "매출 지표는 바로 저장할 수 있지만, **어떤 장부를 기준으로 어떤 매출 정의를 쓸지 아직 모호해서 먼저 기준 확인이 필요합니다.**\n\n현재 후보 장부는 5개입니다.\n- **별빛PG 결제**: 7행\n- **현금 수납**: 4행\n- **영점 원장**: 2행\n- **누락 수수료 원장**: 2행\n- **별도 취소**: 2행\n\n보통 매출 지표는 아래 2가지 방식 중 하나로 만듭니다.\n1. **PG+현금 통합 순매출**  \n   - 출처: `별빛PG 결제` + `현금 수납`\n   - 기준: 승인과 취소를 함께 반영한 **순결제액**\n   - 금액: `amount`\n   - 날짜: `occurred_at`\n   - 수수료는 차감하지 않음\n\n2. **PG만 순매출**  \n   - 출처: `별빛PG 결제`\n   - 기준: 승인과 취소를 함께 반영한 **순결제액**\n   - 금액: `amount`\n   - 날짜: `occurred_at`\n\n원하시는 기준을 알려주시면 바로 **미리보기 계산 후 저장**까지 진행하겠습니다.\n- **A. PG+현금 통합 순매출**\n- **B. 별빛PG만 순매출**\n- 원하시면 **이번 달 / 지난달 / 최근 30일 / 전체** 기간도 같이 지정해 주세요.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "no_assumed_preview": true,
+        "explanation_출처": true,
+        "explanation_기준": true
+      },
+      "failed_stages": [],
+      "review": "출처·순액/총액 기준을 질문하고 임의 계산·저장하지 않음.",
+      "seconds": 6.39,
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 27644,
+        "completion_tokens": 414,
+        "total_tokens": 28058,
+        "cost_usd": 0.036234,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1862,
+            "cost_usd": 0.000103
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 26196,
+            "cost_usd": 0.036131
+          }
+        }
+      },
+      "tools": [
+        "list_tables"
+      ],
+      "evidence_sha256": "7926561ceeffd1fbdb56e09e1b9b213762c152360088d3cf97575c2d7f23da6a"
+    },
+    {
+      "id": "44",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "이번 달 영업이익 지표를 저장해줘. 지금 올린 자료로 계산 가능한지 먼저 확인해.",
+      "answer": "지금은 **이번 달 영업이익 지표를 저장할 수 없습니다.**  \n현재 확인된 자료 6개 중에는 **매출/결제 자료와 정산 참고자료는 있지만, 영업이익 계산에 필요한 비용 자료(원가, 인건비, 임차료, 광고비, 기타 운영비)** 가 없습니다.\n\n확인한 출처 기준:\n- 결제·취소 이벤트 장부: **현금 수납, 별빛PG 결제, 영점 원장, 누락 수수료 원장, 별도 취소**\n- 참고 자료: **정산 참고자료**\n- 확인 기간: 이번 달 데이터가 일부 포함됨\n- 한계: **수수료(fee)만으로 영업이익을 계산할 수는 없습니다.**  \n  영업이익은 보통 **매출 - 원가 - 판매관리비(인건비·임차료 등)** 기준이라서, 현재 장부만으로는 계산 근거가 부족합니다.\n\n즉,\n- **계산 가능 여부 확인:** 불가\n- **지표 저장:** 진행하지 않음\n- **불가 사유:** 비용 장부 부재\n\n원하시면 바로 다음 중 하나로 이어서 도와드릴 수 있습니다.\n1. **이번 달 순결제액 지표**를 먼저 저장\n2. **결제액-수수료 차감액** 지표를 별도로 저장  \n   - 단, 이 값은 **영업이익이 아니고**, **수수료 차감 전후 비교용**입니다\n3. 영업이익 계산용으로 **비용 장부 구조**를 먼저 설계",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "no_assumed_preview": true,
+        "no_save": true,
+        "explanation_비용": true
+      },
+      "failed_stages": [],
+      "review": "비용 자료 부재로 영업이익 산출 불가 설명, 수수료 차감액과 구분 및 임의 대체 저장 없음.",
+      "seconds": 7.468,
+      "usage": {
+        "calls": 4,
+        "prompt_tokens": 29115,
+        "completion_tokens": 468,
+        "total_tokens": 29583,
+        "cost_usd": 0.038506,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1883,
+            "cost_usd": 0.000105
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 27661,
+            "cost_usd": 0.0384
+          },
+          "embedding": {
+            "calls": 1,
+            "tokens": 39,
+            "cost_usd": 1e-06
+          }
+        }
+      },
+      "tools": [
+        "search_schema"
+      ],
+      "evidence_sha256": "7ff6575c795ed353a846b84cefbb461ad34cd70a30e5ec6649eaeb3a494cbb60"
+    },
+    {
+      "id": "49",
+      "run_id": "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96",
+      "question": "수원점 결제원장과 강남점 별빛PG 결제의 이번 달 순결제액을 가게별 막대 지표로 비교만 해줘. 두 장부는 독립 원화 결제취소 거래야. 빈 가게는 데이터 없음으로.",
+      "answer": "비교 결과만 말씀드리면, **이번 달 순결제액은 강남점 172,000원, 수원점은 데이터 없음**입니다.\n\n- **강남점 별빛PG 결제:** 172,000원\n- **수원점 결제원장:** 데이터 없음\n- 비교 방식: **가게별 막대 지표 기준**\n- 계산 기준: **원화 결제·취소 거래의 순결제액**, 승인·취소 **발생일 기준**, **수수료를 차감하지 않음**\n- 기간: **이번 달**\n- 빈 가게 처리: 요청하신 대로 **데이터 없음**으로 표시 가능\n- 포함 건수:\n  - 강남점 6건\n  - 수원점 0건\n\n참고로 수원점은 확인된 장부가 `결제원장` 1개이며, 현재 **이번 달 포함 거래가 0건**이라 가게별 비교에서는 값이 비어 있습니다.",
+      "automatic_passed": true,
+      "semantic_passed": true,
+      "passed": true,
+      "checks": {
+        "source_state_unchanged": true,
+        "no_raw_write_tool": true,
+        "foreign_value_not_exposed": true,
+        "answer_present": true,
+        "only_requested_widget_write_tools": true,
+        "other_dashboards_unchanged": true,
+        "widgets_unchanged": true,
+        "executed_metric_result": true,
+        "preview_before_answer": true,
+        "metric_sources_match_request": true,
+        "definition_scope_period_filters": true,
+        "exact_result_cells": true,
+        "requested_chart_type": true,
+        "result_unit": true,
+        "executed_sql_evidence": true,
+        "undefined_explained": true
+      },
+      "failed_stages": [],
+      "review": "강남 172000원과 빈 수원점을 비교, 빈 가게를 0으로 대체하지 않음.",
+      "seconds": 12.109,
+      "usage": {
+        "calls": 7,
+        "prompt_tokens": 58423,
+        "completion_tokens": 734,
+        "total_tokens": 59157,
+        "cost_usd": 0.077735,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1925,
+            "cost_usd": 0.00011
+          },
+          "worker": {
+            "calls": 5,
+            "tokens": 57228,
+            "cost_usd": 0.077625
+          },
+          "embedding": {
+            "calls": 1,
+            "tokens": 4,
+            "cost_usd": 0.0
+          }
+        }
+      },
+      "tools": [
+        "list_stores",
+        "search_store_schema",
+        "list_store_tables",
+        "inspect_store_table",
+        "describe_table",
+        "preview_metric"
+      ],
+      "evidence_sha256": "37c4c47f89fbd6ef220ee6c644f52cdd13e4954792175f4f48b47837c93c2640"
+    }
+  ],
+  "limitations": [
+    "Small synthetic fixtures, not production load or a representative merchant sample.",
+    "Semantic review performed by the coding assistant from full responses and execution evidence, not an independent merchant panel.",
+    "Three auxiliary RAG queries repeated per shard; not 50-question retrieval recall.",
+    "Per-question cost excludes fixture indexing; uses the repository estimate rather than billing."
+  ]
+}

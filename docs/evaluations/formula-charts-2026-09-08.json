@@ -1,0 +1,185 @@
+{
+  "run_id": "dataez_charts_eval_1fbc0bd0ea634b68a36a9f7b4aa3439e",
+  "passed": true,
+  "synthetic": true,
+  "real_browser": true,
+  "real_models": true,
+  "api_mocks": false,
+  "checks": [
+    {
+      "check": "Two reusable charts, including pinned preview",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    },
+    {
+      "check": "Monthly edit revision",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    },
+    {
+      "check": "Monthly grouped definition",
+      "actual": 4,
+      "expected": 4,
+      "passed": true
+    },
+    {
+      "check": "Monthly formula values",
+      "actual": [
+        "320100",
+        "281300"
+      ],
+      "expected": [
+        "320100",
+        "281300"
+      ],
+      "passed": true
+    },
+    {
+      "check": "Hourly schedule preserved",
+      "actual": 3600,
+      "expected": 3600,
+      "passed": true
+    },
+    {
+      "check": "Edited widget identity preserved",
+      "actual": "be5f31d1-f34b-47d4-9915-09157ca73178",
+      "expected": "be5f31d1-f34b-47d4-9915-09157ca73178",
+      "passed": true
+    },
+    {
+      "check": "Resized layout preserved",
+      "actual": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "expected": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 9
+      },
+      "passed": true
+    },
+    {
+      "check": "Refresh sees new transaction",
+      "actual": [
+        "320100",
+        "291000"
+      ],
+      "expected": [
+        "320100",
+        "291000"
+      ],
+      "passed": true
+    },
+    {
+      "check": "Refresh preserves revision",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    }
+  ],
+  "temporary_database_removed": true,
+  "ordinary_web_build_restored": true,
+  "date": "2026-09-08",
+  "configured_models": {
+    "worker": "gpt-5.4",
+    "orchestrator": "gpt-5.4-nano",
+    "embedding": "text-embedding-3-small"
+  },
+  "tests": {
+    "api": "647 passed, 0 skipped, 165.37s",
+    "typescript": "passed",
+    "production_build": "passed",
+    "eslint": "Existing ESLint 9 configuration incompatible; not resolved in this phase"
+  },
+  "browser": {
+    "passed": true,
+    "page_errors": [],
+    "scenarios": [
+      "주별 수수료 차감액 생성·저장",
+      "집계표와 실행 SQL 확인",
+      "위젯 리사이징 저장",
+      "월별 막대그래프로 기존 위젯 수정",
+      "일별 금액 취소율 미리보기와 계산 불가·0 적용 확인",
+      "미리보기 고정으로 재계산 가능한 지표 저장",
+      "재접속 후 위젯 유지"
+    ]
+  },
+  "chat": [
+    {
+      "question": "검증 결제원장의 전체 기간 순결제액에서 PG 수수료 합계를 뺀 값을 주별 꺾은선 그래프로 만들고 대시보드에 저장해줘. occurred_at 기준이며 금액과 수수료는 원본 부호 그대로 합산해. 제목은 주별 수수료 차감액, 자동 갱신은 매시간으로 해줘.",
+      "answer": "**핵심 결과**  \n대시보드에 **주별 수수료 차감액** 지표를 저장했습니다.  \n- 대상 장부: **검증 결제원장**\n- 기준 기간: **전체 기간**\n- 날짜 기준: **occurred_at**\n- 계산식: **순결제액(amount 합계) - PG 수수료 합계(fee 합계)**\n- 부호 처리: **금액과 수수료 모두 원본 부호 그대로 합산**\n- 차트 유형: **주별 꺾은선 그래프**\n- 자동 갱신: **매시간(3600초)**\n\n**상세 설명**  \n현재 저장된 그래프의 주별 값은 **3개 구간**입니다.\n- **2026-08-03 주**: 순결제액 **280,000원**, 수수료 **8,400원**, 차감액 **271,600원**\n- **2026-08-10 주**: 순결제액 **50,000원**, 수수료 **1,500원**, 차감액 **48,500원**\n- **2026-08-31 주**: 순결제액 **290,000원**, 수수료 **8,700원**, 차감액 **281,300원**\n\n참고로 이 지표는 **수수료 차감 후 금액**을 보여주지만, 안내 규칙상 이를 **실제 정산 입금액**이나 **순이익**으로 해석하면 안 됩니다.  \n단순히 **원본 부호의 amount 합계에서 fee 합계를 뺀 값**입니다.\n\n**비즈니스 제안**  \n이제 이 그래프로 주별 흐름은 볼 수 있으니, 다음으로는 **채널별(매장/배달) 차이**를 같이 보면 어디서 수수료 부담이 큰지 더 빨리 파악할 수 있습니다. 또한 환불이 섞여 있으므로 **주별 환불 영향**을 별도로 보면 변동 원인을 더 명확히 확인할 수 있습니다.",
+      "usage": {
+        "calls": 6,
+        "by_role": {
+          "worker": {
+            "calls": 5,
+            "tokens": 51702,
+            "cost_usd": 0.073754
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1779,
+            "cost_usd": 0.000101
+          }
+        },
+        "cost_usd": 0.073855,
+        "total_tokens": 53481,
+        "prompt_tokens": 52404,
+        "completion_tokens": 1077
+      }
+    },
+    {
+      "question": "방금 저장한 주별 수수료 차감액 지표를 월별 막대그래프로 수정해줘. 양쪽 집계의 전체 기간과 부호 처리, 제목, 위치와 자동 갱신 주기는 유지하고 기존 지표를 수정해줘.",
+      "answer": "**핵심 결과**  \n기존 지표 **1건 수정했습니다.**  \n- 대상 지표: **주별 수수료 차감액**\n- 변경 내용: **주별 꺾은선 그래프 → 월별 막대그래프**\n- 유지한 조건:\n  - 전체 기간\n  - 기준일: **occurred_at**\n  - 금액/수수료 **원본 부호 그대로 합산**\n  - 제목: **주별 수수료 차감액**\n  - 자동 갱신: **매시간(3600초)**\n\n**상세 설명**  \n기존에 저장된 같은 지표를 새로 만들지 않고 **기존 지표 ID 그대로 수정**했습니다.  \n- 수정 완료: **1건**\n- 지표 리비전: **1 → 2**\n- 저장 상태: **성공**\n- 갱신 주기: **유지**\n- 위치/배치: **기존 지표 유지**\n\n다만 현재 정의상 표시 축은 **월별(date_grain=month)** 로 바뀌었지만, 제목과 축 이름은 요청대로 유지되어\n- 제목: **주별 수수료 차감액**\n- 축 라벨: **주**\n로 남아 있습니다.\n\n즉, **보이는 차트는 월별 막대그래프**인데 **이름은 기존 제목 그대로 유지**된 상태입니다.\n\n**비즈니스 제안**  \n월별로 바꾸면 주별보다 변동이 덜 보여서 **월 단위 수수료 부담 추세**를 보기 쉬워집니다. 다음 단계로는 제목과 축 이름도 월 기준으로 맞추면 대시보드 해석이 더 명확해집니다.",
+      "usage": {
+        "calls": 4,
+        "by_role": {
+          "worker": {
+            "calls": 3,
+            "tokens": 30480,
+            "cost_usd": 0.043647
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2166,
+            "cost_usd": 0.000118
+          }
+        },
+        "cost_usd": 0.043766,
+        "total_tokens": 32646,
+        "prompt_tokens": 31983,
+        "completion_tokens": 663
+      }
+    },
+    {
+      "question": "검증 결제원장의 전체 기간에 대해 occurred_at 기준 일별 금액 취소율을 재사용 가능한 꺾은선 그래프로 미리보기만 해줘. 분자는 각 날짜의 refund 금액 합계의 절댓값, 분모는 payment 금액 합계야. 취소 거래가 없는 날의 합계는 0으로 처리하고 승인 거래가 없는 날의 비율은 계산 불가로 남겨줘. 아직 저장하지 마.",
+      "answer": "**핵심 결과**  \n요청하신 **일별 금액 취소율 꺾은선 그래프 미리보기**를 만들었습니다.  \n- 대상 장부: **검증 결제원장**\n- 기간: **전체 기간**\n- 기준일: **occurred_at**\n- 저장 여부: **저장하지 않음**\n- 계산식: **각 날짜의 refund 금액 합계 절댓값 ÷ payment 금액 합계 × 100**\n- 빈 취소일 처리: **0으로 반영**\n- 승인 없는 날 처리: **계산 불가로 유지**\n\n**상세 설명**  \n미리보기 결과는 **총 5일**입니다.  \n이 중 **계산 불가 1일**, **취소 0 처리 3일**입니다.\n\n일별 결과:\n- **2026-08-03**: 취소금액 **0원**, 승인금액 **100,000원**, 취소율 **0.00%**\n- **2026-08-04**: 취소금액 **20,000원**, 승인금액 **200,000원**, 취소율 **10.00%**\n- **2026-08-10**: 취소금액 **0원**, 승인금액 **50,000원**, 취소율 **0.00%**\n- **2026-09-01**: 취소금액 **0원**, 승인금액 **300,000원**, 취소율 **0.00%**\n- **2026-09-02**: 취소금액 **10,000원**, 승인금액 **0원**, **계산 불가**\n\n해석 포인트:\n- 가장 높은 일별 취소율은 **2026-08-04의 10.00%**입니다.\n- **2026-09-02**는 취소는 있었지만 승인금액이 **0원**이라 비율을 계산하지 않았습니다.\n- 취소 거래가 없는 날은 요청대로 **0%**로 처리했습니다.\n\n**비즈니스 제안**  \n이 그래프는 **취소가 특정 날짜에 몰리는지** 확인하는 데 좋습니다. 다음으로는 **채널별 취소율**이나 **주별 취소율**로 바꾸면 원인 파악이 더 쉬워집니다.",
+      "usage": {
+        "calls": 3,
+        "by_role": {
+          "worker": {
+            "calls": 2,
+            "tokens": 18657,
+            "cost_usd": 0.02984
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2594,
+            "cost_usd": 0.000137
+          }
+        },
+        "cost_usd": 0.029977,
+        "total_tokens": 21251,
+        "prompt_tokens": 20484,
+        "completion_tokens": 767
+      }
+    }
+  ],
+  "scope": "Three synthetic natural-language scenarios plus independent SQL and lifecycle tests; not a broad model benchmark, PG pilot, or usability study"
+}

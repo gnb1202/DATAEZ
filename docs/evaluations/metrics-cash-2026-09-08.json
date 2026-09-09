@@ -1,0 +1,239 @@
+{
+  "run_id": "dataez_kl_eval_11e27873608d41099c528b2d30374970",
+  "passed": true,
+  "synthetic": true,
+  "real_browser": true,
+  "real_models": true,
+  "api_mocks": false,
+  "checks": [
+    {
+      "check": "One formula widget after edits/restoration",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Restored definition revision",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "check": "Restored fee difference",
+      "actual": "368600",
+      "expected": "368600",
+      "passed": true
+    },
+    {
+      "check": "Cash entries exactly once including explicit similar transaction",
+      "actual": {
+        "n": 3,
+        "value": "110000"
+      },
+      "expected": {
+        "n": 3,
+        "value": "110000"
+      },
+      "passed": true
+    },
+    {
+      "check": "Cash ledger source revision",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "check": "Cash metric refresh after new refund",
+      "actual": "105000",
+      "expected": "105000",
+      "passed": true
+    },
+    {
+      "check": "Natural-language preview 6.6667",
+      "actual": "6.6667",
+      "expected": "6.6667",
+      "passed": true
+    },
+    {
+      "check": "Natural-language preview 180",
+      "actual": "180.0000",
+      "expected": "180",
+      "passed": true
+    }
+  ],
+  "temporary_database_removed": true,
+  "ordinary_web_build_restored": true,
+  "date": "2026-09-08",
+  "configured_models": {
+    "worker": "gpt-5.4",
+    "orchestrator": "gpt-5.4-nano",
+    "embedding": "text-embedding-3-small"
+  },
+  "browser": {
+    "passed": true,
+    "page_errors": [],
+    "scenarios": [
+      "자연어 계산식 저장: 368600원",
+      "두 피연산자 기간 수정: 이번 달 271600원",
+      "버전 1 정의 복원: 같은 위젯, 버전 3, 매시간, 368600원",
+      "현금 30000원 대화 초안과 검토 링크",
+      "화면 확인 후 현금 반영",
+      "현금 40000원 직접 입력",
+      "동일 날짜·금액의 별도 거래 확인 전 반영 버튼 비활성화",
+      "별도 거래 확인 후 총 3건 110000원",
+      "현금 기록 이력 조회"
+    ]
+  },
+  "chat": [
+    {
+      "answer": "**핵심 결과**  \n대시보드에 **`수수료 차감액`** 지표를 저장했습니다.  \n현재 값은 **368,600원**이고, **매시간 자동 갱신**으로 설정했습니다.\n\n**상세 설명**  \n계산식은 요청하신 기준대로 저장했습니다.\n\n- 대상 장부: **검증 결제원장**\n- 기간: **전체 기간**\n- 계산식: **순결제액 − PG 수수료 합계**\n- 금액 합산 방식: **amount 원본 부호 그대로 합산**\n- 수수료 합산 방식: **fee 원본 부호 그대로 합산**\n- 자동 갱신: **매시간(3600초)**\n\n현재 계산 근거:\n- **순결제액 합계(amount)**: 380,000원\n- **PG 수수료 합계(fee)**: 11,400원\n- **수수료 차감액**: **368,600원**\n\n참고로 이 지표는 **실제 정산 입금액이나 순이익**을 뜻하는 값으로 저장한 것은 아니고,  \n말 그대로 **순결제액에서 원본 부호의 수수료 합계를 뺀 계산식 지표**입니다.\n\n**비즈니스 제안**  \n이 지표와 함께 보면 운영 판단에 도움이 되는 항목은 아래 3가지입니다.\n\n1. **전체 기간 순결제액 지표**를 따로 저장해 수수료 영향도를 바로 비교\n2. **이번 달 수수료 차감액** 지표를 추가해 최근 흐름 점검\n3. **결제수단별 순결제액**을 조회해 어떤 수단에서 비중이 큰지 확인",
+      "tools": [
+        "describe_table",
+        "preview_metric",
+        "save_metric"
+      ],
+      "usage": {
+        "calls": 5,
+        "by_role": {
+          "worker": {
+            "calls": 4,
+            "tokens": 37460,
+            "cost_usd": 0.052819
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1750,
+            "cost_usd": 9.9e-05
+          }
+        },
+        "cost_usd": 0.052918,
+        "total_tokens": 39210,
+        "prompt_tokens": 38491,
+        "completion_tokens": 719
+      }
+    },
+    {
+      "answer": "**핵심 결과**  \n기존 지표 **`수수료 차감액` 1건 수정했습니다.**  \n두 집계 기간을 모두 **전체 기간 → 이번 달**로 변경했고, 현재 값은 **271,600원**입니다.\n\n**상세 설명**  \n기존 지표를 새로 추가하지 않고 **같은 지표를 직접 수정**했습니다.\n\n- 지표 제목: **수수료 차감액** 유지\n- 수정 대상: **기존 저장 지표 1건**\n- 변경 내용:\n  - 좌측 집계(순결제액): **전체 기간 → 이번 달**\n  - 우측 집계(PG 수수료 합계): **전체 기간 → 이번 달**\n- 유지한 항목:\n  - **제목 그대로 유지**\n  - **위치 그대로 유지**\n  - **자동 갱신 주기 그대로 유지: 매시간(3600초)**\n\n이번 달 기준 재계산 결과:\n- **순결제액 합계(amount)**: 280,000원\n- **PG 수수료 합계(fee)**: 8,400원\n- **수수료 차감액**: **271,600원**\n\n적용 기준:\n- 장부: **검증 결제원장**\n- 날짜 컬럼: **occurred_at**\n- 금액/수수료 모두 **원본 부호 그대로 합산**\n\n**비즈니스 제안**  \n이제 같은 지표를 기준 기간만 달리 비교하면 최근 수익성 흐름을 더 빨리 파악할 수 있습니다.",
+      "tools": [
+        "list_metrics",
+        "describe_table",
+        "preview_metric",
+        "update_metric"
+      ],
+      "usage": {
+        "calls": 6,
+        "by_role": {
+          "worker": {
+            "calls": 5,
+            "tokens": 49101,
+            "cost_usd": 0.06779
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2142,
+            "cost_usd": 0.000116
+          }
+        },
+        "cost_usd": 0.067906,
+        "total_tokens": 51243,
+        "prompt_tokens": 50485,
+        "completion_tokens": 758
+      }
+    },
+    {
+      "answer": "**핵심 결과**  \n오늘 현금 매출 **30,000원** 입력 초안을 만들었습니다.  \n아직 장부에 반영된 상태는 아니고, **검토 후 반영**해야 합니다.\n\n**상세 설명**  \n초안 내용은 아래와 같습니다.\n\n- 거래 종류: **현금 수납**\n- 금액: **30,000원**\n- 날짜: **2026-09-08**\n- 판매 채널: **매장**\n- 메모: **점심 현금 매출**\n\n확인 사항:\n- 현재 상태: **draft**\n- 반영 전 단계이므로 **장부에는 아직 추가되지 않았습니다**\n- 중복 의심 건수: **0건**\n\n검토는 아래 화면에서 진행하시면 됩니다.  \n**검토하기:** /dashboard?project=f857e617-2f2c-47f3-a37d-80d7cc522fb0&section=tables&cash_draft=ae95f160-e4c4-461b-8cf1-ca7ba9abbef7\n\n**비즈니스 제안**  \n현금 매출은 초안 상태로 남아 있으면 일매출 집계에서 빠질 수 있으니, 오늘 건은 바로 검토 후 반영하시는 것이 좋습니다.",
+      "tools": [
+        "draft_cash_entry"
+      ],
+      "usage": {
+        "calls": 3,
+        "by_role": {
+          "worker": {
+            "calls": 2,
+            "tokens": 12824,
+            "cost_usd": 0.019084
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2495,
+            "cost_usd": 0.000133
+          }
+        },
+        "cost_usd": 0.019217,
+        "total_tokens": 15319,
+        "prompt_tokens": 14946,
+        "completion_tokens": 373
+      }
+    },
+    {
+      "answer": "**핵심 결과**  \n이번 달 **금액 취소율 미리보기는 6.6667%**입니다.  \n- 이번 달 취소 금액 절댓값: **20,000원**\n- 이번 달 승인 금액: **300,000원**\n- 계산식: **|취소 금액| ÷ 승인 금액 × 100**\n\n**상세 설명**  \n요청하신 조건으로 **재사용 가능한 지표 형태로 미리보기만** 계산했습니다.  \n대시보드에는 **저장하지 않았습니다**.\n\n적용한 지표 정의:\n- 장부: **검증 결제원장**\n- 기간: **이번 달**\n- 날짜 기준 컬럼: **occurred_at**\n- 분자: `event_kind = refund` 인 `amount` 합계의 **절댓값**\n- 분모: `event_kind = payment` 인 `amount` 합계\n- 계산 방식: **금액 기준 취소율**\n\n실제 계산:\n- 취소 금액: **-20,000원 → 절댓값 20,000원**\n- 승인 금액: **100,000원 + 200,000원 = 300,000원**\n- 취소율: **20,000 ÷ 300,000 = 6.6667%**\n\n**비즈니스 제안**  \n현재 표본은 **4행**으로 매우 적어서, 이 수치는 추세 판단보다는 **계산 정의 점검용**에 가깝습니다.  \n원하시면 다음 단계로:\n1. **지난달과 이번 달 취소율 비교**\n2. **결제수단별 취소율 비교**\n3. **일자별 취소 추이 차트 확인**\n까지 바로 이어서 볼 수 있습니다.",
+      "tools": [
+        "describe_table",
+        "preview_metric"
+      ],
+      "usage": {
+        "calls": 4,
+        "prompt_tokens": 23584,
+        "completion_tokens": 641,
+        "total_tokens": 24225,
+        "cost_usd": 0.033548,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1728,
+            "cost_usd": 9.8e-05
+          },
+          "worker": {
+            "calls": 3,
+            "tokens": 22497,
+            "cost_usd": 0.03345
+          }
+        }
+      }
+    },
+    {
+      "answer": "**핵심 결과**  \n이번 달 순결제액의 지난달 대비 **증감률 미리보기는 180%**입니다.  \n- 이번 달 순결제액: **280,000원**\n- 지난달 순결제액: **100,000원**\n- 계산식: **(이번 달 − 지난달) ÷ |지난달| × 100**\n\n**상세 설명**  \n요청하신 조건으로 **재사용 가능한 지표 형태의 미리보기만** 계산했습니다.  \n대시보드에는 **저장하지 않았습니다**.\n\n적용한 지표 정의:\n- 장부: **검증 결제원장**\n- 기준 컬럼: **amount**\n- 날짜 컬럼: **occurred_at**\n- 기간 비교:\n  - **이번 달 순결제액**\n  - **지난달 순결제액**\n- 계산 방식: **증감률(percent_change)**\n\n순결제액 기준 설명:\n- 이 장부는 `payment`와 `refund`가 함께 있는 **signed 원장**이므로\n- **event_kind=payment 필터를 걸지 않고 amount 전체를 합산**해 순결제액을 계산했습니다.\n- 따라서 취소가 음수로 포함되어 **순결제액**이 반영됩니다.\n\n실제 계산:\n- 이번 달 순결제액: **280,000원**\n- 지난달 순결제액: **100,000원**\n- 증감률: **(280,000 - 100,000) ÷ 100,000 × 100 = 180%**\n\n주의:\n- 이 비교는 **이번 달 전체 범위 vs 지난달 전체 범위** 기준입니다.\n- 이번 달은 아직 진행 중일 수 있어, 월말 전에는 수치가 계속 바뀔 수 있습니다.\n\n**비즈니스 제안**  \n현재는 순결제액이 지난달보다 **180% 증가**했습니다.  \n다음으로 보면 좋은 항목은:\n1. 증가가 **승인 증가** 때문인지\n2. **취소 감소** 때문인지\n3. 특정 **결제수단**에 집중된 변화인지  \n입니다.",
+      "tools": [
+        "preview_metric"
+      ],
+      "usage": {
+        "calls": 3,
+        "prompt_tokens": 17671,
+        "completion_tokens": 643,
+        "total_tokens": 18314,
+        "cost_usd": 0.025802,
+        "by_role": {
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2096,
+            "cost_usd": 0.000113
+          },
+          "worker": {
+            "calls": 2,
+            "tokens": 16218,
+            "cost_usd": 0.025689
+          }
+        }
+      }
+    }
+  ],
+  "limits": [
+    "합성 검증이며 실제 PG 파일·사업자 사용성·운영 부하 검증은 미실시",
+    "v3는 두 v1 스칼라 집계만 지원; 그룹별 계산식과 v2 피연산자 미지원",
+    "현금 거래는 일자만 수집; 실제 거래 시각·실제 환불 실행·원거래 전체 잔액 대사는 미지원",
+    "현금 반영 후 지표는 수동 또는 기존 주기로 재계산",
+    "ESLint 9 / legacy .eslintrc 설정 충돌로 lint 실행 불가; TypeScript 및 production build는 통과"
+  ],
+  "previous_successful_run": "dataez_kl_eval_2b533326c5d944fe9e8703662df47516",
+  "initial_harness_failure": "초기 브라우저 복원 버튼은 aria-label과 다른 이름으로 찾아 실패했다. selector 수정 후 전체 시나리오 두 번 통과.",
+  "verification": {
+    "api_tests_passed": 626,
+    "api_tests_skipped": 0,
+    "new_tests": 37,
+    "full_suite_seconds": 204.29,
+    "targeted_followup_passed": 109,
+    "typescript_passed": true,
+    "production_build_passed": true,
+    "git_diff_check_passed": true
+  }
+}

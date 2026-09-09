@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "csv_files": 12,
+  "workbook": "outputs/01a07df0-dba6-7841-8cde-f4505b7e6614/DATAEZ_가상PG_강남.xlsx",
+  "workbook_sha256": "4a9a29d0cdea79e99f68723b0ed4fe404fc0cd6cfd10cbf7c43ddc8591fab519",
+  "worksheets": 1,
+  "cells_compared": 533,
+  "formulas_or_error_cells": 0,
+  "id_policy": "Exact text values, including leading zeros; no apostrophe stored.",
+  "date_policy": "Native Excel wall-clock dates; import applies Asia/Seoul.",
+  "render_note": "Artifact renderer preview formats numeric text IDs as scientific notation despite XLSX text types and @ formats. Saved XML/cell values and all canonical imported rows were verified exactly; do not use the preview to inspect ID precision."
+}

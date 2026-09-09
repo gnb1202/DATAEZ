@@ -1,0 +1,197 @@
+{
+  "run_id": "dataez_stores_eval_bc97418fd37f4c50b65a8b369532dd9e",
+  "passed": true,
+  "synthetic": true,
+  "real_browser": true,
+  "real_models": true,
+  "api_mocks": false,
+  "checks": [
+    {
+      "check": "Exactly two saved metrics; empty preview not saved",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    },
+    {
+      "check": "Manual total includes refunds",
+      "actual": "250000",
+      "expected": "250000",
+      "passed": true
+    },
+    {
+      "check": "Natural comparison revision",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    },
+    {
+      "check": "Previous-month comparison by store",
+      "actual": {
+        "b6ba1f76-c111-425d-9ad1-25dda1938b6c": "60000",
+        "4a6d9ab5-edec-4b33-b047-b161c737280a": "40000"
+      },
+      "expected": {
+        "b6ba1f76-c111-425d-9ad1-25dda1938b6c": "60000",
+        "4a6d9ab5-edec-4b33-b047-b161c737280a": "40000"
+      },
+      "passed": true
+    },
+    {
+      "check": "Unselected store excluded",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "Hourly schedule preserved",
+      "actual": 3600,
+      "expected": 3600,
+      "passed": true
+    },
+    {
+      "check": "Resized layout preserved",
+      "actual": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "expected": {
+        "x": 0,
+        "y": 5,
+        "w": 6,
+        "h": 9
+      },
+      "passed": true
+    },
+    {
+      "check": "Widget identity preserved",
+      "actual": "b5659c19-d172-48a6-8d04-9389e7825383",
+      "expected": "b5659c19-d172-48a6-8d04-9389e7825383",
+      "passed": true
+    },
+    {
+      "check": "Stored on current dashboard",
+      "actual": "b6ba1f76-c111-425d-9ad1-25dda1938b6c",
+      "expected": "b6ba1f76-c111-425d-9ad1-25dda1938b6c",
+      "passed": true
+    },
+    {
+      "check": "Refresh sees other selected store transaction",
+      "actual": "300000",
+      "expected": "300000",
+      "passed": true
+    },
+    {
+      "check": "Deleted selected store blocks recomputation",
+      "actual": 422,
+      "expected": 422,
+      "passed": true
+    },
+    {
+      "check": "Last good total preserved after failure",
+      "actual": "300000",
+      "expected": "300000",
+      "passed": true
+    },
+    {
+      "check": "Failure visible",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    }
+  ],
+  "temporary_database_removed": true,
+  "ordinary_web_build_restored": true,
+  "models": {
+    "worker": "gpt-5.4",
+    "orchestrator": "gpt-5.4-nano",
+    "embedding": "text-embedding-3-small"
+  },
+  "api_tests": {
+    "passed": 679,
+    "skipped": 0,
+    "duration_seconds": 173.94
+  },
+  "agent_followup_tests": {
+    "passed": 38,
+    "skipped": 0
+  },
+  "typescript_passed": true,
+  "browser_errors": [],
+  "dialogues": [
+    {
+      "question": "강남점과 홍대점의 이번 달 순결제액을 가게별 막대그래프로 비교해서 대시보드에 저장해줘. 각 가게의 결제원장은 원화 거래별 결제·취소 내역이고 amount에 취소는 음수로 들어있어. occurred_at 기준, 수수료는 빼지 마. 수원점은 포함하지 마. 제목은 두 지점 비교, 매시간 갱신으로 해줘.",
+      "answer": "**핵심 결과**  \n대시보드 저장 완료했습니다.  \n- 지표 제목: **두 지점 비교**\n- 비교 대상: **강남점, 홍대점**\n- 제외 대상: **수원점 제외**\n- 기준: **이번 달 순결제액**\n- 집계 방식: **amount 합계(취소 음수 포함), occurred_at 기준, 수수료 미차감**\n- 차트 형태: **가게별 막대그래프**\n- 갱신 주기: **매시간(3600초)**\n\n이번 달 순결제액 결과:\n- **강남점: 80,000원**\n- **홍대점: 170,000원**\n\n**상세 설명**  \n이번 저장은 각 가게의 **결제원장**을 확인한 뒤 진행했습니다.  \n두 장부 모두 다음 조건을 만족해 요청대로 집계했습니다.\n- 원화 거래 장부\n- 거래별 결제·취소 내역 포함\n- 취소 금액이 **amount에 음수**로 저장\n- 날짜 기준 컬럼이 **occurred_at**\n- 순결제액 계산 시 **수수료 차감 없음**\n\n따라서 별도 `event_kind=payment` 필터는 넣지 않고,  \n**amount를 그대로 합산하는 signed 방식**으로 계산했습니다.\n\n저장된 막대그래프 해석:\n- 홍대점이 강남점보다 **90,000원 더 높습니다**\n- 두 지점 합계는 **250,000원**입니다\n\n참고:\n- 이 지표는 **현재 선택한 두 가게만 고정**해서 저장되었습니다\n- 이후 새 가게가 생겨도 자동 포함되지 않습니다\n- 외부 데이터는 **업로드된 후** 이 지표에 반영됩니다\n\n**비즈니스 제안**  \n- 지금 상태로는 홍대점의 이번 달 순결제액이 강남점보다 **2.13배** 높습니다\n- 다음으로는 **일자별 추이**를 보면 어느 날짜에 차이가 벌어졌는지 바로 확인할 수 있습니다\n- 원하시면 같은 두 지점 기준으로 **결제 건수**, **환불 규모**, **지난달 대비 증감률**도 바로 만들어드릴 수 있습니다",
+      "usage": {
+        "calls": 7,
+        "by_role": {
+          "worker": {
+            "calls": 6,
+            "tokens": 72283,
+            "cost_usd": 0.101361
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1971,
+            "cost_usd": 0.000113
+          }
+        },
+        "cost_usd": 0.101474,
+        "total_tokens": 74254,
+        "prompt_tokens": 72954,
+        "completion_tokens": 1300
+      }
+    },
+    {
+      "question": "방금 저장한 두 지점 비교 지표의 공통 기간을 지난달로 바꿔줘. 강남점과 홍대점만 그대로 비교하고 제목, 위치와 매시간 갱신은 유지해줘. 새 지표를 추가하지 말고 기존 지표를 수정해줘.",
+      "answer": "**핵심 결과**  \n기존 지표 **1건 수정했습니다.**  \n- 지표명: **두 지점 비교**\n- 변경 내용: 공통 기간을 **이번 달 → 지난달**로 변경\n- 유지 내용: **강남점·홍대점 비교, 제목, 대시보드 위치, 매시간 갱신**\n- 결과: **새 지표 추가 없이 기존 지표를 revision 2로 업데이트**했습니다\n\n**상세 설명**  \n기존 저장 지표를 확인한 뒤, 같은 지표를 그대로 수정했습니다.\n- 대상 지표: **두 지점 비교**\n- 기존 revision: **1**\n- 변경 후 revision: **2**\n- 갱신 주기: **매시간(3600초) 유지**\n- 비교 방식: **가게별 막대그래프 유지**\n- 비교 대상: **강남점, 홍대점만 유지**\n- 집계 기준: **occurred_at 기준 순결제액**\n- 금액 처리: **amount 합계, 취소 음수 포함**\n- 수수료: **차감하지 않음**\n\n즉, 지표의 구조는 그대로 두고 **공통 기간만 지난달로 바꿔 현재 데이터 기준으로 재계산**했습니다.\n\n**비즈니스 제안**  \n지난달 기준으로 바뀌었으니, 다음 단계로는 **이번 달과 지난달의 지점별 증감률**을 같이 보면 성과 차이가 더 분명해집니다.  \n원하시면 바로 **두 지점의 전월 대비 증감률 차트**도 만들어드릴게요.",
+      "usage": {
+        "calls": 5,
+        "by_role": {
+          "worker": {
+            "calls": 4,
+            "tokens": 47076,
+            "cost_usd": 0.064935
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2361,
+            "cost_usd": 0.00013
+          }
+        },
+        "cost_usd": 0.065065,
+        "total_tokens": 49437,
+        "prompt_tokens": 48708,
+        "completion_tokens": 729
+      }
+    },
+    {
+      "question": "이번에는 강남점과 수원점 두 가게의 이번 달 순결제액을 같은 기준으로 가게별 비교 그래프로 미리보기만 해줘. 저장하지 마. 거래가 없는 가게도 선택 대상에서 빼지 말고 데이터 없음으로 남겨줘.",
+      "answer": "**핵심 결과**  \n미리보기만 생성했습니다. 저장은 하지 않았습니다.  \n- 기간: **이번 달**\n- 비교 대상: **강남점, 수원점**\n- 기준: **순결제액(amount 합계, 취소 음수 포함)**\n- 날짜 기준: **occurred_at**\n- 수수료: **차감 안 함**\n- 표시 방식: **가게별 막대그래프**\n\n미리보기 결과:\n- **강남점: 80,000원**\n- **수원점: 데이터 없음**\n\n**상세 설명**  \n요청하신 조건대로 **강남점과 수원점만 선택**해서 비교했습니다.  \n또한 “거래가 없는 가게도 제외하지 말고 남겨달라”는 조건에 맞춰, 수원점은 그래프에서 빠지지 않고 **데이터 없음**으로 유지했습니다.\n\n검증한 장부 기준:\n- 강남점 결제원장: 원화, amount, occurred_at 확인\n- 수원점 결제원장: 원화, amount, occurred_at 확인\n- 두 장부 모두 **취소가 음수로 들어가는 signed 방식** 기준으로 미리보기 계산\n\n이번 달 포함 행 수:\n- **강남점: 2건**\n- **수원점: 0건**\n\n그래프 해석:\n- 강남점만 이번 달 순결제액이 집계되었습니다\n- 수원점은 **선택 기간 내 거래가 없어 값이 비어 있음**으로 표시됩니다\n- 사용자가 요청한 대로 **0원으로 바꾸지 않았습니다**\n\n**비즈니스 제안**  \n수원점이 데이터 없음으로 나온 만큼, 다음 확인이 유용합니다.\n1. 수원점에 **이번 달 거래 자체가 없는지**\n2. 거래가 있는데도 안 보인다면 **업로드 누락 여부**\n3. 강남점은 이번 달 **승인/취소 구성**을 따로 보면 변동 원인을 더 쉽게 파악할 수 있습니다",
+      "usage": {
+        "calls": 6,
+        "by_role": {
+          "worker": {
+            "calls": 5,
+            "tokens": 54400,
+            "cost_usd": 0.076584
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 2737,
+            "cost_usd": 0.000149
+          }
+        },
+        "cost_usd": 0.076733,
+        "total_tokens": 57137,
+        "prompt_tokens": 56121,
+        "completion_tokens": 1016
+      }
+    }
+  ],
+  "scope": "Three synthetic natural-language scenarios plus manual selection, SQL, ownership and lifecycle tests. Not a PG pilot, broad model benchmark, usability study or load test.",
+  "production_build_passed": true,
+  "test_postgres_stopped": true,
+  "test_vector_container_stopped": true
+}

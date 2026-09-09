@@ -1,0 +1,139 @@
+{
+  "run_id": "dataez_onboarding_eval_2c9e088c617d43438ea743848823bab4",
+  "passed": true,
+  "synthetic": true,
+  "real_browser": true,
+  "real_models": true,
+  "api_mocks": false,
+  "checks": [
+    {
+      "check": "Exactly one reusable first metric",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "First metric store",
+      "actual": "c4b16dc5-a88a-4c46-be15-bcb1168528f8",
+      "expected": "c4b16dc5-a88a-4c46-be15-bcb1168528f8",
+      "passed": true
+    },
+    {
+      "check": "Hourly schedule",
+      "actual": 3600,
+      "expected": 3600,
+      "passed": true
+    },
+    {
+      "check": "Daily period definition",
+      "actual": "day",
+      "expected": "day",
+      "passed": true
+    },
+    {
+      "check": "Three deduplicated days",
+      "actual": [
+        "100000",
+        "-20000",
+        "50000"
+      ],
+      "expected": [
+        "100000",
+        "-20000",
+        "50000"
+      ],
+      "passed": true
+    },
+    {
+      "check": "One source after reload and retries",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Three committed events",
+      "actual": 3,
+      "expected": 3,
+      "passed": true
+    },
+    {
+      "check": "One durable upload",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Duplicate excluded",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Exact committed total",
+      "actual": "130000",
+      "expected": "130000",
+      "passed": true
+    },
+    {
+      "check": "Natural preview does not create a second metric",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Other store has no ledgers",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    }
+  ],
+  "temporary_database_removed": true,
+  "ordinary_web_build_restored": true,
+  "models": {
+    "worker": "gpt-5.4",
+    "orchestrator": "gpt-5.4-nano",
+    "embedding": "text-embedding-3-small"
+  },
+  "api_tests": {
+    "passed": 695,
+    "skipped": 0,
+    "duration_seconds": 219.58
+  },
+  "mapping_followup_tests": {
+    "passed": 16,
+    "skipped": 0,
+    "duration_seconds": 6.77,
+    "includes_extreme_decimal_scale": true
+  },
+  "typescript_passed": true,
+  "production_build_passed": true,
+  "browser_errors": [],
+  "dialogues": [
+    {
+      "question": "\"시작 결제원장\" 장부의 전체 기간 결제·취소 금액을 발생일 기준 일별 막대그래프로 미리보기만 해줘. 원본 부호와 취소를 유지하고 수수료는 차감하지 마. 출처를 확인하고 저장은 아직 하지 마.",
+      "answer": "핵심 결과 → \"시작 결제원장\"의 전체 기간 일별 결제·취소 금액 미리보기를 만들었습니다. 총 3일치이며, 원본 부호를 그대로 유지해 합산했고 수수료는 차감하지 않았습니다.\n\n상세 설명\n- 출처 확인 완료\n  - 출처명: 시작 결제원장\n  - 제공처: 샘플 PG\n  - 피드: 결제·취소 이벤트\n  - 장부 전체 행 수: 3건\n  - 통화 매핑: KRW\n  - 발생일 컬럼: occurred_at\n  - 금액 컬럼: amount\n  - 반영 시각: 2026-09-08 12:16:17 UTC\n- 미리보기 조건\n  - 기간: 전체 기간\n  - 기준일: 발생일(occurred_at)\n  - 집계: 일별 amount 합계\n  - 부호 처리: 원본 signed 그대로 유지\n  - 취소 반영: 포함\n  - 수수료 차감: 미반영\n  - 저장 여부: 저장하지 않음\n- 일별 결과\n  - 2026-09-01: 100,000원\n  - 2026-09-02: -20,000원\n  - 2026-09-03: 50,000원\n- 해석\n  - 9월 2일은 취소가 반영되어 일 합계가 음수 20,000원입니다.\n  - 3일 전체 합계는 130,000원입니다.\n  - 데이터는 표본이 아니라 전체 3건 기준입니다.\n\n비즈니스 제안\n- 지금 데이터는 3건이라 추세 판단보다는 집계 구조 점검에 적합합니다.\n- 다음 단계로는 결제수단별 합계나 결제/취소 건수 분리를 보면 운영 파악이 더 쉬워집니다.\n- 원하시면 같은 조건으로 선그래프 또는 결제수단별 비교 미리보기도 바로 보여드릴 수 있습니다.",
+      "usage": {
+        "calls": 4,
+        "by_role": {
+          "worker": {
+            "calls": 3,
+            "tokens": 27532,
+            "cost_usd": 0.039709
+          },
+          "orchestrator": {
+            "calls": 1,
+            "tokens": 1921,
+            "cost_usd": 0.000106
+          }
+        },
+        "cost_usd": 0.039814,
+        "total_tokens": 29453,
+        "prompt_tokens": 28821,
+        "completion_tokens": 632
+      }
+    }
+  ],
+  "scope": "Synthetic first-use browser journey and one real natural-language preview, plus separate API tests. Not a 50-question benchmark, usability study, load test or PG pilot.",
+  "test_postgres_stopped": true,
+  "test_vector_container_stopped": true
+}

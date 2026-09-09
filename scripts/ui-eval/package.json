@@ -1,0 +1,6 @@
+{
+  "name": "dataez-metric-ui-eval",
+  "private": true,
+  "scripts": { "check": "node multi-metric.cjs", "check:workspace": "node workspace.cjs", "check:import": "node import-validation.cjs", "check:ledger": "node ledger-imports.cjs", "check:events": "node event-review.cjs", "check:live": "python live-run.py" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "dataez-metric-sql-eval",
+  "private": true,
+  "type": "module",
+  "description": "Development-only PostgreSQL SQL validation without Docker",
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}
