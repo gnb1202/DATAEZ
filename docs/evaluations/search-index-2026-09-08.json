@@ -1,0 +1,1523 @@
+{
+  "run_id": "dataez_index_eval_f3e43ea190164c71b7631772753197c7",
+  "started_at": "2026-09-08T07:36:53.049917+00:00",
+  "synthetic": true,
+  "api_mocks": false,
+  "real_postgres": true,
+  "real_browser": true,
+  "real_recovery_embeddings": true,
+  "fault_injection": "Embedding endpoint temporarily points to a closed loopback port",
+  "real_chat_model_evaluated": false,
+  "checks": [
+    {
+      "check": "Disabled worker preserves pending request",
+      "actual": {
+        "pending": 1
+      },
+      "expected": {
+        "pending": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "Browser pending has no page errors",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "check": "Pending document visible before embeddings",
+      "actual": 2,
+      "expected": 2,
+      "passed": true
+    },
+    {
+      "check": "Connection failure schedules retries; empty document stops",
+      "actual": {
+        "failed": 1,
+        "retry": 2
+      },
+      "expected": {
+        "retry": 2,
+        "failed": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "Browser retry has no page errors",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "check": "Retry state survives restart and recovers without browser",
+      "actual": {
+        "failed": 1,
+        "succeeded": 2
+      },
+      "expected": {
+        "succeeded": 2,
+        "failed": 1
+      },
+      "passed": true
+    },
+    {
+      "check": "Recovery continues previous attempt counts",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "Recovered schema is retrieved with real embedding",
+      "actual": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+      "expected": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+      "passed": true
+    },
+    {
+      "check": "Recovered document is retrieved with real embedding",
+      "actual": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+      "expected": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+      "passed": true
+    },
+    {
+      "check": "Failed document prevents false no-data claim",
+      "actual": "index_incomplete",
+      "expected": "index_incomplete",
+      "passed": true
+    },
+    {
+      "check": "Other store never receives these jobs",
+      "actual": 0,
+      "expected": 0,
+      "passed": true
+    },
+    {
+      "check": "Other store retry is rejected",
+      "actual": 404,
+      "expected": 404,
+      "passed": true
+    },
+    {
+      "check": "Browser recovered has no page errors",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "check": "Failed document can be deleted from UI",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "check": "Index recovery leaves ledger value unchanged",
+      "actual": "100",
+      "expected": "100",
+      "passed": true
+    },
+    {
+      "check": "Metric identity definition layout schedule preserved",
+      "actual": [
+        "8efc9eaf-d17f-4164-9a55-4716fc359ec1",
+        {
+          "h": 5,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        3600
+      ],
+      "expected": [
+        "8efc9eaf-d17f-4164-9a55-4716fc359ec1",
+        {
+          "h": 5,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        3600
+      ],
+      "passed": true
+    },
+    {
+      "check": "Metric value and definition preserved",
+      "actual": [
+        "100",
+        {
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": null,
+          "table_id": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+          "operation": "sum",
+          "chart_type": "bar",
+          "date_grain": null,
+          "time_range": "all",
+          "date_column": null
+        }
+      ],
+      "expected": [
+        "100",
+        {
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": null,
+          "table_id": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+          "operation": "sum",
+          "chart_type": "bar",
+          "date_grain": null,
+          "time_range": "all",
+          "date_column": null
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "pending": {
+    "phase": "pending",
+    "errors": [],
+    "api_mocks": false,
+    "document": {
+      "file_id": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+      "filename": "환불규정.txt",
+      "size_bytes": 108,
+      "chunks": 0,
+      "index_status": "pending",
+      "index_job_id": "8c2fab5d-a552-45b2-b5d0-bb03d3b47a10"
+    },
+    "empty_document": {
+      "file_id": "c8c80491-8110-43b0-b73e-9c829f88ce8b",
+      "filename": "빈문서.txt",
+      "size_bytes": 0,
+      "chunks": 0,
+      "index_status": "pending",
+      "index_job_id": "2c4f2238-d9c8-4573-806e-523a847559cc"
+    },
+    "passed": true
+  },
+  "retry": {
+    "phase": "retry",
+    "errors": [],
+    "api_mocks": false,
+    "passed": true
+  },
+  "recovery_jobs": {
+    "jobs": [
+      {
+        "id": "2c4f2238-d9c8-4573-806e-523a847559cc",
+        "table_meta_id": null,
+        "file_id": "c8c80491-8110-43b0-b73e-9c829f88ce8b",
+        "name": "빈문서.txt",
+        "status": "failed",
+        "attempts": 1,
+        "generation": 1,
+        "completed_generation": 0,
+        "next_attempt_at": "2026-09-08T07:37:42.865308+00:00",
+        "last_error_code": "document_empty",
+        "last_error": "검색할 텍스트가 없습니다. 스캔 문서는 텍스트를 추출한 뒤 다시 올려 주세요.",
+        "last_success_at": null,
+        "updated_at": "2026-09-08T07:37:27.865308+00:00"
+      },
+      {
+        "id": "8c2fab5d-a552-45b2-b5d0-bb03d3b47a10",
+        "table_meta_id": null,
+        "file_id": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+        "name": "환불규정.txt",
+        "status": "succeeded",
+        "attempts": 2,
+        "generation": 1,
+        "completed_generation": 1,
+        "next_attempt_at": "2026-09-08T07:47:44.279991+00:00",
+        "last_error_code": null,
+        "last_error": null,
+        "last_success_at": "2026-09-08T07:37:44.741091+00:00",
+        "updated_at": "2026-09-08T07:37:44.741091+00:00"
+      },
+      {
+        "id": "49cdff2d-8872-4d81-bc47-77ed547e16b0",
+        "table_meta_id": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+        "file_id": null,
+        "name": "카드 매출",
+        "status": "succeeded",
+        "attempts": 2,
+        "generation": 1,
+        "completed_generation": 1,
+        "next_attempt_at": "2026-09-08T07:47:41.210217+00:00",
+        "last_error_code": null,
+        "last_error": null,
+        "last_success_at": "2026-09-08T07:37:44.274401+00:00",
+        "updated_at": "2026-09-08T07:37:44.274401+00:00"
+      }
+    ],
+    "counts": {
+      "failed": 1,
+      "succeeded": 2
+    },
+    "total": 3,
+    "limit": 50,
+    "offset": 0,
+    "search_enabled": true,
+    "worker_enabled": true,
+    "max_attempts": 5
+  },
+  "retrieval": {
+    "schema": {
+      "query": "카드 매출",
+      "results": [
+        {
+          "table_name": "카드 매출",
+          "table_meta_id": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+          "content": "테이블명: 카드 매출\n컬럼:\n- amount (BIGINT)\n원본 파일 (최근 최대 20개): sales.csv",
+          "score": 0.03278688524590164
+        }
+      ],
+      "count": 1,
+      "status": "candidates",
+      "index_coverage": {
+        "total": 1,
+        "indexed": 1,
+        "updating": 0,
+        "missing": 0
+      },
+      "hint": "검색 순위는 정답 확률이 아닙니다. 파일·기간·컬럼 의미를 확인하고 결과의 table_name으로 describe_table 또는 query_data를 호출하세요."
+    },
+    "documents": {
+      "query": "예약 취소 환불 규정",
+      "index_coverage": {
+        "total": 2,
+        "updating": 1
+      },
+      "results": [
+        {
+          "chunk_id": "b1605c78-f9de-4ab7-ae80-786c92a76f8f",
+          "file_id": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+          "chunk_index": 0,
+          "content": "<<<DATA source=환불규정.txt\n예약 취소는 방문 하루 전까지 전액 환불합니다. 당일 취소는 환불하지 않습니다.\nDATA>>>",
+          "metadata": {
+            "filename": "환불규정.txt",
+            "chunk_index": 0
+          },
+          "score": 0.01639344262295082
+        }
+      ],
+      "count": 1,
+      "status": "index_incomplete",
+      "hint": "검색 갱신 중이거나 실패한 문서가 있습니다. 자료 없음으로 판단하지 말고 장부 관리의 검색 갱신 상태를 확인하도록 안내하세요. 기존 청크는 이전 내용일 수 있습니다."
+    }
+  },
+  "recovered": {
+    "phase": "recovered",
+    "errors": [],
+    "api_mocks": false,
+    "manual_retry": {
+      "id": "49cdff2d-8872-4d81-bc47-77ed547e16b0",
+      "status": "pending",
+      "replayed": false
+    },
+    "passed": true
+  },
+  "final_jobs": {
+    "jobs": [
+      {
+        "id": "49cdff2d-8872-4d81-bc47-77ed547e16b0",
+        "table_meta_id": "2ea2b49b-ebb0-46b5-8d32-c455719a06b1",
+        "file_id": null,
+        "name": "카드 매출",
+        "status": "succeeded",
+        "attempts": 1,
+        "generation": 2,
+        "completed_generation": 2,
+        "next_attempt_at": "2026-09-08T07:47:54.756461+00:00",
+        "last_error_code": null,
+        "last_error": null,
+        "last_success_at": "2026-09-08T07:37:54.779316+00:00",
+        "updated_at": "2026-09-08T07:37:54.779316+00:00"
+      },
+      {
+        "id": "8c2fab5d-a552-45b2-b5d0-bb03d3b47a10",
+        "table_meta_id": null,
+        "file_id": "2aa0219f-fdb2-4e6b-97d6-3933fa620d31",
+        "name": "환불규정.txt",
+        "status": "succeeded",
+        "attempts": 2,
+        "generation": 1,
+        "completed_generation": 1,
+        "next_attempt_at": "2026-09-08T07:47:44.279991+00:00",
+        "last_error_code": null,
+        "last_error": null,
+        "last_success_at": "2026-09-08T07:37:44.741091+00:00",
+        "updated_at": "2026-09-08T07:37:44.741091+00:00"
+      }
+    ],
+    "counts": {
+      "succeeded": 2
+    },
+    "total": 2,
+    "limit": 50,
+    "offset": 0,
+    "search_enabled": true,
+    "worker_enabled": true,
+    "max_attempts": 5
+  },
+  "temporary_database_removed": true,
+  "ordinary_web_build_restored": true,
+  "finished_at": "2026-09-08T07:38:11.064137+00:00",
+  "validation": {
+    "api_tests_passed": 589,
+    "api_tests_skipped": 0,
+    "postgres_index_tests": 22,
+    "api_test_seconds": 122.67,
+    "typescript_no_emit": "passed",
+    "web_build": "passed",
+    "diff_check": "passed"
+  },
+  "prior_runs": [
+    {
+      "run_id": "dataez_index_eval_51d3ead188434d2cb01f172b278209b1",
+      "passed": false,
+      "temporary_database_removed": true,
+      "ordinary_web_build_restored": true,
+      "note": "Initial browser test selected the other store; corrected to switch stores explicitly."
+    },
+    {
+      "run_id": "dataez_index_eval_70320f24b53d43c3b01dfab912307523",
+      "passed": true,
+      "temporary_database_removed": true,
+      "ordinary_web_build_restored": true,
+      "note": "First successful outage/restart recovery; final run includes final UI wording and backend checks."
+    }
+  ],
+  "restoration_regression": {
+    "run_id": "dataez_restore_eval_c79d28c68ede4127b6c32852786d591c",
+    "passed": true,
+    "browser_evaluated": false,
+    "checks": [
+      {
+        "check": "Seed uses old six-column mapping",
+        "actual": 6,
+        "expected": 6,
+        "passed": true
+      },
+      {
+        "check": "Original net payments",
+        "actual": "1358000",
+        "expected": "1358000",
+        "passed": true
+      },
+      {
+        "check": "Duplicate upload adds zero after upgrade",
+        "actual": 0,
+        "expected": 0,
+        "passed": true
+      },
+      {
+        "check": "New event appended after upgrade",
+        "actual": 1,
+        "expected": 1,
+        "passed": true
+      },
+      {
+        "check": "Restoration schema indexing queued",
+        "actual": "queued",
+        "expected": "queued",
+        "passed": true
+      },
+      {
+        "check": "Apply replay does not repeat changes",
+        "actual": true,
+        "expected": true,
+        "passed": true
+      },
+      {
+        "check": "Old pending upload requires new upload",
+        "actual": true,
+        "expected": true,
+        "passed": true
+      },
+      {
+        "check": "Historical row IDs and six original fields unchanged",
+        "actual": [
+          {
+            "_row_id": 1,
+            "event_id": "0000202609000000000001",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "100000",
+            "occurred_at": "2026-08-31 14:55:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 2,
+            "event_id": "0000202609000000000002",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-08-31 15:05:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 3,
+            "event_id": "0000202609000000000100",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-01 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 4,
+            "event_id": "0000202609000000000101",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-01 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 5,
+            "event_id": "0000202609000000000102",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-01 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 6,
+            "event_id": "0000202609000000000103",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-01 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 7,
+            "event_id": "0000202609000000000104",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-01 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 8,
+            "event_id": "0000202609000000000105",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-01 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 9,
+            "event_id": "0000202609000000000200",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-02 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 10,
+            "event_id": "0000202609000000000201",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-02 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 11,
+            "event_id": "0000202609000000000202",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-02 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 12,
+            "event_id": "0000202609000000000203",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-02 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 13,
+            "event_id": "0000202609000000000204",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-02 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 14,
+            "event_id": "0000202609000000000205",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-02 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 15,
+            "event_id": "0000202609000000000300",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-03 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 16,
+            "event_id": "0000202609000000000301",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-03 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 17,
+            "event_id": "0000202609000000000302",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-03 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 18,
+            "event_id": "0000202609000000000303",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-03 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 19,
+            "event_id": "0000202609000000000304",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-03 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 20,
+            "event_id": "0000202609000000000305",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-03 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 21,
+            "event_id": "0000202609000000000400",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-04 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 22,
+            "event_id": "0000202609000000000401",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-04 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 23,
+            "event_id": "0000202609000000000402",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-04 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 24,
+            "event_id": "0000202609000000000403",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-04 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 25,
+            "event_id": "0000202609000000000404",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-04 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 26,
+            "event_id": "0000202609000000000405",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-04 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 27,
+            "event_id": "0000202609000000000500",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-05 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 28,
+            "event_id": "0000202609000000000501",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-05 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 29,
+            "event_id": "0000202609000000000502",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-05 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 30,
+            "event_id": "0000202609000000000503",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-05 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 31,
+            "event_id": "0000202609000000000504",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-05 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 32,
+            "event_id": "0000202609000000000505",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-05 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 33,
+            "event_id": "0000202609000000000600",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-06 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 34,
+            "event_id": "0000202609000000000601",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-06 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 35,
+            "event_id": "0000202609000000000602",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-06 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 36,
+            "event_id": "0000202609000000000603",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-06 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 37,
+            "event_id": "0000202609000000000604",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-06 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 38,
+            "event_id": "0000202609000000000605",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-06 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 39,
+            "event_id": "0000202609000000088001",
+            "original_event_id": "0000202609000000000001",
+            "event_kind": "refund",
+            "amount": "-20000",
+            "occurred_at": "2026-09-02 09:30:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 40,
+            "event_id": "0000202609000000088002",
+            "original_event_id": "0000202609000000000001",
+            "event_kind": "refund",
+            "amount": "-30000",
+            "occurred_at": "2026-09-03 09:30:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 41,
+            "event_id": "0000202609000000000700",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-07 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 42,
+            "event_id": "0000202609000000000701",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-07 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 43,
+            "event_id": "0000202609000000000702",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-07 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 44,
+            "event_id": "0000202609000000000703",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-07 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 45,
+            "event_id": "0000202609000000000704",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-07 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 46,
+            "event_id": "0000202609000000000705",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-07 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 47,
+            "event_id": "0000202609000000000800",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-08 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 48,
+            "event_id": "0000202609000000000801",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-08 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 49,
+            "event_id": "0000202609000000000802",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-08 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 50,
+            "event_id": "0000202609000000000803",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-08 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 51,
+            "event_id": "0000202609000000000804",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-08 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 52,
+            "event_id": "0000202609000000000805",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-08 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 53,
+            "event_id": "0000202609000000099001",
+            "original_event_id": "0000202609000000000700",
+            "event_kind": "refund",
+            "amount": "-8000",
+            "occurred_at": "2026-09-08 07:00:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 54,
+            "event_id": "0000202609000000099002",
+            "original_event_id": "0000202609000000000700",
+            "event_kind": "refund",
+            "amount": "-4000",
+            "occurred_at": "2026-09-08 07:05:00+00:00",
+            "currency": "KRW"
+          }
+        ],
+        "expected": [
+          {
+            "_row_id": 1,
+            "event_id": "0000202609000000000001",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "100000",
+            "occurred_at": "2026-08-31 14:55:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 2,
+            "event_id": "0000202609000000000002",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-08-31 15:05:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 3,
+            "event_id": "0000202609000000000100",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-01 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 4,
+            "event_id": "0000202609000000000101",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-01 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 5,
+            "event_id": "0000202609000000000102",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-01 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 6,
+            "event_id": "0000202609000000000103",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-01 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 7,
+            "event_id": "0000202609000000000104",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-01 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 8,
+            "event_id": "0000202609000000000105",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-01 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 9,
+            "event_id": "0000202609000000000200",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-02 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 10,
+            "event_id": "0000202609000000000201",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-02 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 11,
+            "event_id": "0000202609000000000202",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-02 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 12,
+            "event_id": "0000202609000000000203",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-02 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 13,
+            "event_id": "0000202609000000000204",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-02 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 14,
+            "event_id": "0000202609000000000205",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-02 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 15,
+            "event_id": "0000202609000000000300",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-03 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 16,
+            "event_id": "0000202609000000000301",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-03 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 17,
+            "event_id": "0000202609000000000302",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-03 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 18,
+            "event_id": "0000202609000000000303",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-03 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 19,
+            "event_id": "0000202609000000000304",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-03 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 20,
+            "event_id": "0000202609000000000305",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-03 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 21,
+            "event_id": "0000202609000000000400",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-04 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 22,
+            "event_id": "0000202609000000000401",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-04 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 23,
+            "event_id": "0000202609000000000402",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-04 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 24,
+            "event_id": "0000202609000000000403",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-04 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 25,
+            "event_id": "0000202609000000000404",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-04 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 26,
+            "event_id": "0000202609000000000405",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-04 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 27,
+            "event_id": "0000202609000000000500",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-05 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 28,
+            "event_id": "0000202609000000000501",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "12000",
+            "occurred_at": "2026-09-05 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 29,
+            "event_id": "0000202609000000000502",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-05 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 30,
+            "event_id": "0000202609000000000503",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-05 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 31,
+            "event_id": "0000202609000000000504",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-05 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 32,
+            "event_id": "0000202609000000000505",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-05 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 33,
+            "event_id": "0000202609000000000600",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-06 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 34,
+            "event_id": "0000202609000000000601",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-06 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 35,
+            "event_id": "0000202609000000000602",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-06 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 36,
+            "event_id": "0000202609000000000603",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-06 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 37,
+            "event_id": "0000202609000000000604",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-06 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 38,
+            "event_id": "0000202609000000000605",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-06 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 39,
+            "event_id": "0000202609000000088001",
+            "original_event_id": "0000202609000000000001",
+            "event_kind": "refund",
+            "amount": "-20000",
+            "occurred_at": "2026-09-02 09:30:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 40,
+            "event_id": "0000202609000000088002",
+            "original_event_id": "0000202609000000000001",
+            "event_kind": "refund",
+            "amount": "-30000",
+            "occurred_at": "2026-09-03 09:30:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 41,
+            "event_id": "0000202609000000000700",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "16000",
+            "occurred_at": "2026-09-07 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 42,
+            "event_id": "0000202609000000000701",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-07 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 43,
+            "event_id": "0000202609000000000702",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-07 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 44,
+            "event_id": "0000202609000000000703",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-07 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 45,
+            "event_id": "0000202609000000000704",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-07 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 46,
+            "event_id": "0000202609000000000705",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-07 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 47,
+            "event_id": "0000202609000000000800",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "20000",
+            "occurred_at": "2026-09-08 01:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 48,
+            "event_id": "0000202609000000000801",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "24000",
+            "occurred_at": "2026-09-08 02:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 49,
+            "event_id": "0000202609000000000802",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "28000",
+            "occurred_at": "2026-09-08 03:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 50,
+            "event_id": "0000202609000000000803",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "32000",
+            "occurred_at": "2026-09-08 04:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 51,
+            "event_id": "0000202609000000000804",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "36000",
+            "occurred_at": "2026-09-08 05:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 52,
+            "event_id": "0000202609000000000805",
+            "original_event_id": null,
+            "event_kind": "payment",
+            "amount": "40000",
+            "occurred_at": "2026-09-08 06:15:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 53,
+            "event_id": "0000202609000000099001",
+            "original_event_id": "0000202609000000000700",
+            "event_kind": "refund",
+            "amount": "-8000",
+            "occurred_at": "2026-09-08 07:00:00+00:00",
+            "currency": "KRW"
+          },
+          {
+            "_row_id": 54,
+            "event_id": "0000202609000000099002",
+            "original_event_id": "0000202609000000000700",
+            "event_kind": "refund",
+            "amount": "-4000",
+            "occurred_at": "2026-09-08 07:05:00+00:00",
+            "currency": "KRW"
+          }
+        ],
+        "passed": true
+      },
+      {
+        "check": "Physical and registry row counts after new import",
+        "actual": [
+          55,
+          55
+        ],
+        "expected": [
+          55,
+          55
+        ],
+        "passed": true
+      },
+      {
+        "check": "Existing widget identity layout schedule preserved",
+        "actual": {
+          "id": "c94318ee-0830-4c66-9eef-a11cd3c75598",
+          "layout": {
+            "h": 5,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_interval_seconds": 3600
+        },
+        "expected": {
+          "id": "c94318ee-0830-4c66-9eef-a11cd3c75598",
+          "layout": {
+            "h": 5,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_interval_seconds": 3600
+        },
+        "passed": true
+      },
+      {
+        "check": "Existing metric definition preserved",
+        "actual": {
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": null,
+          "table_id": "908da97c-be05-4f95-86be-ae31b1f49150",
+          "operation": "sum",
+          "chart_type": "bar",
+          "date_grain": null,
+          "time_range": "all",
+          "date_column": null
+        },
+        "expected": {
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": null,
+          "table_id": "908da97c-be05-4f95-86be-ae31b1f49150",
+          "operation": "sum",
+          "chart_type": "bar",
+          "date_grain": null,
+          "time_range": "all",
+          "date_column": null
+        },
+        "passed": true
+      },
+      {
+        "check": "Existing metric refresh sees new payment",
+        "actual": "1408000",
+        "expected": "1408000",
+        "passed": true
+      },
+      {
+        "check": "RAG catalog changed to include fee semantics",
+        "actual": true,
+        "expected": true,
+        "passed": true
+      },
+      {
+        "check": "Exactly 54 restoration journal rows",
+        "actual": 54,
+        "expected": 54,
+        "passed": true
+      },
+      {
+        "check": "Audit before/after fee",
+        "actual": [
+          null,
+          "3000"
+        ],
+        "expected": [
+          null,
+          "3000"
+        ],
+        "passed": true
+      },
+      {
+        "check": "Restored fee total plus new event",
+        "actual": "42240",
+        "expected": "42240",
+        "passed": true
+      }
+    ],
+    "temporary_database_removed": true,
+    "note": "H HTTP acceptance adapted to queued indexing. Initial retry used a random password without a required special character; test credential generation now guarantees all required character classes."
+  }
+}

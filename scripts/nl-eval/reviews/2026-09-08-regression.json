@@ -1,0 +1,52 @@
+{
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/06": {
+    "passed": true,
+    "notes": "월별 8월 60000원·9월 172000원과 막대 차트 확인.",
+    "evidence_sha256": "e5209d36fbb659f40bb7132a10adeab44e9b8c216833f5e68ef4e03acdde84e5"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/07": {
+    "passed": true,
+    "notes": "이번 달 카드 130000/현금 30000/계좌이체 12000원 확인.",
+    "evidence_sha256": "0686f03bd248fd8e30fed44a0857e9f3d5348c40742547a36aaff7ca6baaa5a2"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/08": {
+    "passed": true,
+    "notes": "전체 온라인 140000/매장 80000/방문 12000원, 차이 60000원 확인.",
+    "evidence_sha256": "d7bc806c31c22d145c751451ca9748559fc6daddc9fc1da6f4fa8ac72d37ed78"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/22": {
+    "passed": true,
+    "notes": "현금 55000원에서 개별 취소 절댓값 10000원을 차감한 45000원 확인.",
+    "evidence_sha256": "5bbedd55c9b20584bed1d7146317fbbff59f3d943881a8cad11c72626bd69b62"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/28": {
+    "passed": true,
+    "notes": "날짜별 amount-fee 값과 누락 제외 조건 없는 재실행 정의 확인.",
+    "evidence_sha256": "120ac13bac1e221dc04e21008bc8069a3be604b18683cf1214a57ec3e3b46525"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/33": {
+    "passed": true,
+    "notes": "선택한 강남 172000원·홍대 170000원의 당월 총합 342000원 확인.",
+    "evidence_sha256": "53a423dd31f4c95d7af65370d258f0a714394d3f2e9b38d8c98aa34c6cf51cf9"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/36": {
+    "passed": true,
+    "notes": "선택한 빈 수원점을 유지하고 전체 합계 자체를 계산 불가로 설명.",
+    "evidence_sha256": "e9dbded341d1025fa4f22c1e8c38f6a1e33a15818a98df7b91dea42f4169433e"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/43": {
+    "passed": true,
+    "notes": "출처·순액/총액 기준을 질문하고 임의 계산·저장하지 않음.",
+    "evidence_sha256": "7926561ceeffd1fbdb56e09e1b9b213762c152360088d3cf97575c2d7f23da6a"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/44": {
+    "passed": true,
+    "notes": "비용 자료 부재로 영업이익 산출 불가 설명, 수수료 차감액과 구분 및 임의 대체 저장 없음.",
+    "evidence_sha256": "7ff6575c795ed353a846b84cefbb461ad34cd70a30e5ec6649eaeb3a494cbb60"
+  },
+  "dataez_nl_eval_96931f42f6dc4ec4aad3b9af53340f96/49": {
+    "passed": true,
+    "notes": "강남 172000원과 빈 수원점을 비교, 빈 가게를 0으로 대체하지 않음.",
+    "evidence_sha256": "37c4c47f89fbd6ef220ee6c644f52cdd13e4954792175f4f48b47837c93c2640"
+  }
+}

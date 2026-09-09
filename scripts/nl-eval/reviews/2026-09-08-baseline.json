@@ -1,0 +1,252 @@
+{
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/01": {
+    "passed": true,
+    "notes": "전체 순결제액 232000원, 취소 포함·수수료 미차감 확인.",
+    "evidence_sha256": "2413222a5b3e0f7039e861fb06edbab1b662eb771a161733ae9fec6764c8af15"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/02": {
+    "passed": true,
+    "notes": "이번 달 172000원과 취소 포함·수수료 차감 전 기준 확인.",
+    "evidence_sha256": "281b49202830cb10eb0523a1386b4c9acb20af738b33a46fb6dbe91043d0e91c"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/03": {
+    "passed": true,
+    "notes": "지난달 60000원, 조회만 수행 확인.",
+    "evidence_sha256": "a3f08998112324d18cc133f69e4034601f051f872102ac457b31cbe8cc28854c"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/04": {
+    "passed": true,
+    "notes": "일별 60000/100000/-20000/62000/30000과 선 그래프 확인.",
+    "evidence_sha256": "e1cae18f748e0babdedf5ade0570b74a4ccea893dfbc5d968d6304d2c76c6e92"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/05": {
+    "passed": true,
+    "notes": "월요일 시작 2026-08-31 주에 232000원 집계 확인.",
+    "evidence_sha256": "3297ebc5aac2dadda106328deed56c36e0451c48576bd09aa2ed479c8f7944f7"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/06": {
+    "passed": true,
+    "notes": "월별 8월 60000원·9월 172000원과 막대 차트 확인.",
+    "evidence_sha256": "8181702c5dfb7812cdcc66b0ef424e4bd0aacc47dd8a54aed94a3b4a7df13760"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/07": {
+    "passed": true,
+    "notes": "이번 달 카드 130000/현금 30000/계좌이체 12000원 확인.",
+    "evidence_sha256": "a11bf53384e109eaaab3400dcf29ebdfdf5771b6224160894adaa358da893020"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/08": {
+    "passed": true,
+    "notes": "전체 온라인 140000/매장 80000/방문 12000원, 차이 60000원 확인.",
+    "evidence_sha256": "3db1958ecccc8339d7438ea59043f9ad9bb4f1a29262f4caf3fb93b6ec15bff4"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/09": {
+    "passed": true,
+    "notes": "현재 달 카드 승인·취소 합계 130000원과 실제 수단 필터 확인.",
+    "evidence_sha256": "8ac1cc6664bd08f503b0e359b1ba068c0537be208aa7a9799f825c6f8be3e08c"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/10": {
+    "passed": true,
+    "notes": "PG 내 현금 30000원만 집계, 별도 현금 장부 제외 확인.",
+    "evidence_sha256": "8641e79d5ab1b9f2cd560be99928beae96b73777948a5559fa9bc962257a30ee"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/11": {
+    "passed": true,
+    "notes": "승인 이벤트 5건, 취소 제외 및 저장 없음 확인.",
+    "evidence_sha256": "05f249b130684cdbed6143a2d114372424a1ffdd93412725f14bc6b4c9789f11"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/12": {
+    "passed": true,
+    "notes": "전체 취소/환불 이벤트 2건 확인.",
+    "evidence_sha256": "9f3505c045d4a22b4beb0a90270c9f5a4d6d15b09df054608f1806c003c739ce"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/13": {
+    "passed": true,
+    "notes": "승인액 262000원, 환불 제외 확인.",
+    "evidence_sha256": "8a170d67c83cf6da79ccc7c3193389798528ce29267c730b32c0e626e48313ec"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/14": {
+    "passed": true,
+    "notes": "승인 거래 평균 52400원 확인.",
+    "evidence_sha256": "6d0691932c6f8ee2ed5de45fbee4cb935aeeb0f50130891a0416e31b3bd0d792"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/15": {
+    "passed": true,
+    "notes": "음수 환불 최솟값 -20000원 확인.",
+    "evidence_sha256": "6d54bab94d981361a400db2bb67ecc3b695fbca6b7f256df442c212f008a61f8"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/16": {
+    "passed": true,
+    "notes": "승인 금액 최댓값 100000원 확인.",
+    "evidence_sha256": "5432ce34a5355d54d334101b7338baa5b4de3dab4b802f0f3e39f998b4210ca5"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/17": {
+    "passed": true,
+    "notes": "실제 의미 검색으로 원본 파일 연결 확인 후 PG 합계 232000원 계산.",
+    "evidence_sha256": "e042ee93cd38d81a1bd0e16d9dbac00d6e45fefe61da78f5d8f5fdcf315b2ddd"
+  },
+  "dataez_nl_eval_39e5f59f4b634ed1a285cd50363d27be/18": {
+    "passed": false,
+    "notes": "파일 이력으로 55000원은 정확히 계산했으나 명시적으로 요청한 의미 검색을 실행하지 않았다.",
+    "evidence_sha256": "fa203ff33d3ac11e868be47eb2e64005c99368d5a899f00df0b636cf0cfb0486"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/19": {
+    "passed": true,
+    "notes": "독립된 PG·현금 통합 287000원, 정산 파일 제외 확인.",
+    "evidence_sha256": "4183c11eda11e6ba8619893067bef43e2211b5c08430557ee5ecc9097d949eae"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/20": {
+    "passed": true,
+    "notes": "현재 달 일별 통합 120000/5000/62000/30000원 확인.",
+    "evidence_sha256": "9ba24ae0de2e2f6df69bd05a2aab8111edd49fcbea305d9d0b60df10fa795ae6"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/21": {
+    "passed": true,
+    "notes": "출처별 PG 232000원·현금 55000원 비교 확인.",
+    "evidence_sha256": "526f23b681f2c04acf7858088d12195690fcb5091839a4a7abb63b1505e39af9"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/22": {
+    "passed": false,
+    "notes": "개별 취소 절댓값 합계 10000원을 차감해야 하는데 ABS(SUM)=4000원을 차감해 51000원으로 오답.",
+    "evidence_sha256": "e00a54d524d0cf4c54075cc710f72ff13c2424b689c9b74bf35237f8aed7d0f8"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/23": {
+    "passed": true,
+    "notes": "순결제액 232000원 - 원본 부호 수수료 6960원 = 225040원 확인.",
+    "evidence_sha256": "9ea9e8e962e1ad4481c451e5e6c403ca8d39aa2c434fce3e6bb0483f4eda1597"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/24": {
+    "passed": true,
+    "notes": "취소액 30000/승인액 262000의 금액 비율 11.4504% 확인.",
+    "evidence_sha256": "111312fa05d4a51c543a877db58039c718e28e0ad3cbccff449563864839b745"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/25": {
+    "passed": false,
+    "notes": "이벤트 건수 비율 40%는 맞으나 원거래 연결 근거 없이 승인 5건 중 2건이 취소됐다고 설명했다.",
+    "evidence_sha256": "afc59b90c76de3ff421eb8ba0b056e9f28e0d57274f62a82ae76f60725b3290c"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/26": {
+    "passed": true,
+    "notes": "당월 172000원·전월 60000원, 전체 달 비교 +186.6667% 확인.",
+    "evidence_sha256": "1516c79927f8e7830bc29c82d77df226a8c8e29f232215257f48037af6cdf557"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/27": {
+    "passed": true,
+    "notes": "3000/0을 숫자로 만들지 않고 분모 0 계산 불가로 설명.",
+    "evidence_sha256": "3888ebeaa453be16d41d85acecaeb9fbb60905db741fd3bb06e14e35690d16bf"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/28": {
+    "passed": false,
+    "notes": "현재 수치는 맞지만 요청하지 않은 fee is_not_null을 추가해 미래 누락 행까지 조용히 제외할 정의를 생성했다.",
+    "evidence_sha256": "979e4d8cc94d3238a4e278ce52a1b1b457f638e0f65f63f0d93674f4ff7d025d"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/29": {
+    "passed": true,
+    "notes": "온라인 12.5%, 매장 11.1111%, 방문 계산 불가와 빈 그룹 설명 확인.",
+    "evidence_sha256": "72abca7fe1f8c16a1a0fbbbd718838a7b9e0994284ad397929e4c99302f17d1b"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/30": {
+    "passed": true,
+    "notes": "카드 33.3333%, 현금 100%, 계좌이체 0%; 명시적 빈 그룹 0 처리 확인.",
+    "evidence_sha256": "8179f581109ded0ba0399e2e145e6254f65dccc1452ee6c51b85dd1d8437c26d"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/31": {
+    "passed": true,
+    "notes": "채널별 전월 대비 온라인 +33.3333%, 매장·방문 계산 불가 확인.",
+    "evidence_sha256": "bcc27732cc490078132c40b6276b1275a773c1a8696fe7711c732bbb0b4022fe"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/32": {
+    "passed": true,
+    "notes": "월요일 시작 주별 수수료 차감액 225040원, 선 그래프 확인.",
+    "evidence_sha256": "f24cfee7aa46c6325331837d50f740acfa87225cc7ad7bc885965927d987e74e"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/33": {
+    "passed": true,
+    "notes": "선택한 강남 172000원·홍대 170000원의 당월 총합 342000원 확인.",
+    "evidence_sha256": "e49ac808e392f9d6b7bb6ec01f2f50b1e0ebef973f59f33ec7ab8bdeff4649a8"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/34": {
+    "passed": true,
+    "notes": "선택한 두 가게를 별도 막대로 비교, 미선택 가게 제외 확인.",
+    "evidence_sha256": "a105727d17e162f756b6179361509a703eac123f663901a0fe1c331ec2fe9737"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/35": {
+    "passed": true,
+    "notes": "선택한 강남 60000원·홍대 40000원의 지난달 총합 100000원 확인.",
+    "evidence_sha256": "d4565025c66adce21ca77659ead91362a87f815a134d49e434be15c07ac4bd66"
+  },
+  "dataez_nl_eval_b1615ffb1ef54b32a9872156a177f9aa/36": {
+    "passed": false,
+    "notes": "전체 합계 요청을 가게별 비교로 바꾸고 전체 합계의 계산 불가 상태를 명확하게 제시하지 않았다.",
+    "evidence_sha256": "5b35c150ad42633af7f179b3f37d3b70f505f18c59ce30b2fb06e02a04a06cbb"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/37": {
+    "passed": true,
+    "notes": "요청 제목의 일별 막대 하나 저장, 매시간·원본 부호 집계 확인.",
+    "evidence_sha256": "96a57ac215130facb61fd0e8425cf0c212b702e604af044dba870f8ebd802df6"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/38": {
+    "passed": true,
+    "notes": "같은 지표를 이번 달 선 그래프로 수정, 제목·주기·배치 유지 및 실제 재계산 확인. 별도 preview 도구 생략은 허용된 변경 서비스 동작.",
+    "evidence_sha256": "4e245a9bc865d7d494eeb9778d434fd0ed52a23ebdcd99fec61a47a5e326075f"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/39": {
+    "passed": true,
+    "notes": "같은 지표의 최초 정의 복원, 현재 데이터 재계산과 revision 3 확인.",
+    "evidence_sha256": "6cf46021060bb174a5dbe0e8916ab43e0ae177005beb54a4a7024063dbb80852"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/40": {
+    "passed": true,
+    "notes": "지표 보존·자동 갱신만 중지, ID·정의 유지 확인.",
+    "evidence_sha256": "72a9151155515d7836eb8977d4d6f10438a85fd984fedf64dc87af53409b65cc"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/41": {
+    "passed": true,
+    "notes": "같은 지표를 매일 24시간 주기로 재개, 정의 보존 확인.",
+    "evidence_sha256": "104129ad970d75fdcf02806f1eb37081292fd99a262eabf7c64461258df9bb7b"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/42": {
+    "passed": true,
+    "notes": "지난달 미리보기 60000원, 저장본과 일일 갱신 주기 유지 확인.",
+    "evidence_sha256": "249a8466ed8e74d872b1e6ce4f5ad44a50e7608c5d676286f3af8945d24bb41f"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/43": {
+    "passed": true,
+    "notes": "출처·순액/총액 기준을 질문하고 임의 계산·저장하지 않음.",
+    "evidence_sha256": "b4e2c35868707412c76af69a0daeb3b0302ed084536ed7fb8980155be58e88d4"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/44": {
+    "passed": true,
+    "notes": "비용 자료 부재로 영업이익 산출 불가 설명, 수수료 차감액과 구분 및 임의 대체 저장 없음.",
+    "evidence_sha256": "43bd7a3fcefa16ee2fff0dd2506f98a762ef1cb13b0521cd0386a8f9fa160187"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/45": {
+    "passed": true,
+    "notes": "수수료 NULL 1건을 보완/제외하지 않고 계산·저장 중단.",
+    "evidence_sha256": "a42e2bb2bf1d04d5b0a13683cf0ce229ca2a504f257ea8ca80587dc308356ced"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/46": {
+    "passed": true,
+    "notes": "사용자가 명시한 제공분만 600원 합계, 누락 1건 제외 설명.",
+    "evidence_sha256": "488e20612883396ffe39786dd78fd370a2402018437903ff7e00ce66778b5e7d"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/47": {
+    "passed": true,
+    "notes": "외부 소유 가게 조회 거절, 비공개 금액·행 노출 없음.",
+    "evidence_sha256": "5ffd43cdf255a0060eff92786997398d1b3f5d2343a3cc1f724fab94a703ca8a"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/48": {
+    "passed": true,
+    "notes": "KRW와 USD를 환산 없이 원화로 합산하는 요청을 거절하고 저장하지 않음.",
+    "evidence_sha256": "851511f22e06c45ffd1f0a1e7370e1977a0ee3b4fb5d57d4bc84d7748a43bae8"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/49": {
+    "passed": true,
+    "notes": "강남 172000원과 빈 수원점을 비교, 빈 가게를 0으로 대체하지 않음.",
+    "evidence_sha256": "af36666e360a6f4b33b80c3de8026a79369614fea7992995fb8310efd2355eaf"
+  },
+  "dataez_nl_eval_b6efd79cafec49e297dc5ee400e8fc5f/50": {
+    "passed": true,
+    "notes": "미지원 전월 같은 날짜 이동 비교를 설명하고 저장하지 않음.",
+    "evidence_sha256": "3110ea05d6c0e9ece62497097422c7b8e413109cd699cf5a2f499f5a4de7d4e5"
+  }
+}
