@@ -1,9 +1,3 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-
-# Files consumed by Linux containers must keep LF in the working tree.
-# A CRLF checkout on Windows breaks them with "bad interpreter: /bin/sh^M".
-*.sh        text eol=lf
-Dockerfile  text eol=lf
-*.Dockerfile text eol=lf
-*.sql       text eol=lf
+# These synthetic fixtures are byte-addressed in manifest.json. Preserve their
+# original BOM and CRLF on every platform so Git cannot invalidate SHA-256s.
+/samples/pg-evaluation/*.csv -text
