@@ -2,6 +2,7 @@
 
 import pandas as pd
 import pytest
+from decimal import Decimal
 
 from app.data_import import _cast_value, _sanitize_column_name, infer_columns_schema
 
@@ -43,10 +44,11 @@ class TestCastValue:
         assert _cast_value("42", "BIGINT") == 42
 
     def test_bigint_from_float(self):
-        assert _cast_value("42.7", "BIGINT") == 42
+        with pytest.raises(ValueError):
+            _cast_value("42.7", "BIGINT")
 
     def test_numeric(self):
-        assert _cast_value("3.14", "NUMERIC(10,2)") == 3.14
+        assert _cast_value("3.14", "NUMERIC(10,2)") == Decimal("3.14")
 
     def test_boolean(self):
         assert _cast_value(True, "BOOLEAN") is True
@@ -59,8 +61,8 @@ class TestCastValue:
         assert result == "2024-01-15"
 
     def test_date_invalid(self):
-        result = _cast_value("not-a-date", "DATE")
-        assert result is None
+        with pytest.raises(ValueError):
+            _cast_value("not-a-date", "DATE")
 
     def test_timestamp_valid(self):
         result = _cast_value("2024-01-15 10:30:00", "TIMESTAMP")
@@ -68,8 +70,8 @@ class TestCastValue:
         assert "2024-01-15" in result
 
     def test_invalid_bigint_fallback(self):
-        result = _cast_value("abc", "BIGINT")
-        assert result == "abc"
+        with pytest.raises(ValueError):
+            _cast_value("abc", "BIGINT")
 
 
 class TestInferColumnsSchema:

@@ -24,17 +24,23 @@ _FAKE_CONV_ID = str(uuid4())
 
 # Patch startup tasks that need real DB/Redis before importing app
 _startup_patches = [
-    patch("app.db.run_startup_migrations"),
-    patch("app.db.ensure_conversation_tables"),
-    patch("app.db.ensure_dashboard_widgets_table"),
-    patch("app.db.ensure_project_tables"),
-    patch("app.db.ensure_audit_log_table"),
-    patch("app.db.ensure_rag_tables"),
-    patch("app.db.ensure_performance_indexes"),
-    patch("app.db.cleanup_old_conversations"),
-    patch("app.db.cleanup_expired_refresh_tokens"),
-    patch("app.db.purge_soft_deleted"),
-    patch("app.db.close_pool"),
+    # Patch where lifespan looks up the names, even when another test already
+    # imported main. Patching db alone depended on test collection order.
+    patch("app.main.run_startup_migrations"),
+    patch("app.main.ensure_conversation_tables"),
+    patch("app.main.ensure_dashboard_widgets_table"),
+    patch("app.main.ensure_metric_revisions"),
+    patch("app.main.ensure_project_tables"),
+    patch("app.main.ensure_ledger_import_tables"),
+    patch("app.main.ensure_audit_log_table"),
+    patch("app.main.ensure_rag_tables"),
+    patch("app.main.ensure_performance_indexes"),
+    patch("app.main.ensure_library"),
+    patch("app.main.ensure_widget_saves"),
+    patch("app.main.cleanup_old_conversations"),
+    patch("app.main.cleanup_expired_refresh_tokens"),
+    patch("app.main.purge_soft_deleted"),
+    patch("app.main.close_pool"),
     patch("app.main.record_audit"),
 ]
 

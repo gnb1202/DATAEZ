@@ -14,7 +14,10 @@ logger = logging.getLogger(__name__)
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from .exceptions import ResourceNotFound, FileTooLarge, UnsupportedFileType
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
+from decimal import Decimal
+from .import_validation import ImportValidationError
 from .agent import AgentResult, _parse_suggestions, run_agent, run_agent_streaming
 
 # Emitted while the agent is busy (typically inside a long tool call) so an
@@ -43,6 +46,7 @@ from .db import (
     ensure_dashboard_widgets_table,
     ensure_performance_indexes,
     ensure_project_tables,
+    ensure_ledger_import_tables,
     ensure_rag_tables,
     get_conversation,
     get_file,
@@ -68,7 +72,6 @@ from .db import (
     update_table_meta,
     update_widgets_layout,
 )
-from .rag import chunk_and_embed_document, upsert_schema_embedding
 from .rate_limiter import rate_limiter
 from .schemas import (
     AppendResponse,
@@ -100,7 +103,19 @@ from .schemas import (
     WidgetListResponse,
     WidgetResponse,
 )
+from .library_schema import ensure_library
+from .widget_saves import ensure_widget_saves
+from .library_routes import router as library_router
+from .file_library import resolve_references, reference_step
 from .storage import StorageService
+from .table_imports import create_imported_table, append_imported_table
+from .dashboard_metrics import router as dashboard_metrics_router
+from .index_jobs import ensure_index_jobs, run_index_worker, register_document
+from .index_routes import router as index_router
+from .metric_revisions import ensure_metric_revisions, router as metric_revisions_router
+from .cash_entries import router as cash_router
+from .metric_scheduler import run_metric_scheduler
+from .ledger_routes import router as ledger_router, run_import_cleanup
 
 
 # ---------------------------------------------------------------------------
@@ -143,18 +158,38 @@ async def lifespan(app: FastAPI):
     run_startup_migrations()
     ensure_conversation_tables()
     ensure_dashboard_widgets_table()
+    ensure_metric_revisions()
     ensure_project_tables()
+    ensure_ledger_import_tables()
     ensure_audit_log_table()
+    if not settings.rag_enabled:
+        ensure_index_jobs()
     ensure_rag_tables()
     ensure_performance_indexes()
+    ensure_library()
+    ensure_widget_saves()
     # Periodic cleanup on restart
     cleanup_old_conversations()
     cleanup_expired_refresh_tokens()
     purge_soft_deleted()
 
-    yield
-
-    close_pool()
+    stop_scheduler = asyncio.Event()
+    scheduler = asyncio.create_task(run_metric_scheduler(stop_scheduler)) if settings.metric_scheduler_enabled else None
+    import_cleanup = asyncio.create_task(run_import_cleanup(stop_scheduler)) if settings.import_cleanup_enabled else None
+    index_worker = asyncio.create_task(run_index_worker(stop_scheduler)) if settings.rag_enabled and settings.index_worker_enabled else None
+    try:
+        yield
+    finally:
+        stop_scheduler.set()
+        if index_worker:
+            await index_worker
+        if import_cleanup:
+            await import_cleanup
+        if scheduler:
+            # Let the in-flight bounded SQL query commit/rollback before closing
+            # its pool; cancelling to_thread would not stop the actual thread.
+            await scheduler
+        close_pool()
 
 
 app = FastAPI(
@@ -173,7 +208,20 @@ app = FastAPI(
 )
 storage = StorageService()
 
+
+@app.exception_handler(ImportValidationError)
+async def import_validation_error_handler(_request: Request, exc: ImportValidationError):
+    return JSONResponse(status_code=422, content={"detail": exc.detail, "code": exc.code, "issues": exc.issues})
+
+
 _allowed_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
+app.include_router(dashboard_metrics_router)
+app.include_router(metric_revisions_router)
+app.include_router(cash_router)
+app.include_router(library_router)
+app.include_router(ledger_router)
+app.include_router(index_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
@@ -407,8 +455,6 @@ def api_update_table(
 ) -> dict[str, str]:
     update_table_meta(table_id, user["id"], name=payload.name, description=payload.description)
     record_audit(user["id"], "update", "table", table_id, {"name": payload.name, "description": payload.description})
-    _meta_proj_id = str(_meta.get("project_id"))
-    upsert_schema_embedding(user["id"], _meta_proj_id, table_id)
     return {"status": "ok"}
 
 
@@ -452,8 +498,6 @@ async def api_import_table(
     table_name: str = Form(default=""),
 ) -> dict[str, Any]:
     """Upload CSV/XLSX → create a new table + import data."""
-    from .data_import import import_csv_to_table
-
     rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
     _get_owned_project(project_id, user)
 
@@ -462,34 +506,20 @@ async def api_import_table(
     if not filename.lower().endswith(allowed_types):
         raise UnsupportedFileType(filename)
 
-    content = await file.read()
     max_upload_size = settings.max_upload_size_mb * 1024 * 1024
+    content = await file.read(max_upload_size + 1)
     if len(content) > max_upload_size:
         raise FileTooLarge(settings.max_upload_size_mb)
 
-    # Save original file to S3/local
-    file_id = str(uuid4())
-    storage_key = storage.upload_bytes(content, filename)
-    save_file(user_id=user["id"], file_id=file_id, filename=filename, storage_key=storage_key, size_bytes=len(content))
-
-    # Create table meta
-    table_id = str(uuid4())
-    pg_table_name = get_user_table_name(user["id"], table_id)
     display_name = table_name.strip() if table_name.strip() else filename.rsplit(".", 1)[0]
-
-    columns_schema, row_count = await asyncio.to_thread(import_csv_to_table, content, filename, pg_table_name)
-
-    meta = create_table_meta(
-        table_id=table_id,
-        project_id=project_id,
-        user_id=user["id"],
-        name=display_name,
-        columns_schema=columns_schema,
-        source_file_id=file_id,
-        row_count=row_count,
-    )
-    record_audit(user["id"], "import", "table", table_id, {"name": display_name, "project_id": project_id, "filename": filename, "row_count": row_count})
-    upsert_schema_embedding(user["id"], project_id, table_id)
+    meta = await asyncio.to_thread(create_imported_table, user["id"], project_id, display_name, content, filename, storage)
+    table_id = str(meta["id"])
+    # A committed import must not look failed because indexing is unavailable.
+    try:
+        await asyncio.to_thread(record_audit, user["id"], "import", "table", table_id,
+                                {"name": display_name, "project_id": project_id, "filename": filename, "row_count": meta["row_count"]})
+    except Exception:
+        logger.exception("Import committed but audit/index update failed for table %s", table_id)
     return meta
 
 
@@ -500,11 +530,10 @@ async def api_upload_document(
     user: dict[str, str] = Depends(get_current_user),
     _project: dict[str, Any] = Depends(_get_owned_project),
 ) -> dict[str, Any]:
-    """Upload PDF/MD/TXT → extract text → chunk → embed → store in document_chunks.
+    """Upload PDF/MD/TXT → persist original + background search job.
 
     Used by the search_documents agent tool for unstructured Q&A.
     """
-    from .document_processor import chunk_text, extract_text
 
     rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
 
@@ -513,33 +542,17 @@ async def api_upload_document(
     if not filename.lower().endswith(allowed_types):
         raise UnsupportedFileType(filename)
 
-    content = await file.read()
+    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
     max_upload_size = settings.max_upload_size_mb * 1024 * 1024
     if len(content) > max_upload_size:
         raise FileTooLarge(settings.max_upload_size_mb)
 
-    file_id = str(uuid4())
-    storage_key = storage.upload_bytes(content, filename)
-    save_file(user_id=user["id"], file_id=file_id, filename=filename, storage_key=storage_key, size_bytes=len(content))
-
-    text = await asyncio.to_thread(extract_text, content, filename)
-    chunks = await asyncio.to_thread(chunk_text, text)
-    metas = [{"filename": filename, "chunk_index": i} for i, _ in enumerate(chunks)]
-
-    inserted = await asyncio.to_thread(
-        chunk_and_embed_document, file_id, user["id"], project_id, chunks, metas,
-    )
-
-    record_audit(
-        user["id"], "import", "document", file_id,
-        {"filename": filename, "project_id": project_id, "chunks": inserted},
-    )
-    return {
-        "file_id": file_id,
-        "filename": filename,
-        "size_bytes": len(content),
-        "chunks": inserted,
-    }
+    result = await asyncio.to_thread(register_document, user['id'], project_id, filename, content, storage)
+    try:
+        record_audit(user['id'], 'import', 'document', result['file_id'], {'filename': filename, 'project_id': project_id})
+    except Exception:
+        logger.exception('Document registered but audit logging failed: %s', result['file_id'])
+    return result
 
 
 @app.get("/api/projects/{project_id}/documents", tags=["documents"], summary="프로젝트 문서 목록")
@@ -556,6 +569,8 @@ def api_list_documents(
                 "filename": r["filename"],
                 "size_bytes": r["size_bytes"],
                 "chunk_count": r["chunk_count"],
+                "index_status": r.get("index_status"),
+                "last_error": r.get("last_error"),
                 "created_at": r["created_at"].isoformat() if r["created_at"] else None,
             }
             for r in rows
@@ -573,7 +588,7 @@ def api_delete_document(
     _project: dict[str, Any] = Depends(_get_owned_project),
 ) -> dict[str, str]:
     rate_limiter.check(f"delete:{user['id']}", settings.delete_rate_limit_per_minute, 60)
-    deleted = delete_file(user["id"], file_id)
+    deleted = delete_file(user["id"], file_id, project_id=project_id)
     if not deleted:
         raise ResourceNotFound("Document")
     record_audit(user["id"], "delete", "document", file_id, {"project_id": project_id})
@@ -583,26 +598,23 @@ def api_delete_document(
 @app.post("/api/projects/{project_id}/tables/{table_id}/append")
 async def api_append_table(
     table_id: str,
+    request: Request,
     file: UploadFile = File(...),
     user: dict[str, str] = Depends(get_current_user),
     meta: dict[str, Any] = Depends(_get_owned_table),
 ) -> dict[str, Any]:
     """Append CSV data to an existing table."""
-    from .data_import import append_csv_to_table
-
+    rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
     allowed_types = (".csv", ".xlsx", ".xls")
     filename = (file.filename or "").strip()
     if not filename.lower().endswith(allowed_types):
         raise UnsupportedFileType(filename)
 
-    content = await file.read()
-    pg_table_name = get_user_table_name(user["id"], table_id)
-    rows_inserted = await asyncio.to_thread(append_csv_to_table, content, filename, pg_table_name, meta["columns_schema"])
-
-    new_count = meta["row_count"] + rows_inserted
-    update_table_meta(table_id, user["id"], row_count=new_count)
-
-    return {"rows_inserted": rows_inserted, "total_row_count": new_count}
+    max_upload_size = settings.max_upload_size_mb * 1024 * 1024
+    content = await file.read(max_upload_size + 1)
+    if len(content) > max_upload_size:
+        raise FileTooLarge(settings.max_upload_size_mb)
+    return await asyncio.to_thread(append_imported_table, user["id"], str(meta["project_id"]), table_id, content, filename)
 
 
 @app.get("/api/projects/{project_id}/tables/{table_id}/data")
@@ -620,7 +632,7 @@ def api_get_table_data(
     result = safe_select(pg_table_name, user["id"], limit=limit, offset=offset)
     return {
         "columns": meta["columns_schema"],
-        "rows": result["rows"],
+        "rows": jsonable_encoder(result["rows"], custom_encoder={Decimal: str}),
         "total_count": result["total_count"],
         "limit": limit,
         "offset": offset,
@@ -639,7 +651,7 @@ async def upload_file(file: UploadFile = File(...), request: Request = None, use
     if not filename.lower().endswith(allowed_types):
         raise UnsupportedFileType(filename)
 
-    content = await file.read()
+    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
     max_upload_size = settings.max_upload_size_mb * 1024 * 1024
     if len(content) > max_upload_size:
         raise HTTPException(
@@ -803,13 +815,21 @@ async def send_message(
     request: Request,
     message: str = Form(...),
     files: list[UploadFile] = File(default=[]),
+    library_selections: str = Form(default="[]"),
+    library_scope_confirmed: bool = Form(default=False),
     user: dict[str, str] = Depends(get_current_user),
     conv: dict[str, Any] = Depends(_get_owned_conversation),
 ) -> dict[str, Any]:
     client_ip = request.client.host if request.client else "unknown"
     rate_limiter.check(f"query:{user['id']}:{client_ip}", settings.query_rate_limit_per_minute, 60)
 
-    # Read attached files
+    try:
+        selections = json.loads(library_selections)
+    except (ValueError, TypeError):
+        raise HTTPException(422, "파일 선택 정보를 읽을 수 없습니다.")
+    library_refs = await asyncio.to_thread(resolve_references, user["id"], str(conv.get("project_id") or ""), selections, confirmed=library_scope_confirmed)
+    if library_refs and files:
+        raise HTTPException(422, "새 파일을 먼저 보관함에 보관한 뒤 기존 파일과 함께 선택해주세요.")
     attached_files = await _read_attached_files(files)
 
     # Save user message
@@ -819,6 +839,7 @@ async def send_message(
         conversation_id=conversation_id,
         role="user",
         content=message,
+        steps=[reference_step(library_refs)] if library_refs else None,
     )
 
     # Resolve project context
@@ -835,7 +856,7 @@ async def send_message(
     # Build conversation history from DB
     prev_messages = list_messages(conversation_id)
     conversation_history = [
-        {"role": msg["role"], "content": msg["content"]}
+        {"role": msg["role"], "content": msg["content"], "steps": msg.get("steps")}
         for msg in prev_messages
         if msg["role"] in ("user", "assistant") and str(msg["id"]) != user_msg_id
     ]
@@ -850,6 +871,7 @@ async def send_message(
         conversation_messages=conversation_history,
         question=message,
         attached_files=attached_files or None,
+        **({"library_refs": library_refs} if library_refs else {}),
     )
 
     # Update row_count for mutated tables
@@ -866,6 +888,7 @@ async def send_message(
     # Save assistant message
     assistant_msg_id = str(uuid4())
     result_dict = agent_result.to_dict()
+    if library_refs: result_dict["steps"].insert(0, reference_step(library_refs))
     save_message(
         message_id=assistant_msg_id,
         conversation_id=conversation_id,
@@ -901,13 +924,21 @@ async def send_message_streaming(
     request: Request,
     message: str = Form(...),
     files: list[UploadFile] = File(default=[]),
+    library_selections: str = Form(default="[]"),
+    library_scope_confirmed: bool = Form(default=False),
     user: dict[str, str] = Depends(get_current_user),
     conv: dict[str, Any] = Depends(_get_owned_conversation),
 ) -> StreamingResponse:
     client_ip = request.client.host if request.client else "unknown"
     rate_limiter.check(f"query:{user['id']}:{client_ip}", settings.query_rate_limit_per_minute, 60)
 
-    # Read attached files
+    try:
+        selections = json.loads(library_selections)
+    except (ValueError, TypeError):
+        raise HTTPException(422, "파일 선택 정보를 읽을 수 없습니다.")
+    library_refs = await asyncio.to_thread(resolve_references, user["id"], str(conv.get("project_id") or ""), selections, confirmed=library_scope_confirmed)
+    if library_refs and files:
+        raise HTTPException(422, "새 파일을 먼저 보관함에 보관한 뒤 기존 파일과 함께 선택해주세요.")
     attached_files = await _read_attached_files(files)
 
     # Resolve project context
@@ -927,11 +958,12 @@ async def send_message_streaming(
         conversation_id=conversation_id,
         role="user",
         content=message,
+        steps=[reference_step(library_refs)] if library_refs else None,
     )
 
     prev_messages = list_messages(conversation_id)
     conversation_history = [
-        {"role": msg["role"], "content": msg["content"]}
+        {"role": msg["role"], "content": msg["content"], "steps": msg.get("steps")}
         for msg in prev_messages
         if msg["role"] in ("user", "assistant") and str(msg["id"]) != user_msg_id
     ]
@@ -1000,6 +1032,7 @@ async def send_message_streaming(
             conversation_messages=conversation_history,
             question=message,
             attached_files=attached_files or None,
+            **({"library_refs": library_refs} if library_refs else {}),
         ):
             if step.type == "meta":
                 # Mutation flags plus this turn's LLM usage.
@@ -1020,7 +1053,7 @@ async def send_message_streaming(
             steps.append(step)
 
             if step.type == "tool_call":
-                if step.tool_name == "generate_chart" and "chart_type" in step.tool_output:
+                if step.tool_name in ("generate_chart", "preview_metric") and "chart_type" in step.tool_output:
                     charts.append(step.tool_output)
                 if step.tool_name in ("query_data", "cross_query") and "data" in step.tool_output:
                     table_data = step.tool_output["data"]
@@ -1077,6 +1110,7 @@ async def send_message_streaming(
             usage=usage,
         )
         result_dict = result.to_dict()
+        if library_refs: result_dict["steps"].insert(0, reference_step(library_refs))
         save_message(
             message_id=assistant_msg_id,
             conversation_id=conversation_id,
@@ -1126,6 +1160,8 @@ def api_list_widgets(
     file_id: str | None = Query(None),
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
+    if project_id and not get_project(project_id, user["id"]):
+        raise ResourceNotFound("Project")
     widgets = list_widgets(user_id=user["id"], project_id=project_id, file_id=file_id)
     return {
         "widgets": [
@@ -1134,6 +1170,10 @@ def api_list_widgets(
                 "widget_type": w["widget_type"],
                 "title": w["title"],
                 "widget_data": w["widget_data"],
+                "refresh_interval_seconds": w.get("refresh_interval_seconds", 0),
+                "next_refresh_at": str(w["next_refresh_at"]) if w.get("next_refresh_at") else None,
+                "refresh_failures": w.get("refresh_failures", 0),
+                "save_key": w.get("save_key"),
                 "layout": w["layout"],
                 "created_at": str(w["created_at"]) if w.get("created_at") else None,
             }
@@ -1147,6 +1187,8 @@ def api_create_widget(
     req: CreateWidgetRequest,
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
+    if req.project_id and not get_project(req.project_id, user["id"]):
+        raise ResourceNotFound("Project")
     widget_id = str(uuid4())
     row = create_widget(
         widget_id=widget_id,
@@ -1157,8 +1199,9 @@ def api_create_widget(
         layout=req.layout,
         project_id=req.project_id,
         file_id=req.file_id,
+        **({"save_key": req.save_key} if req.save_key else {}),
     )
-    record_audit(user["id"], "create", "widget", widget_id, {"widget_type": req.widget_type, "title": req.title})
+    record_audit(user["id"], "create", "widget", str(row["id"]), {"widget_type": req.widget_type, "title": req.title})
     return {
         "id": str(row["id"]),
         "widget_type": row["widget_type"],

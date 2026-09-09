@@ -18,6 +18,7 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+.local-test/
 
 # Env
 .env
@@ -34,6 +35,15 @@ __pycache__/
 
 # Test
 coverage/
+scripts/ui-eval/artifacts/
+scripts/pg-eval/artifacts/
+scripts/rag-eval/artifacts/
+scripts/payment-eval/artifacts/
+scripts/restore-eval/artifacts/
+scripts/index-eval/artifacts/
+scripts/metrics-cash-eval/artifacts/
+scripts/formula-charts-eval/artifacts/
+scripts/store-metrics-eval/artifacts/
 
 # Docs (private)
 portfolio/
@@ -46,3 +56,6 @@ data/
 # Eval run artifacts (regenerate with `make eval-report`)
 eval-report.md
 eval-report.json
+
+scripts/onboarding-eval/artifacts/
+scripts/nl-eval/artifacts/

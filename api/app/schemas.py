@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------------------------
@@ -203,6 +203,7 @@ class SendMessageRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 class CreateWidgetRequest(BaseModel):
+    save_key: str | None = Field(default=None, pattern=r"^[A-Za-z0-9:_-]{1,120}$")
     project_id: str | None = None
     file_id: str | None = None
     widget_type: str

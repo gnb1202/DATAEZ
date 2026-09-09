@@ -10,6 +10,7 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 from .config import settings
+from .ledger_guards import assert_unmanaged_table, assert_not_original
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +102,19 @@ def ensure_performance_indexes() -> None:
                 cur.execute(idx_sql)
         conn.commit()
     logger.info("Performance indexes ensured")
+
+
+def ensure_ledger_import_tables() -> None:
+    from .ledger_schema import DDL
+    from .event_schema import DDL as EVENT_DDL
+    from .attribute_schema import DDL as ATTRIBUTE_DDL
+    from .cash_schema import DDL as CASH_DDL
+    with _connect() as conn, conn.cursor() as cur:
+        cur.execute(DDL)
+        cur.execute(EVENT_DDL)
+        cur.execute(ATTRIBUTE_DDL)
+        cur.execute(CASH_DDL)
+        conn.commit()
 
 
 def ensure_project_tables() -> None:
@@ -241,7 +255,7 @@ def list_projects(user_id: str, limit: int = 50, offset: int = 0, search: str | 
                 FROM projects p
                 LEFT JOIN (
                   SELECT project_id, COUNT(*) AS table_count
-                  FROM table_meta
+                  FROM table_meta WHERE deleted_at IS NULL AND to_jsonb(table_meta)->>'original_file_id' IS NULL
                   GROUP BY project_id
                 ) tc ON tc.project_id = p.id
                 WHERE {where}
@@ -355,9 +369,11 @@ def list_table_metas(project_id: str, user_id: str) -> list[dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, project_id, name, description, columns_schema, row_count, source_file_id, created_at, updated_at
+                SELECT id, project_id, name, description, columns_schema, row_count, source_file_id, created_at, updated_at,
+                       (SELECT id FROM ledger_sources s WHERE s.table_id=table_meta.id) AS ledger_source_id
                 FROM table_meta
                 WHERE project_id = %s AND user_id = %s AND deleted_at IS NULL
+                  AND to_jsonb(table_meta)->>'original_file_id' IS NULL
                 ORDER BY created_at DESC
                 """,
                 (project_id, user_id),
@@ -371,7 +387,7 @@ def get_table_meta(table_id: str, user_id: str) -> dict[str, Any] | None:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, project_id, user_id, name, description, columns_schema, row_count, source_file_id, created_at, updated_at
+                SELECT *
                 FROM table_meta
                 WHERE id = %s AND user_id = %s AND deleted_at IS NULL
                 """,
@@ -412,6 +428,10 @@ def update_table_meta(
     )
     with _connect() as conn:
         with conn.cursor() as cur:
+            if columns_schema is not None or row_count is not None:
+                assert_unmanaged_table(cur, get_user_table_name(user_id, table_id))
+            else:
+                assert_not_original(cur, get_user_table_name(user_id, table_id))
             cur.execute(query, params)
             updated = cur.rowcount > 0
         conn.commit()
@@ -421,6 +441,7 @@ def update_table_meta(
 def delete_table_meta(table_id: str, user_id: str) -> bool:
     with _connect() as conn:
         with conn.cursor() as cur:
+            assert_unmanaged_table(cur, get_user_table_name(user_id, table_id))
             cur.execute(
                 """
                 UPDATE table_meta SET deleted_at = NOW()
@@ -472,6 +493,7 @@ def drop_user_data_table(user_id: str, table_id: str) -> None:
     table_name = get_user_table_name(user_id, table_id)
     with _connect() as conn:
         with conn.cursor() as cur:
+            assert_unmanaged_table(cur, table_name)
             cur.execute(
                 sql.SQL("DROP TABLE IF EXISTS {tbl} CASCADE").format(
                     tbl=sql.Identifier(table_name),
@@ -574,14 +596,26 @@ def list_files(user_id: str, limit: int = 50, offset: int = 0) -> tuple[list[dic
     return rows, total
 
 
-def delete_file(user_id: str, file_id: str) -> bool:
+def delete_file(user_id: str, file_id: str, *, project_id: str | None = None) -> bool:
     """Hard-delete a files row. document_chunks rows are removed via ON DELETE CASCADE."""
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                "DELETE FROM files WHERE id = %s AND user_id = %s",
-                (file_id, user_id),
-            )
+            cur.execute("SELECT b.id FROM import_batches b JOIN files f ON f.id=b.file_id WHERE b.file_id=%s AND f.user_id=%s", (file_id, user_id))
+            if cur.fetchone():
+                from .exceptions import AppException
+                raise AppException(409, "managed_import_file", "출처 장부의 반영 이력에 연결된 원본 파일은 직접 삭제할 수 없습니다.")
+            if project_id is None:
+                cur.execute("DELETE FROM files WHERE id=%s AND user_id=%s", (file_id, user_id))
+            else:
+                cur.execute("""DELETE FROM files f WHERE f.id=%s AND f.user_id=%s
+                    AND EXISTS (SELECT 1 FROM projects p WHERE p.id=%s AND p.user_id=f.user_id AND p.deleted_at IS NULL)
+                    AND (EXISTS (SELECT 1 FROM search_index_jobs j WHERE j.file_id=f.id AND j.user_id=f.user_id AND j.project_id=%s)
+                         OR EXISTS (SELECT 1 FROM document_chunks d WHERE d.file_id=f.id AND d.user_id=f.user_id AND d.project_id=%s))
+                    AND NOT EXISTS (SELECT 1 FROM document_chunks d WHERE d.file_id=f.id
+                        AND (d.project_id IS DISTINCT FROM %s::uuid OR d.user_id<>f.user_id))
+                    AND NOT EXISTS (SELECT 1 FROM search_index_jobs j WHERE j.file_id=f.id
+                        AND (j.project_id IS DISTINCT FROM %s::uuid OR j.user_id<>f.user_id))""",
+                    (file_id, user_id, project_id, project_id, project_id, project_id, project_id))
             deleted = cur.rowcount > 0
         conn.commit()
     return deleted
@@ -593,13 +627,14 @@ def list_project_documents(user_id: str, project_id: str) -> list[dict[str, Any]
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT f.id, f.filename, f.size_bytes, f.created_at,
-                       COUNT(d.id) AS chunk_count
+                SELECT f.id,f.filename,f.size_bytes,f.created_at,count(d.id) AS chunk_count,
+                    j.status AS index_status,j.last_error,j.last_success_at
                 FROM files f
-                JOIN document_chunks d ON d.file_id = f.id
-                WHERE f.user_id = %s AND d.project_id = %s
-                GROUP BY f.id, f.filename, f.size_bytes, f.created_at
-                ORDER BY f.created_at DESC
+                LEFT JOIN search_index_jobs j ON j.file_id=f.id AND j.user_id=f.user_id
+                LEFT JOIN document_chunks d ON d.file_id=f.id AND d.user_id=f.user_id
+                JOIN projects p ON p.id=coalesce(j.project_id,d.project_id) AND p.user_id=f.user_id AND p.deleted_at IS NULL
+                WHERE f.user_id=%s AND p.id=%s
+                GROUP BY f.id,j.id ORDER BY f.created_at DESC
                 """,
                 (user_id, project_id),
             )
@@ -924,6 +959,10 @@ def ensure_dashboard_widgets_table() -> None:
                 ALTER TABLE dashboard_widgets ALTER COLUMN file_id DROP NOT NULL
                 """
             )
+            cur.execute("ALTER TABLE dashboard_widgets ADD COLUMN IF NOT EXISTS refresh_interval_seconds INTEGER NOT NULL DEFAULT 0 CHECK (refresh_interval_seconds IN (0, 3600, 86400))")
+            cur.execute("ALTER TABLE dashboard_widgets ADD COLUMN IF NOT EXISTS next_refresh_at TIMESTAMPTZ")
+            cur.execute("ALTER TABLE dashboard_widgets ADD COLUMN IF NOT EXISTS refresh_failures INTEGER NOT NULL DEFAULT 0")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_widgets_due ON dashboard_widgets(next_refresh_at) WHERE next_refresh_at IS NOT NULL AND refresh_interval_seconds > 0")
         conn.commit()
 
 
@@ -933,7 +972,8 @@ def list_widgets(user_id: str, project_id: str | None = None, file_id: str | Non
             if project_id:
                 cur.execute(
                     """
-                    SELECT id, widget_type, title, widget_data, layout, created_at
+                    SELECT id, widget_type, title, widget_data, layout, created_at,
+                           refresh_interval_seconds, next_refresh_at, refresh_failures, save_key
                     FROM dashboard_widgets
                     WHERE user_id = %s AND project_id = %s
                     ORDER BY created_at ASC
@@ -943,7 +983,8 @@ def list_widgets(user_id: str, project_id: str | None = None, file_id: str | Non
             elif file_id:
                 cur.execute(
                     """
-                    SELECT id, widget_type, title, widget_data, layout, created_at
+                    SELECT id, widget_type, title, widget_data, layout, created_at,
+                           refresh_interval_seconds, next_refresh_at, refresh_failures, save_key
                     FROM dashboard_widgets
                     WHERE user_id = %s AND file_id = %s
                     ORDER BY created_at ASC
@@ -965,11 +1006,17 @@ def create_widget(
     layout: Any,
     project_id: str | None = None,
     file_id: str | None = None,
+    save_key: str | None = None,
 ) -> dict[str, Any]:
     import json
+    from .widget_saves import fingerprint, replay, record
+    digest = fingerprint({"widget_type": widget_type, "title": title, "widget_data": widget_data, "file_id": file_id}) if save_key else None
 
     with _connect() as conn:
         with conn.cursor() as cur:
+            existing = replay(cur, user_id, project_id, save_key, digest)
+            if existing:
+                return existing
             cur.execute(
                 """
                 INSERT INTO dashboard_widgets (id, user_id, file_id, project_id, widget_type, title, widget_data, layout)
@@ -988,6 +1035,7 @@ def create_widget(
                 ),
             )
             row = cur.fetchone()
+            record(cur, widget_id, save_key, digest)
         conn.commit()
     return row  # type: ignore[return-value]
 
@@ -1064,6 +1112,11 @@ def ensure_rag_tables() -> None:
     Skipped silently if pgvector is unavailable (e.g. plain postgres image) —
     the RAG features will return errors at call time, not at boot.
     """
+    from .index_jobs import ensure_index_jobs, adopt_indexed_documents
+    if not settings.rag_enabled:
+        logger.info("RAG disabled by configuration; skipping vector schema initialization")
+        return
+    ensure_index_jobs()
     try:
         with _connect() as conn:
             with conn.cursor() as cur:
@@ -1160,6 +1213,7 @@ def ensure_rag_tables() -> None:
                             )
                         )
             conn.commit()
+        adopt_indexed_documents()
         logger.info("RAG tables ensured (pgvector + schema_embeddings + document_chunks)")
     except psycopg.errors.UndefinedFile:
         logger.warning("pgvector extension not installed in this Postgres image — RAG features disabled")
@@ -1219,7 +1273,7 @@ def purge_soft_deleted(days: int = 30) -> int:
         with conn.cursor() as cur:
             # Purge table_meta first (FK on projects)
             cur.execute(
-                "SELECT id, user_id FROM table_meta WHERE deleted_at < NOW() - INTERVAL '%s days'",
+                "SELECT id, user_id FROM table_meta t WHERE deleted_at < NOW() - (%s * interval '1 day') AND NOT EXISTS (SELECT 1 FROM ledger_sources s WHERE s.table_id=t.id)",
                 (days,),
             )
             old_tables = cur.fetchall()
@@ -1229,12 +1283,12 @@ def purge_soft_deleted(days: int = 30) -> int:
                     sql.SQL("DROP TABLE IF EXISTS {} CASCADE").format(sql.Identifier(pg_name))
                 )
             cur.execute(
-                "DELETE FROM table_meta WHERE deleted_at < NOW() - INTERVAL '%s days'",
+                "DELETE FROM table_meta t WHERE deleted_at < NOW() - (%s * interval '1 day') AND NOT EXISTS (SELECT 1 FROM ledger_sources s WHERE s.table_id=t.id)",
                 (days,),
             )
             total += cur.rowcount
             cur.execute(
-                "DELETE FROM projects WHERE deleted_at < NOW() - INTERVAL '%s days'",
+                "DELETE FROM projects p WHERE deleted_at < NOW() - (%s * interval '1 day') AND NOT EXISTS (SELECT 1 FROM ledger_sources s WHERE s.project_id=p.id)",
                 (days,),
             )
             total += cur.rowcount

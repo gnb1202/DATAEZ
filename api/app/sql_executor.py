@@ -21,6 +21,7 @@ from psycopg.rows import dict_row
 
 from .config import settings
 from .db import _connect, get_user_table_name
+from .ledger_guards import assert_unmanaged_table
 
 MAX_SELECT_ROWS = settings.max_select_rows
 QUERY_TIMEOUT_MS = settings.query_timeout_ms
@@ -125,7 +126,7 @@ def safe_select(
     t0 = time.monotonic()
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SET statement_timeout = %s", (QUERY_TIMEOUT_MS,))
+            cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(QUERY_TIMEOUT_MS),))
             cur.execute(count_query, count_params)
             total_count = cur.fetchone()["cnt"]  # type: ignore[index]
             cur.execute(query, all_params)
@@ -193,7 +194,7 @@ def safe_aggregate(
 
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SET statement_timeout = %s", (QUERY_TIMEOUT_MS,))
+            cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(QUERY_TIMEOUT_MS),))
             cur.execute(query, where_params + [limit])
             rows = cur.fetchall()
 
@@ -202,6 +203,24 @@ def safe_aggregate(
         "columns": col_names,
         "rows": [dict(r) for r in rows],
     }
+
+
+def _lock_write_catalog(cur, table_name, user_id):
+    """Generic row edits participate in the same metadata/outbox transaction."""
+    cur.execute("SELECT set_config('statement_timeout',%s,true)", (str(QUERY_TIMEOUT_MS),))
+    cur.execute("""SELECT t.id FROM table_meta t JOIN projects p ON p.id=t.project_id AND p.user_id=t.user_id
+        WHERE t.user_id=%s AND t.deleted_at IS NULL AND p.deleted_at IS NULL
+          AND ('ut_' || left(replace(t.user_id::text,'-',''),8) || '_' || left(replace(t.id::text,'-',''),8))=%s
+        FOR UPDATE OF t FOR SHARE OF p""", (user_id, table_name))
+    metas = cur.fetchall()
+    if len(metas) != 1:
+        raise PermissionError('Live table metadata could not be uniquely resolved')
+    return metas[0]['id']
+
+
+def _touch_write_catalog(cur, meta_id, count_delta=0):
+    cur.execute('UPDATE table_meta SET row_count=greatest(0,row_count+%s),updated_at=clock_timestamp() WHERE id=%s',
+                (count_delta, meta_id))
 
 
 def safe_insert(
@@ -228,10 +247,13 @@ def safe_insert(
     inserted = 0
     with _connect() as conn:
         with conn.cursor() as cur:
+            assert_unmanaged_table(cur, table_name)
+            meta_id = _lock_write_catalog(cur, table_name, user_id)
             for row in rows:
                 values = [row.get(c) for c in columns]
                 cur.execute(query, values)
                 inserted += cur.rowcount
+            _touch_write_catalog(cur, meta_id, inserted)
         conn.commit()
 
     return {
@@ -272,8 +294,12 @@ def safe_update(
 
     with _connect() as conn:
         with conn.cursor() as cur:
+            assert_unmanaged_table(cur, table_name)
+            meta_id = _lock_write_catalog(cur, table_name, user_id)
             cur.execute(query, set_params + where_params)
             updated = cur.rowcount
+            if updated:
+                _touch_write_catalog(cur, meta_id)
         conn.commit()
 
     return {"updated_count": updated}
@@ -299,8 +325,12 @@ def safe_delete(
 
     with _connect() as conn:
         with conn.cursor() as cur:
+            assert_unmanaged_table(cur, table_name)
+            meta_id = _lock_write_catalog(cur, table_name, user_id)
             cur.execute(query, where_params)
             deleted = cur.rowcount
+            if deleted:
+                _touch_write_catalog(cur, meta_id, -deleted)
         conn.commit()
 
     return {"deleted_count": deleted}
@@ -342,7 +372,8 @@ def safe_alter_table(
 
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SET statement_timeout = %s", (QUERY_TIMEOUT_MS,))
+            assert_unmanaged_table(cur, table_name)
+            cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(QUERY_TIMEOUT_MS),))
 
             if operation == "add_column":
                 cur.execute(
@@ -501,7 +532,7 @@ def safe_cross_select(
 
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SET statement_timeout = %s", (QUERY_TIMEOUT_MS,))
+            cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(QUERY_TIMEOUT_MS),))
             cur.execute(query, where_params + [limit])
             rows = cur.fetchall()
 
@@ -523,7 +554,7 @@ def export_table_csv(table_name: str, user_id: str) -> str:
 
     with _connect() as conn:
         with conn.cursor() as cur:
-            cur.execute("SET statement_timeout = %s", (QUERY_TIMEOUT_MS,))
+            cur.execute("SELECT set_config('statement_timeout', %s, true)", (str(QUERY_TIMEOUT_MS),))
             cur.execute(
                 sql.SQL("SELECT * FROM {tbl} ORDER BY {pk} ASC").format(
                     tbl=sql.Identifier(table_name),
