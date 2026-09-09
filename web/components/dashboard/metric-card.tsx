@@ -40,7 +40,7 @@ export function MetricCard({
         </div>
 
         <div className="flex items-end gap-3">
-          <span className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight font-mono">
+          <span className="text-2xl lg:text-3xl font-bold text-foreground font-sans numeric">
             {value}
           </span>
           {change && (

@@ -1,0 +1,38 @@
+/* Only active after an explicit selection in the typography comparison. */
+:root[data-type-preview="workspace"][data-font] { --font: var(--type-family); }
+[data-type-preview="workspace"][data-font] body {
+  font-size: var(--type-size);
+  font-weight: var(--type-weight);
+  letter-spacing: var(--type-tracking);
+  line-height: var(--type-leading);
+}
+[data-type-preview="workspace"][data-font] :is(.message, .composer textarea) {
+  font-size: var(--type-size);
+  line-height: var(--type-leading);
+  letter-spacing: var(--type-tracking);
+}
+[data-type-preview="workspace"][data-font] :is(.page-title p, .card-heading p, .stat > span, .file-name, .file-table td, .chat-scope, .nav-item, .new-analysis) {
+  font-size: calc(var(--type-size) - 2px);
+}
+[data-type-preview="workspace"][data-font] :is(.page-title h1, .card-heading h2, .chat-header strong) { font-weight: var(--type-emphasis, 600); }
+[data-type-preview="workspace"][data-font] .stat > strong {
+  font-size: var(--type-amount);
+  font-weight: var(--type-emphasis, 600);
+  font-variant-numeric: var(--type-numerals);
+  font-kerning: none;
+  letter-spacing: 0;
+}
+[data-type-preview="workspace"][data-font] :is(.donut-labels strong, .file-table td, .evidence-table td, .numeric) {
+  font-variant-numeric: var(--type-numerals);
+  font-kerning: none;
+}
+[data-type-preview="workspace"][data-font] .main-chart svg text,
+[data-type-preview="workspace"][data-font] .refund-chart svg text {
+  font-variant-numeric: var(--type-numerals);
+  font-kerning: none;
+}
+@media(max-width:700px) {
+  [data-type-preview="workspace"][data-font] .stat > strong { font-size: min(var(--type-amount), 29px); }
+  :root[data-type-preview="workspace"][data-font] :is(.nav-item, .new-analysis) { font-size: 0; }
+}
+.type-nav-icon { font-size: 15px; }

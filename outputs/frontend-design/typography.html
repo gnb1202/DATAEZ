@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>DATA:EZ — 글꼴 비교실</title>
+  <script src="theme.js"></script><script src="type-settings.js"></script>
+  <link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="typography.css">
+  <script defer src="vendor/echarts-6.0.0.min.js"></script><script defer src="typography.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 이동</a>
+  <header class="site-header">
+    <a class="wordmark" href="index.html">DATA:EZ<span>Design studio</span></a>
+    <nav aria-label="디자인 시안"><a href="palette.html">컬러 팔레트</a><a class="active" href="typography.html" aria-current="page">글꼴 비교실</a><a href="index.html">작업 공간 ↗</a></nav>
+    <label class="theme-picker"><span class="sr-only">화면 테마</span><select id="theme-select" aria-label="화면 테마"><option value="dark">다크</option><option value="light">라이트</option><option value="system">시스템</option></select></label>
+  </header>
+  <main id="main">
+    <section class="intro" aria-labelledby="title">
+      <div><p class="eyebrow">02 / TYPOGRAPHY STUDY</p><h1 id="title">숫자는 또렷하게.<br>문장은 편안하게.</h1></div>
+      <div class="intro-copy"><p>우리 가게의 숫자를 읽는 다섯 가지 인상.</p><p class="muted">같은 금액과 문장으로 비교하고,<br>아래 미리보기에서 편한 밀도를 찾아보세요.</p><span class="draft">Spoqa Han Sans Neo 확정 · 다크 & 라이트</span></div>
+    </section>
+    <div class="section-heading"><h2>먼저, 글꼴을 골라보세요.</h2><span>같은 크기·간격 · 본문 400 / 제목·금액 500</span></div>
+    <fieldset class="font-options"><legend class="sr-only">비교할 글꼴</legend>
+      <label class="font-card" data-candidate="pretendard"><div class="candidate-top"><span><b>A</b> Pretendard</span><input type="radio" name="font" value="pretendard" aria-label="Pretendard 선택"></div><div class="specimen" style="font-family:'Pretendard Variable','Noto Sans KR',sans-serif"><h3>우리 가게, 한눈에.</h3><div class="specimen-amount">16,800,000<span>원</span></div><p>카드와 현금 결제를 모아<br>오늘의 흐름을 확인하세요.</p><div class="specimen-detail"><span>취소금액</span><span>−610,000원</span></div></div><div class="candidate-note">균형 잡힌 인상. 본문부터 숫자까지 담백하게.</div></label>
+      <label class="font-card" data-candidate="suit"><div class="candidate-top"><span><b>B</b> SUIT</span><input type="radio" name="font" value="suit" aria-label="SUIT 선택"></div><div class="specimen" style="font-family:'SUIT Variable','Noto Sans KR',sans-serif"><h3>우리 가게, 한눈에.</h3><div class="specimen-amount">16,800,000<span>원</span></div><p>카드와 현금 결제를 모아<br>오늘의 흐름을 확인하세요.</p><div class="specimen-detail"><span>취소금액</span><span>−610,000원</span></div></div><div class="candidate-note">단정하고 가벼운 인상. 여백이 있는 화면에.</div></label>
+      <label class="font-card" data-candidate="noto"><div class="candidate-top"><span><b>C</b> Noto Sans KR</span><input type="radio" name="font" value="noto" aria-label="Noto Sans KR 선택"></div><div class="specimen" style="font-family:'Noto Sans KR',sans-serif"><h3>우리 가게, 한눈에.</h3><div class="specimen-amount">16,800,000<span>원</span></div><p>카드와 현금 결제를 모아<br>오늘의 흐름을 확인하세요.</p><div class="specimen-detail"><span>취소금액</span><span>−610,000원</span></div></div><div class="candidate-note">익숙하고 견고한 인상. 한글 폴백용 글꼴.</div></label>
+      <label class="font-card new-candidate" data-candidate="wanted"><div class="candidate-top"><span><b>D</b> Wanted Sans <em>추가</em></span><input type="radio" name="font" value="wanted" aria-label="Wanted Sans 선택"></div><div class="specimen" style="font-family:'Wanted Sans Variable','Noto Sans KR',sans-serif"><h3>우리 가게, 한눈에.</h3><div class="specimen-amount">16,800,000<span>원</span></div><p>카드와 현금 결제를 모아<br>오늘의 흐름을 확인하세요.</p><div class="specimen-detail"><span>취소금액</span><span>−610,000원</span></div></div><div class="candidate-note">곧고 또렷한 인상. 서비스에 개성을 더하는 후보.</div></label>
+      <label class="font-card new-candidate" data-candidate="spoqa"><div class="candidate-top"><span><b>E</b> Spoqa Han Sans Neo <em>확정</em></span><input type="radio" name="font" value="spoqa" checked aria-label="Spoqa Han Sans Neo 선택"></div><div class="specimen" style="font-family:'Spoqa Han Sans Neo','Noto Sans KR',sans-serif"><h3>우리 가게, 한눈에.</h3><div class="specimen-amount">16,800,000<span>원</span></div><p>카드와 현금 결제를 모아<br>오늘의 흐름을 확인하세요.</p><div class="specimen-detail"><span>취소금액</span><span>−610,000원</span></div></div><div class="candidate-note">편안하고 선명한 숫자. 결제 기록과 금액에.</div></label>
+    </fieldset>
+    <div class="font-status" id="font-status" role="status">비교용 글꼴을 불러오는 중이에요.</div>
+    <div class="section-heading preview-heading"><h2>실제 화면에서는 이런 느낌.</h2><span>선택한 글꼴과 조절값이 아래에 반영됩니다.</span></div>
+    <div class="studio-layout">
+      <div class="preview-column">
+        <section class="dashboard-preview" id="type-sample" aria-label="선택한 글꼴로 보는 대시보드">
+          <div class="preview-top"><span><i class="live-dot"></i>모닝테이블 강남점</span><span class="preview-period">2026. 9. 1. – 9. 7.</span></div>
+          <div class="preview-title"><div><span class="overline">9월 결제 리포트</span><h3>결제 흐름을 살펴볼까요?</h3><p>카드와 현금, 흩어진 기록을 한곳에서.</p></div><span class="sample-badge">샘플 데이터</span></div>
+          <div class="metrics">
+            <div class="metric"><span>순결제액</span><strong class="numeric amount">16,800,000<small>원</small></strong><p>결제액 − 취소금액</p></div>
+            <div class="metric"><span>전체 결제액</span><strong class="numeric amount">17,410,000<small>원</small></strong><p>카드 · 현금 합산</p></div>
+            <div class="metric"><span>취소금액</span><strong class="numeric amount">610,000<small>원</small></strong><p>취소 발생일 기준</p></div>
+          </div>
+          <div class="chart-heading"><h4>일별 순결제액</h4><span><i class="series-dot"></i>순결제액 <span class="muted">· 단위: 원</span></span></div>
+          <div id="type-chart" role="img" aria-label="9월 1일부터 7일까지 순결제액: 180만원, 213만원, 194만원, 251만원, 246만원, 318만원, 278만원. 합계 1680만원."></div>
+          <div class="ledger-heading"><h4>결제 기록 미리보기</h4><span>샘플 4건 · 기간 합계와 별개</span></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="금액을 오른쪽 정렬한 샘플 결제표"><table><thead><tr><th>결제일</th><th>결제수단</th><th>구분</th><th class="number-cell">금액</th></tr></thead><tbody>
+            <tr><td class="numeric">2026. 09. 07.</td><td>카드</td><td>결제</td><td class="number-cell numeric">2,460,000원</td></tr>
+            <tr><td class="numeric">2026. 09. 07.</td><td>현금</td><td>결제</td><td class="number-cell numeric">520,000원</td></tr>
+            <tr><td class="numeric">2026. 09. 07.</td><td>카드</td><td>취소</td><td class="number-cell numeric cancellation">−200,000원</td></tr>
+            <tr><td class="numeric">2026. 09. 03.</td><td>카드</td><td>취소 없음</td><td class="number-cell numeric">0원</td></tr>
+          </tbody></table></div>
+          <div class="chat-sample"><span class="chat-symbol" aria-hidden="true">✳</span><div><strong>DATA:EZ</strong><p id="custom-preview">9월 1일부터 7일까지 순결제액은 1,680만원이에요. 카드와 현금 파일을 함께 집계했고, 취소금액 61만원을 차감했어요.</p><p class="chat-footnote">출처: 카드매출_2026-09.csv · 현금장부_2026-09.csv</p></div></div>
+        </section>
+        <section class="number-study" aria-labelledby="numbers-heading"><div class="section-heading"><h3 id="numbers-heading">금액을 읽는 작은 차이</h3><span id="numeric-mode">숫자 너비 맞춤</span></div><div id="number-sample"><div class="digit-line numeric"><span>0123456789</span><span>₩ − + . , %</span></div><div class="digit-comparison"><div><span class="muted">같은 자리, 다른 숫자</span><strong class="numeric">1,111,111원</strong><strong class="numeric">8,888,888원</strong></div><div><span class="muted">작은 라벨 · 단위 구분</span><p class="numeric">82.0% / 18.0%</p><p class="numeric">0원 · −610,000원 · 1,680만원</p><p>결제 완료 · 취소 반영 · 정산 대기</p></div></div></div><p class="study-note">숫자는 같은 폭으로, 금액은 오른쪽으로. 증가·감소와 취소는 부호와 문구로 함께 구분합니다.</p></section>
+      </div>
+      <aside class="controls" aria-label="글꼴 미세 조절">
+        <div class="controls-top"><div><span class="eyebrow">LIVE TWEAK</span><h3 id="chosen-font">Spoqa Han Sans Neo</h3></div><button id="reset" class="text-button" type="button">초기화</button></div>
+        <p class="control-help">본문과 숫자의 밀도를 조절해보세요. 좁은 화면에서는 대표 금액이 넘치지 않게 줄어들어요.</p>
+        <div class="range-control"><label for="body-size">본문 크기 <output id="body-size-value" for="body-size">15px</output></label><input type="range" id="body-size" min="13" max="18" step="1" value="15"></div>
+        <div class="range-control"><label for="body-weight">본문 굵기 <output id="body-weight-value" for="body-weight">400</output></label><input type="range" id="body-weight" min="400" max="600" step="50" value="400" aria-describedby="weight-note"><small id="weight-note" class="weight-note">굵기를 조금씩 조절할 수 있어요.</small></div>
+        <div class="range-control"><label for="body-tracking">글자 간격 <output id="body-tracking-value" for="body-tracking">−0.015em</output></label><input type="range" id="body-tracking" min="-0.04" max="0.01" step="0.005" value="-0.015"></div>
+        <div class="range-control"><label for="body-leading">줄 간격 <output id="body-leading-value" for="body-leading">1.70</output></label><input type="range" id="body-leading" min="1.4" max="1.9" step="0.05" value="1.7"></div>
+        <div class="range-control"><label for="amount-size">대표 금액 크기 <output id="amount-size-value" for="amount-size">32px</output></label><input type="range" id="amount-size" min="26" max="40" step="1" value="32"></div>
+        <label class="checkbox-control" for="tabular"><span>숫자 너비 맞추기<small>자리마다 같은 폭으로 정렬</small></span><input id="tabular" type="checkbox" checked></label>
+        <label class="custom-label" for="sample-text">내 문장으로 확인</label><textarea id="sample-text" maxlength="350" rows="3" placeholder="가게 이름이나 자주 쓰는 문장을 입력해보세요."></textarea>
+        <div class="actions"><button class="primary" type="button" id="apply-font">이 설정으로 작업 공간 보기 ↗</button><button class="secondary" type="button" id="download-settings">선택한 설정 저장 (.json)</button><button class="text-button" type="button" id="copy-css">CSS 복사</button></div>
+        <p class="save-note">적용하면 이 브라우저의 디자인 시안에 기억해요. 기본 글꼴은 Spoqa로 확정했으며, 다른 후보도 비교할 수 있어요.</p>
+        <div id="action-status" class="action-status" role="status"></div>
+        <details class="css-details"><summary>현재 CSS 확인</summary><pre id="css-output" tabindex="0" aria-label="선택한 글꼴의 CSS"></pre></details>
+      </aside>
+    </div>
+    <footer><div><strong>확정 · Spoqa Han Sans Neo</strong><p>본문 15px / 400 · 강조 500 · 제목·대표 금액 700.<br>실제 앱과 시안의 기본 글꼴입니다. 크기와 간격은 계속 조절할 수 있어요.</p></div><div class="source-notes"><span>글꼴 출처 · SIL Open Font License 1.1</span><div><a href="https://github.com/orioncactus/pretendard" target="_blank" rel="noopener">Pretendard ↗</a><a href="https://github.com/sun-typeface/SUIT" target="_blank" rel="noopener">SUIT ↗</a><a href="https://github.com/google/fonts/tree/main/ofl/notosanskr" target="_blank" rel="noopener">Noto Sans KR ↗</a><a href="https://github.com/wanteddev/wanted-sans" target="_blank" rel="noopener">Wanted Sans ↗</a><a href="https://spoqa.github.io/spoqa-han-sans/" target="_blank" rel="noopener">Spoqa Han Sans Neo ↗</a></div><p>비교용 파일을 로컬에 포함했어요. SUIT·Spoqa에 없는 일부 한글은 Noto Sans KR로 표시됩니다.</p></div></footer>
+  </main>
+  <noscript>글꼴을 비교하고 조절하려면 JavaScript를 활성화해주세요.</noscript>
+</body>
+</html>

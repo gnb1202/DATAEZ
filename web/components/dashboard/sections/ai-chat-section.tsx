@@ -19,6 +19,8 @@ import type {
 } from "@/app/lib/api";
 
 interface AiChatSectionProps {
+  draft?: {id:string;text:string}|null;
+  onDraftConsumed?: () => void;
   sendMessage: (
     conversationId: string,
     message: string,
@@ -34,6 +36,7 @@ interface AiChatSectionProps {
 }
 
 export function AiChatSection({
+  draft, onDraftConsumed,
   sendMessage,
   streamLoading,
   streamingSteps,
@@ -49,6 +52,7 @@ export function AiChatSection({
   const [messages, setMessages] = useState<Message[]>([]);
   const [convLoading, setConvLoading] = useState(false);
   const [msgsLoading, setMsgsLoading] = useState(false);
+  const [loadedConvId, setLoadedConvId] = useState("");
   const prevProjectRef = useRef(selectedProjectId);
   const hasLoadedRef = useRef(false);
 
@@ -136,7 +140,7 @@ export function AiChatSection({
       } catch {
         // ignore
       } finally {
-        if (!cancelled) setMsgsLoading(false);
+        if (!cancelled) { setMsgsLoading(false); setLoadedConvId(activeConvId); }
       }
     })();
     return () => {
@@ -262,12 +266,14 @@ export function AiChatSection({
               프로젝트 내 모든 장부를 AI가 자동으로 탐색합니다.
             </p>
           </div>
-        ) : msgsLoading ? (
+        ) : msgsLoading || loadedConvId !== activeConvId ? (
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-accent" />
           </div>
         ) : (
           <ChatPanel
+            draft={draft}
+            onDraftConsumed={onDraftConsumed}
             messages={messages}
             onSend={handleSend}
             loading={streamLoading}

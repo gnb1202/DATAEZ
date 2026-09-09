@@ -25,9 +25,19 @@ import {
 } from "@/components/ui/table";
 import { useDashboard } from "@/app/contexts/dashboard-context";
 import type { TableMeta } from "@/app/lib/api";
+import { LedgerImportPanel } from "@/components/dashboard/ledger-import-panel";
+import { SearchIndexPanel } from "@/components/dashboard/search-index-panel";
+import { CashEntryPanel } from "@/components/dashboard/cash-entry-panel";
 
 const ROW_HEIGHT = 36;
 const MAX_TABLE_HEIGHT = 520;
+
+function formatNumericText(value: string): string {
+  // Group the string without converting exact DECIMAL values through Number.
+  if (!/^-?\d+(\.\d+)?$/.test(value)) return value;
+  const [whole, fraction] = value.split(".");
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (fraction === undefined ? "" : `.${fraction}`);
+}
 
 function VirtualizedTable({
   data,
@@ -82,7 +92,7 @@ function VirtualizedTable({
                         isNum ? "text-right font-semibold tabular-nums text-foreground" : "text-foreground/90"
                       )}
                     >
-                      {isNum && display && !isNaN(Number(display)) ? Number(display).toLocaleString() : display}
+                      {isNum ? formatNumericText(display) : display}
                     </TableCell>
                   );
                 })}
@@ -111,7 +121,7 @@ function VirtualizedTable({
                             isNum ? "text-right font-semibold tabular-nums text-foreground" : "text-foreground/90"
                           )}
                         >
-                          {isNum && display && !isNaN(Number(display)) ? Number(display).toLocaleString() : display}
+                          {isNum ? formatNumericText(display) : display}
                         </TableCell>
                       );
                     })}
@@ -134,6 +144,8 @@ interface TablesSectionProps {
   onImportClick: () => void;
   onDeleteTable: (tableId: string) => Promise<void>;
   onNavigateToChat: () => void;
+  onTablesChange: () => void;
+  onOpenDashboard: () => void;
 }
 
 export function TablesSection({
@@ -143,6 +155,7 @@ export function TablesSection({
   onImportClick,
   onDeleteTable,
   onNavigateToChat,
+  onTablesChange, onOpenDashboard,
 }: TablesSectionProps) {
   const { selectedProjectId: projectId, apiFetch } = useDashboard();
   const [previewData, setPreviewData] = useState<Record<string, unknown>[]>([]);
@@ -190,7 +203,7 @@ export function TablesSection({
       setPreviewData([]);
       setPreviewColumns([]);
     }
-  }, [selectedTableId, fetchPreview]);
+  }, [selectedTableId, selectedTable?.row_count, selectedTable?.updated_at, fetchPreview]);
 
   const handlePageChange = (newPage: number) => {
     setPreviewPage(newPage);
@@ -199,23 +212,10 @@ export function TablesSection({
 
   const totalPages = Math.ceil(previewTotal / pageSize);
 
-  // 숫자 컬럼 자동 감지 (첫 5행 샘플링)
-  const numericColumns = new Set<string>();
-  if (previewData.length > 0) {
-    for (const col of previewColumns) {
-      if (col === "_row_id") continue;
-      const sample = previewData.slice(0, 5);
-      const allNumeric = sample.every((row) => {
-        const v = row[col];
-        if (v === null || v === undefined || v === "") return true;
-        return !isNaN(Number(v));
-      });
-      const hasValue = sample.some(
-        (row) => row[col] !== null && row[col] !== undefined && row[col] !== ""
-      );
-      if (allNumeric && hasValue) numericColumns.add(col);
-    }
-  }
+  // Text identifiers stay text, including leading zeroes and long event IDs.
+  const numericColumns = new Set((selectedTable?.columns_schema || [])
+    .filter((col) => /^(NUMERIC|DECIMAL|BIGINT|INTEGER|SMALLINT|REAL|DOUBLE)/i.test(col.type))
+    .map((col) => col.name));
 
   if (!projectId) {
     return (
@@ -256,6 +256,10 @@ export function TablesSection({
           CSV 가져오기
         </Button>
       </div>
+
+      <LedgerImportPanel key={projectId} tables={tables} onTablesChange={onTablesChange} onOpenDashboard={onOpenDashboard} />
+      <CashEntryPanel key={`cash-${projectId}`} onTablesChange={onTablesChange} />
+      <SearchIndexPanel key={`search-${projectId}`} />
 
       {/* Table cards */}
       {tables.length === 0 ? (
@@ -318,14 +322,17 @@ export function TablesSection({
                     <span className="font-medium text-foreground text-sm">
                       {t.name}
                     </span>
+                    {t.ledger_source_id && <Badge variant="secondary">출처 관리</Badge>}
                   </div>
                   <button
+                    disabled={!!t.ledger_source_id}
+                    title={t.ledger_source_id ? "출처 장부는 직접 삭제할 수 없습니다" : "장부 삭제"}
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteTable(t.id);
                     }}
                     aria-label={`${t.name} 삭제`}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-all disabled:hidden"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                   </button>

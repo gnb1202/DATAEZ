@@ -8,13 +8,11 @@ import {
   Trash2,
   AlertTriangle,
   Moon,
-  Sun,
   Shield,
   Bell,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { ThemeSelect } from "../header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +33,6 @@ export function SettingsSection({
 }: SettingsSectionProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   const handleDeleteProject = async () => {
     if (!selectedProject) return;
@@ -63,7 +60,7 @@ export function SettingsSection({
           {selectedProject && (
             <TabsTrigger value="project" className="gap-2">
               <Shield className="h-4 w-4" />
-              프로젝트
+              가게
             </TabsTrigger>
           )}
         </TabsList>
@@ -82,7 +79,7 @@ export function SettingsSection({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-sm font-bold text-accent-foreground">
+                <div className="h-12 w-12 rounded-xl bg-accent flex items-center justify-center text-sm font-bold text-accent-foreground">
                   {email ? email.slice(0, 2).toUpperCase() : "U"}
                 </div>
                 <div>
@@ -155,26 +152,17 @@ export function SettingsSection({
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {theme === "dark" ? (
-                    <Moon className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-muted-foreground" />
-                  )}
+                  <Moon className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      다크 모드
+                      화면 테마
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      어두운 테마를 사용합니다.
+                      다크·라이트 또는 시스템 설정을 따릅니다.
                     </p>
                   </div>
                 </div>
-                <Switch
-                  checked={theme === "dark"}
-                  onCheckedChange={(checked) =>
-                    setTheme(checked ? "dark" : "light")
-                  }
-                />
+                <ThemeSelect />
               </div>
             </CardContent>
           </Card>
@@ -204,14 +192,14 @@ export function SettingsSection({
             <Card className="border-destructive/20">
               <CardHeader>
                 <CardTitle className="text-base text-destructive">
-                  프로젝트 삭제
+                  가게 삭제
                 </CardTitle>
                 <CardDescription>
-                  현재 선택된 프로젝트{" "}
+                  현재 선택된 가게{" "}
                   <span className="font-medium text-foreground">
                     &ldquo;{selectedProject.name}&rdquo;
                   </span>
-                  을(를) 삭제합니다. 프로젝트에 포함된 모든 장부와 데이터가
+                  을(를) 삭제합니다. 가게에 포함된 모든 장부와 데이터가
                   영구적으로 삭제됩니다.
                 </CardDescription>
               </CardHeader>
@@ -224,7 +212,7 @@ export function SettingsSection({
                     className="gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
-                    프로젝트 삭제
+                    가게 삭제
                   </Button>
                 ) : (
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20 animate-in fade-in duration-200">

@@ -1,0 +1,25 @@
+{
+  "prototype": true,
+  "engine": "Apache ECharts 6.0.0",
+  "browser": "Microsoft Edge headless",
+  "real_backend": false,
+  "real_llm": false,
+  "checks": [
+    "Synthetic amounts reconcile",
+    "Actual ECharts SVG renders",
+    "Chat collapses while result remains",
+    "Chart type switches on real renderer",
+    "Example prompt updates chart values and scope",
+    "Evidence table matches selected chart",
+    "Prototype save has explicit session-only feedback",
+    "File search and empty state",
+    "File type filtering",
+    "Stored sample file opens analysis in side chat",
+    "Download contains actual sample source rows",
+    "1280px no page overflow",
+    "390px layout and collapsed chat",
+    "Mobile chat opens and closes",
+    "No browser runtime errors"
+  ],
+  "errors": []
+}

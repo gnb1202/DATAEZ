@@ -1,0 +1,18 @@
+{
+  "fixture": true,
+  "checks": [
+    "result shows source, period, ledger scope and line chart before explanation",
+    "exact data and recorded SQL remain accessible on demand",
+    "double click makes one save; saved widget receives focus; refresh and schedule remain usable",
+    "saved state survives reload and history reopening",
+    "failed save is visible; retry reuses its stable key",
+    "lost response reconciles committed save without a second write",
+    "a metric already saved by the AI is recognized by its result and ID",
+    "deleting a saved widget clears its saved status when the result is reopened",
+    "late save completion never changes the replacement store workspace",
+    "bar/line/donut handle exact decimals, nulls, zero and negatives; tooltip labels are inert text",
+    "320–1440px containment and SVG resize after viewport changes"
+  ],
+  "saves": 5,
+  "browserErrors": []
+}

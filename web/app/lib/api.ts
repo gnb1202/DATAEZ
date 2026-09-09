@@ -2,8 +2,10 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000
 
 export async function parseError(res: Response): Promise<string> {
   try {
-    const data = (await res.json()) as { detail?: string };
-    return data.detail || `Request failed (${res.status})`;
+    const data = (await res.json()) as { detail?: unknown };
+    if (typeof data.detail === "string") return data.detail;
+    if (Array.isArray(data.detail)) return data.detail.map((item) => String(item.msg || "입력값을 확인해주세요.")).join(" · ");
+    return `Request failed (${res.status})`;
   } catch {
     return `Request failed (${res.status})`;
   }
@@ -44,6 +46,7 @@ export type TableMeta = {
   columns_schema: ColumnSchema[];
   row_count: number;
   source_file_id?: string | null;
+  ledger_source_id?: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -63,6 +66,8 @@ export type AgentStep = {
 };
 
 export type ChartData = {
+  unit?: string;
+  metric_definition?: Record<string, unknown>;
   chart_type: string;
   title: string;
   x_key: string;

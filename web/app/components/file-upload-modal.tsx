@@ -80,10 +80,15 @@ export default function FileUploadModal({ open, onClose, onUpload, loading }: Fi
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!file || !tableName.trim()) return;
-    await onUpload(file, tableName.trim());
-    setFile(null);
-    setTableName("");
-    onClose();
+    setFileError(null);
+    try {
+      await onUpload(file, tableName.trim());
+      setFile(null);
+      setTableName("");
+      onClose();
+    } catch (err) {
+      setFileError(err instanceof Error ? err.message : "파일을 가져오지 못했습니다.");
+    }
   };
 
   return (
@@ -148,7 +153,7 @@ export default function FileUploadModal({ open, onClose, onUpload, loading }: Fi
                 </div>
                 <input
                   type="file"
-                  accept=".csv,.xlsx"
+                  accept=".csv,.xlsx,.xls"
                   onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
@@ -157,7 +162,7 @@ export default function FileUploadModal({ open, onClose, onUpload, loading }: Fi
           </div>
 
           {fileError && (
-            <p className="text-sm text-destructive">{fileError}</p>
+            <p role="alert" className="text-sm text-destructive">{fileError}</p>
           )}
 
           <Button

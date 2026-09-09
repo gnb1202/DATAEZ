@@ -185,8 +185,9 @@ export default function LoginPage() {
 
             {mode === "signup" && (
               <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                <Label>이름</Label>
+                <Label htmlFor="auth-name">이름</Label>
                 <Input
+                  id="auth-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="이름 (선택사항)"
@@ -196,8 +197,9 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-1.5">
-              <Label>이메일</Label>
+              <Label htmlFor="auth-email">이메일</Label>
               <Input
+                id="auth-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -207,8 +209,9 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label>비밀번호</Label>
+              <Label htmlFor="auth-password">비밀번호</Label>
               <Input
+                id="auth-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

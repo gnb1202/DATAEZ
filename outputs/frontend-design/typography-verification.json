@@ -1,0 +1,102 @@
+{
+  "date": "2026-09-09T12:46:13.501Z",
+  "prototype": true,
+  "checks": [
+    "The confirmed Spoqa font is the default without requiring a stored preference",
+    "pretendard: real webfont glyphs, matching chart font and equal-width digits; proportional mode where supported",
+    "suit: real webfont glyphs, matching chart font and equal-width digits; proportional mode where supported",
+    "noto: real webfont glyphs, matching chart font and equal-width digits; proportional mode where supported",
+    "wanted: real webfont glyphs, matching chart font and equal-width digits; proportional mode where supported",
+    "spoqa: real webfont glyphs, matching chart font and equal-width digits; proportional mode where supported",
+    "Spoqa selects actual 400, 500 and 700 weights and exposes the weight to assistive technology",
+    "All five sliders change computed typography, including variable weights",
+    "Custom Korean and punctuation are rendered as text, including unsupported SUIT syllables via fallback",
+    "Theme changes preserve typography and values while updating chart colors",
+    "The downloaded JSON contains the selected font, dimensions and theme",
+    "Denied clipboard permission exposes selectable CSS without claiming success",
+    "Explicit apply carries the font and body settings into the existing workspace and charts",
+    "Chosen typography survives reload",
+    "The applied workspace remains within the mobile viewport",
+    "Reset changes the comparison draft without overwriting an earlier applied font",
+    "All fonts at the largest tested text size fit 1480, 1280, 1100, 820, 390 and 320px viewports; tables scroll inside their region",
+    "wanted: exported settings, application to the workspace and reload preserve the selected font and weight",
+    "spoqa: exported settings, application to the workspace and reload preserve the selected font and weight",
+    "A previous comparison choice migrates to Spoqa while keeping size and spacing preferences",
+    "URL fallback preserves font and theme when localStorage is blocked, including a later theme change",
+    "No browser runtime errors"
+  ],
+  "fontEvidence": {
+    "pretendard": [
+      {
+        "familyName": "Pretendard Variable",
+        "postScriptName": "PretendardVariable",
+        "isCustomFont": true,
+        "glyphCount": 27
+      },
+      {
+        "familyName": "Pretendard Variable",
+        "postScriptName": "PretendardVariable-Medium",
+        "isCustomFont": true,
+        "glyphCount": 21
+      }
+    ],
+    "suit": [
+      {
+        "familyName": "SUIT Variable Thin",
+        "postScriptName": "SUITVariable-Medium",
+        "isCustomFont": true,
+        "glyphCount": 21
+      },
+      {
+        "familyName": "SUIT Variable Thin",
+        "postScriptName": "SUITVariable",
+        "isCustomFont": true,
+        "glyphCount": 27
+      }
+    ],
+    "noto": [
+      {
+        "familyName": "Noto Sans KR Thin",
+        "postScriptName": "NotoSansKR-Medium",
+        "isCustomFont": true,
+        "glyphCount": 21
+      },
+      {
+        "familyName": "Noto Sans KR Thin",
+        "postScriptName": "NotoSansKR",
+        "isCustomFont": true,
+        "glyphCount": 27
+      }
+    ],
+    "wanted": [
+      {
+        "familyName": "Wanted Sans Variable",
+        "postScriptName": "WantedSansVariable-Medium",
+        "isCustomFont": true,
+        "glyphCount": 21
+      },
+      {
+        "familyName": "Wanted Sans Variable",
+        "postScriptName": "WantedSansVariable",
+        "isCustomFont": true,
+        "glyphCount": 27
+      }
+    ],
+    "spoqa": [
+      {
+        "familyName": "Spoqa Han Sans Neo Medium",
+        "postScriptName": "SpoqaHanSansNeo-Medium",
+        "isCustomFont": true,
+        "glyphCount": 21
+      },
+      {
+        "familyName": "Spoqa Han Sans Neo",
+        "postScriptName": "SpoqaHanSansNeo-Regular",
+        "isCustomFont": true,
+        "glyphCount": 27
+      }
+    ]
+  },
+  "errors": [],
+  "scope": "Local design preview. Browser font glyphs, typography controls, theme, download, storage fallback, responsive layout. Not an app-wide accessibility audit."
+}
