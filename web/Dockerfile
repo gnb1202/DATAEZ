@@ -1,5 +1,5 @@
 # ── Build stage ──
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -13,11 +13,13 @@ COPY . .
 # bundle pointing at the fallback and silently breaks any non-local deploy.
 ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 RUN npm run build
 
 # ── Production stage ──
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -29,9 +31,13 @@ COPY --from=builder /app/public ./public
 
 USER appuser
 
+# Standalone Next.js otherwise inherits Docker's container hostname and only
+# binds its container IP, leaving the loopback health probe unreachable.
+ENV HOSTNAME=0.0.0.0
+
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD wget -q --spider http://localhost:3000/ || exit 1
+  CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
 
 CMD ["node", "server.js"]

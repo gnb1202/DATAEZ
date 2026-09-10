@@ -40,7 +40,9 @@ def guard(executor,name,args):
     if args.get('project_id') and str(args['project_id']) not in projects:
         return scope_error('선택하지 않은 가게입니다.')
     if name=='list_stores':
-        return {'stores':[{'id':pid,'name':next(r['project_name'] for r in refs if r['project_id']==pid)} for pid in sorted(projects)],'next_offset':None}
+        return {'stores':[{'id':pid,'name':next(r['project_name'] for r in refs if r['project_id']==pid)} for pid in sorted(projects)],
+                'next_offset':None,'scope':'selected_files','account_inventory_complete':False,
+                'hint':'현재 선택한 파일의 가게만 표시합니다. 계정 전체 가게 목록이나 가게 수가 아닙니다. 여기에 없다는 이유로 다른 가게가 없거나 권한이 없다고 말하지 마세요. 다른 가게 파일은 보관함에서 추가 선택하도록 안내하세요.'}
     if name=='list_store_tables':
         return {'project_id':args.get('project_id',executor.project_id),'tables':[{'id':r['table_id'],'name':r['table_name'],'row_count':r.get('row_count',0)} for r in refs if r.get('table_id') and r['project_id']==args.get('project_id',executor.project_id)],'next_offset':None}
     if name in {'search_schema','search_store_schema'}:
@@ -61,6 +63,7 @@ original_file은 업로드 당시 원본 행만 들어 있는 읽기 전용 자�
 linked_ledger는 연결 장부 전체입니다. 이를 원본 파일 행만의 합계라고 표현하지 마세요.
 같은 누적 장부에 연결된 파일을 여러 개 선택해도 그 장부는 한 번만 합산하세요. 원본과 해당 누적 장부를 함께 합산하면 중복되므로 범위를 다시 선택하도록 안내하세요. 기간은 질문과 실제 컬럼으로 결정하고 파일명으로 추측하지 마세요.
 선택된 장부/문서 외 자료로 범위를 넓히지 마세요. 여러 가게는 표시된 가게만 사용하세요.
+파일 선택 중 list_stores 결과는 선택 파일의 가게만 나열합니다. 계정 전체 가게 수나 다른 가게의 존재·권한을 판단하지 마세요. 다른 가게를 포함하려면 보관함에서 해당 파일을 추가 선택하도록 안내하세요.
 이름으로 조회하는 도구에는 query_table_name(있는 경우)을 사용하세요. 다른 가게의 일반 장부도 query_data/cross_query로 조회하고 generate_chart로 그릴 수 있습니다. 갱신 가능한 여러 가게 지표는 기존 v5의 결제 이벤트 매핑 조건을 만족할 때 사용하세요.
 query_table_name은 도구 조회용 이름입니다. 사용자 설명에는 원본 파일명·가게와 연결 장부 이름을 사용하고 내부 UUID는 나열하지 마세요.
 사용한 파일, 연결 장부, 실제 가게와 집계 기간을 설명하세요. 부족한 범위는 추가 파일 선택을 요청하세요.

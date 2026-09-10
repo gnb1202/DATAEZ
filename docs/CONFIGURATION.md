@@ -7,8 +7,14 @@ is a working local template.
 Updated 2026-09-10. Docker Compose reads the root `.env` and passes configured
 values to the API. A directly started Python process does not automatically
 read that file: export its variables or use `uvicorn --env-file ../.env` from
-`api/`. Override `DATABASE_URL`, `REDIS_URL` and `LOCAL_STORAGE_PATH` for a host
+`api/`. Override `DATABASE_URL` and `LOCAL_STORAGE_PATH` for a host
 process; Compose network names and container paths are not host defaults.
+
+The [persistent demo runner](DEMO_RUNBOOK.md) generates and retains separate
+DB/JWT secrets in ignored `.local-test/demo/settings.json`. It overrides storage
+to a local volume, binds `WEB_PORT`/`API_PORT` to loopback with `WEB_BIND`/`API_BIND`,
+and sets matching build-time API and CORS URLs. Model configuration still comes
+from the root `.env` or process environment.
 
 Validation runs at startup and **fails fast** — a misconfigured deployment does
 not boot into a half-working state.
@@ -132,10 +138,16 @@ a single call can overshoot it. It is a circuit breaker, not a hard ceiling.
 | `QUERY_RATE_LIMIT_PER_MINUTE` | `60` |
 | `UPLOAD_RATE_LIMIT_PER_MINUTE` | `10` |
 | `DELETE_RATE_LIMIT_PER_MINUTE` | `20` |
-| `REDIS_URL` | `redis://redis:6379/0` |
 
-Redis-backed sliding window, falling back to in-memory when Redis is
-unreachable. In-memory is per-process and does not hold across replicas.
+The sliding-window limiter runs in process memory and needs no external service.
+A lock protects admission across request threads, monotonic time avoids wall-clock
+adjustments, and incoming requests trigger expired-key cleanup at most once per
+minute. Rejected requests do not extend the window or add history.
+
+Run one API worker/replica with this configuration. Counters reset when the API
+restarts and are not shared across processes. Revisit a shared limiter when
+multiple workers/replicas become a deployment requirement. `/ready` checks
+PostgreSQL; there is no rate-limit service connection to probe.
 
 ## CORS and frontend
 
@@ -143,10 +155,11 @@ unreachable. In-memory is per-process and does not hold across replicas.
 |---|---|---|
 | `ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | **Build-time** |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | **Build-time**; canonical origin for social preview URLs |
 
-`NEXT_PUBLIC_API_URL` is inlined into the client bundle by Next.js at build
-time. Setting it only at runtime has no effect — compose passes it as a build
-arg. Deploying to another host requires rebuilding the web image.
+Both `NEXT_PUBLIC_*` values are resolved while Next.js builds the application.
+Setting them only at runtime has no effect — compose passes them as build args.
+Deploying to another host requires rebuilding the web image.
 
 ## Retention
 

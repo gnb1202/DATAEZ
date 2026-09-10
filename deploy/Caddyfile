@@ -1,0 +1,19 @@
+{$PUBLIC_HOST} {
+    # Keep internal telemetry off the public origin.
+    @internal path /metrics /metrics/*
+    respond @internal 404
+
+    @api path /api/* /health /ready
+    handle @api {
+        reverse_proxy api:8000 {
+            # Flush SSE immediately. Let an accepted turn finish and persist
+            # even if the browser disconnects, matching the recovery flow.
+            flush_interval -1
+        }
+    }
+
+    handle {
+        encode zstd gzip
+        reverse_proxy web:3000
+    }
+}

@@ -1,0 +1,114 @@
+{
+  "passed": true,
+  "checked_at": "2026-09-10T12:58:46.380Z",
+  "api_mocks": true,
+  "live_llm": false,
+  "checks": [
+    {
+      "name": "Saved dashboard exposes sample/file start without expanding nested guides",
+      "passed": true
+    },
+    {
+      "name": "Question suggestion fills an editable draft without sending a request",
+      "passed": true
+    },
+    {
+      "name": "Failed response keeps the complete question and original device attachment",
+      "passed": true
+    },
+    {
+      "name": "History lookup failure preserves draft/file and offers another read without resending",
+      "passed": true
+    },
+    {
+      "name": "An incomplete history is not presented as a completed request and retains the draft",
+      "passed": true
+    },
+    {
+      "name": "Recovery reads saved messages without another model request and retains draft",
+      "passed": true
+    },
+    {
+      "name": "New file selection defaults to original rows and explains additional transactions",
+      "passed": true
+    },
+    {
+      "name": "Cumulative scope explains that refresh includes additional transactions",
+      "passed": true
+    },
+    {
+      "name": "Adding a library file does not submit a question",
+      "passed": true
+    },
+    {
+      "name": "Failed response retains question and selected original-file scope",
+      "passed": true
+    },
+    {
+      "name": "Stopping response keeps the unsent recovery draft without automatically retrying",
+      "passed": true
+    },
+    {
+      "name": "Switching stores clears the prior store draft and recovery actions",
+      "passed": true
+    },
+    {
+      "name": "Lost save response retries the identical settings and produces one new widget",
+      "passed": true
+    },
+    {
+      "name": "390px chat has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "390px question and send action are visible",
+      "passed": true
+    },
+    {
+      "name": "390px failed request keeps a long draft and reachable recovery/send controls",
+      "passed": true
+    },
+    {
+      "name": "390px keyboard focus remains inside open chat dialog",
+      "passed": true
+    },
+    {
+      "name": "390px Escape restores keyboard focus to chat toggle",
+      "passed": true
+    },
+    {
+      "name": "320px chat has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "320px question and send action are visible",
+      "passed": true
+    },
+    {
+      "name": "320px failed request keeps a long draft and reachable recovery/send controls",
+      "passed": true
+    },
+    {
+      "name": "320px keyboard focus remains inside open chat dialog",
+      "passed": true
+    },
+    {
+      "name": "320px Escape restores keyboard focus to chat toggle",
+      "passed": true
+    },
+    {
+      "name": "Browser reports no runtime or unhandled fixture errors",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "source_sha256": {
+    "web/app/hooks/use-workspace-analysis.ts": "e5eb4b839ba69d9470c8a4512759607baeca73b9a0151a8f1b696caad18f61ec",
+    "web/app/components/chat-panel.tsx": "68553e42d683ba718c9278897074723a56ff6d6f202f72b48c6c31ffbcaf34b4",
+    "web/components/dashboard/chat-dock.tsx": "450a0565ef23b3bbfb8b94f2305e9161e69f5def6b399e8906fa983d2ffe609e",
+    "web/components/dashboard/getting-started.tsx": "e4d2e1d0ce2f5ac63159a598dc43937f1cff4f720113f7cbdf475d78903a1de6",
+    "web/components/dashboard/sample-workspace-actions.tsx": "212996723f43a9d8452dcf3a77a6d9812877396710229fb03fb318afac1aa915",
+    "web/components/dashboard/sections/dashboard-section.tsx": "ff502c94717d736491078f63782fb6e0f841d8e486c0783c91c708be88423081",
+    "web/components/dashboard/file-library.tsx": "051fabdec3494510c2874fd6d7e84f827a38a27b3e96523c0f8ec56a9eedc4ce"
+  }
+}

@@ -50,7 +50,6 @@ class Settings(BaseSettings):
     upload_rate_limit_per_minute: int = 10
     delete_rate_limit_per_minute: int = 20
     allowed_origins: str = "http://localhost:3000"
-    redis_url: str = "redis://redis:6379/0"
     # DB pool
     db_pool_min_size: int = 2
     db_pool_max_size: int = 10

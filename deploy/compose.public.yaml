@@ -1,0 +1,50 @@
+# Append to docker-compose.yml with Docker Compose 2.24.4 or later.
+# Only the HTTPS proxy publishes ports; the API remains one worker/replica.
+services:
+  api:
+    ports: !reset []
+    environment:
+      APP_ENV: production
+      ALLOWED_ORIGINS: ${PUBLIC_ORIGIN:?Set the public HTTPS origin}
+      FORWARDED_ALLOW_IPS: "*"
+      STORAGE_BACKEND: local
+      LOCAL_STORAGE_PATH: /data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    ports: !reset []
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_ORIGIN:?Set the public HTTPS origin}
+        NEXT_PUBLIC_SITE_URL: ${PUBLIC_ORIGIN:?Set the public HTTPS origin}
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?Set the public DNS hostname}
+    ports:
+      - "${PUBLIC_BIND:-0.0.0.0}:${PUBLIC_HTTP_PORT:-80}:80"
+      - "${PUBLIC_BIND:-0.0.0.0}:${PUBLIC_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - proxy_data:/data
+      - proxy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.5"
+volumes:
+  proxy_data:
+  proxy_config:

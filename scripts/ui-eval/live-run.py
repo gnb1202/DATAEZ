@@ -86,7 +86,7 @@ def main():
            "RAG_ENABLED": "false", "STORAGE_BACKEND": "local",
            "LOCAL_STORAGE_PATH": str(artifacts / "uploads"),
            "METRIC_SCHEDULER_ENABLED": "true", "IMPORT_CLEANUP_ENABLED": "true",
-           "REDIS_URL": "redis://127.0.0.1:1/0", "UPLOAD_RATE_LIMIT_PER_MINUTE": "100",
+           "UPLOAD_RATE_LIMIT_PER_MINUTE": "100",
            "ALLOWED_ORIGINS": f"http://127.0.0.1:{web_port}",
            "NEXT_PUBLIC_API_URL": f"http://127.0.0.1:{api_port}",
            "LIVE_UI_URL": f"http://127.0.0.1:{web_port}", "LIVE_ARTIFACTS": str(artifacts)}

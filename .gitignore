@@ -22,6 +22,7 @@ __pycache__/
 
 # Env
 .env
+/.env.public
 .env.local
 .env.*.local
 
@@ -59,3 +60,4 @@ eval-report.json
 
 scripts/onboarding-eval/artifacts/
 scripts/nl-eval/artifacts/
+samples/unseen-v1/**/*.inspect.ndjson

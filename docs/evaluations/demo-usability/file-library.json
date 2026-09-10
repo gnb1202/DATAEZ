@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "original-file default, explicit ledger switch resets confirmation; cross-store selection performs no uploads",
+    "selected references and draft survive navigation; stream sends IDs without file bytes and displays source scope",
+    "history restores references; missing-file validation preserves draft; natural-search candidate opens scoped picker",
+    "data-management library uploads, previews exact amounts, prepares once and downloads originals; light theme",
+    "library removal is explicit and store switching clears scoped drafts",
+    "mobile chat sheet opens library dialog and returns with selected file without horizontal overflow"
+  ],
+  "api_fixtures": true,
+  "llm_evaluated": false
+}

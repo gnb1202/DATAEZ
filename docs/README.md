@@ -1,6 +1,6 @@
 # DATA:EZ 문서
 
-2026-09-10 기준. 제품 방향은 [PRD](PRD.md), 최신 사용자 동작은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 우선한다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경이 반영된 문서를 함께 연결한다.
+2026-09-11 기준. 제품 방향은 [PRD](PRD.md), 최신 사용자 동작은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 우선한다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경이 반영된 문서를 함께 연결한다.
 
 ## 처음 읽을 문서
 
@@ -8,6 +8,11 @@
 |---|---|
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
+| 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
+| 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
+| 첫 공개 배포·HTTPS·비용과 상태 | [Vercel·AWS·Supabase 배포 결정](PUBLIC_DEPLOYMENT.md) |
+| 첫 분석·실패 복구·직접 체험 과제 | [Phase 2 사용성 개선·검증](DEMO_USABILITY.md) |
+| 새 파일·질문의 정확성과 한계 | [Phase 3 본 평가·별도 평가](UNSEEN_DATA_ACCEPTANCE.md) |
 | 원본과 누적 장부·저장 설정·샘플 | [최신 사용 흐름](FILE_SCOPE_AND_FIRST_USE.md) |
 | 코드 구조와 계산·검색·저장 경계 | [아키텍처](ARCHITECTURE.md) |
 | 개발 환경·테스트 실행 | [기여·개발 안내](../CONTRIBUTING.md) |
@@ -28,7 +33,10 @@
 
 | 범위 | 설명·실행 방법 |
 |---|---|
-| 최신 실제 브라우저·API·DB·LLM | [6개 질문·29개 점검](WORKSPACE_LIVE_ACCEPTANCE.md), [결과 JSON](../outputs/frontend-design/workspace-live/report.json), [화면 모음](../outputs/frontend-design/integration-validation.html) |
+| 지속형 데모·종료 후 재접속 | [Phase 1: 질문 1개·브라우저 점검 6개](DEMO_ACCEPTANCE.md) |
+| 첫 사용·분석 실패 복구 | [Phase 2: 합성 API UI 56개·사용자 관찰 상태](DEMO_USABILITY.md) |
+| 새 자료·자연어·저장 상태·범위 경계 | [Phase 3: 최초 28/30 → 전체 30/30, 별도 10/10](UNSEEN_DATA_ACCEPTANCE.md), [공개 보고서](evaluations/unseen-v1/) |
+| 파일·누적 장부 전체 흐름 | [6개 질문·29개 점검](WORKSPACE_LIVE_ACCEPTANCE.md), [결과 JSON](../outputs/frontend-design/workspace-live/report.json), [화면 모음](../outputs/frontend-design/integration-validation.html) |
 | 최신 파일·저장·샘플 회귀 | [API·브라우저 검증 범위](FILE_SCOPE_AND_FIRST_USE.md#검증) |
 | 자연어 50문항 N | [전체 47/50 및 후속 10/10](NATURAL_LANGUAGE_ACCEPTANCE.md), [평가 실행 도구](../scripts/nl-eval/README.md) |
 | 합성 PG 데이터 E | [평가 기록](PG_SAMPLE_EVALUATION.md), [CSV·엑셀 사용 순서](../samples/pg-evaluation/README.md) |
@@ -40,6 +48,7 @@ fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 �
 
 ## 디자인 결정과 기록
 
+- [BI·이미지 생성 세션 전달서](brand/BRAND_HANDOFF.md), [새 세션 시작 프롬프트](brand/SESSION_START_PROMPT.md): 제품·확정 디자인·미정 브랜드 항목·참고 화면과 작업 범위.
 - [글꼴](TYPOGRAPHY.md): Spoqa Han Sans Neo 확정, 후보·출처·숫자 정렬.
 - [컬러 팔레트](COLOR_PALETTE.md), [레퍼런스 비교](PALETTE_REFERENCES.md): Charcoal + Blue, 다크 기본·라이트 지원.
 - [프론트엔드 재설계](FRONTEND_REDESIGN.md): 메뉴·접이식 채팅·파일 보관함의 합의와 단계별 진행.

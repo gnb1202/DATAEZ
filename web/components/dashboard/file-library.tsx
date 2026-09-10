@@ -152,7 +152,8 @@ export function FileLibrary({ initial = [], initialSearch = "", onSelect, onPrep
       <div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">분석에 선택 · {selected.length}/10</span>{selected.map((file) => <button key={referenceKey(file)} title="선택 해제" disabled={busy || disabled} onClick={() => toggle(file)} className="inline-flex max-w-full items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs"><span className="truncate">{file.filename} · {referenceScope(file)}</span><X size={12} className="shrink-0" /></button>)}</div>
       <label className="flex items-start gap-2 text-xs leading-5 text-muted-foreground"><input type="checkbox" className="mt-1" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} disabled={!selected.length || disabled} /><span>파일별 <strong className="text-foreground">분석 범위와 가게</strong>를 확인했습니다. 원본만 선택하면 업로드 당시 행을, 누적 장부를 선택하면 추가 거래도 포함합니다. 다른 가게와 문서는 선택한 범위만 사용합니다.</span></label>
       {disabled && <p className="text-xs text-muted-foreground">채팅의 기기 첨부 파일을 제거하거나 진행 중인 분석을 마친 뒤 선택하세요.</p>}
-      <Button disabled={!selected.length || !confirmed || busy || disabled} onClick={() => onSelect(selected)} className="w-full sm:w-auto">선택한 파일로 분석</Button>
+      <p className="text-xs text-muted-foreground">파일을 채팅에 추가한 뒤 질문을 작성해 전송하세요.</p>
+      <Button disabled={!selected.length || !confirmed || busy || disabled} onClick={() => onSelect(selected)} className="w-full sm:w-auto">선택한 파일을 채팅에 추가</Button>
     </div>
   </section>;
 }

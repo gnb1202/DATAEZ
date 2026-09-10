@@ -1,0 +1,23 @@
+{
+  "checks": [
+    "dark Charcoal + Blue default; no empty conversation created on entry",
+    "draft and attachment survive close and navigation without server writes",
+    "Korean IME Enter does not send; hiding chat preserves in-flight result",
+    "light palette reaches chart and tooltip; exact decimal amount preserved",
+    "saving targets selected store; drag/resize persist, chat width change does not",
+    "theme persists on reload and follows live system changes",
+    "history resumes centrally; result and unsent follow-up survive data navigation",
+    "same-store review link opens data without reloading or losing the composer",
+    "late history response cannot enter another store; composer scope resets",
+    "late streaming response cannot enter the replacement workspace",
+    "new analysis invalidates a pending conversation creation",
+    "creation failure keeps input; stream failure is visible and never auto-retried",
+    "mobile chat keeps composer/file, traps focus, Escape restores trigger; mobile menu works",
+    "320–1440px page containment; zero browser errors or unexpected API requests"
+  ],
+  "sent": 3,
+  "created": 4,
+  "layoutWrites": 2,
+  "errors": [],
+  "fixtureOnly": true
+}

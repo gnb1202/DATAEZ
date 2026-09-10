@@ -1,64 +1,48 @@
-"""Rate limiter with Redis backend (falls back to in-memory if Redis unavailable)."""
+"""Process-local request limits for the single-worker demo/deployment."""
 
-import logging
-import time
-from collections import defaultdict, deque
+from collections import deque
+from dataclasses import dataclass, field
+from threading import Lock
+from time import monotonic
 
-import redis
 from fastapi import HTTPException
-
-from .config import settings
-
-logger = logging.getLogger(__name__)
 
 _TOO_MANY = "Too many requests. Please try again later."
 
 
-class RedisRateLimiter:
-    """Sliding-window rate limiter backed by Redis sorted sets."""
-
-    def __init__(self, redis_url: str) -> None:
-        self._redis = redis.from_url(redis_url, decode_responses=True)
-
-    def check(self, key: str, limit: int, window_seconds: int) -> None:
-        now = time.time()
-        pipe = self._redis.pipeline()
-        pipe.zremrangebyscore(key, 0, now - window_seconds)
-        pipe.zcard(key)
-        pipe.zadd(key, {f"{now}": now})
-        pipe.expire(key, window_seconds)
-        results = pipe.execute()
-        current_count = results[1]
-        if current_count >= limit:
-            raise HTTPException(status_code=429, detail=_TOO_MANY)
+@dataclass
+class _Window:
+    events: deque[float] = field(default_factory=deque)
+    expires_at: float = 0.0
 
 
 class InMemoryRateLimiter:
-    """Fallback sliding-window rate limiter (single-process only)."""
+    """Thread-safe sliding window; counters reset when this process restarts."""
 
     def __init__(self) -> None:
-        self._events: dict[str, deque[float]] = defaultdict(deque)
+        self._windows: dict[str, _Window] = {}
+        self._lock = Lock()
+        self._next_cleanup = 0.0
 
     def check(self, key: str, limit: int, window_seconds: int) -> None:
-        now = time.time()
-        queue = self._events[key]
-        cutoff = now - window_seconds
-        while queue and queue[0] < cutoff:
-            queue.popleft()
-        if len(queue) >= limit:
-            raise HTTPException(status_code=429, detail=_TOO_MANY)
-        queue.append(now)
+        # Sync endpoints run on multiple threads even with one Uvicorn worker.
+        # Read time inside the lock to keep each queue ordered under contention.
+        with self._lock:
+            now = monotonic()
+            if now >= self._next_cleanup:
+                expired = [key for key, window in self._windows.items() if window.expires_at <= now]
+                for expired_key in expired:
+                    del self._windows[expired_key]
+                self._next_cleanup = now + 60
+
+            window = self._windows.setdefault(key, _Window())
+            cutoff = now - window_seconds
+            while window.events and window.events[0] <= cutoff:
+                window.events.popleft()
+            if len(window.events) >= limit:
+                raise HTTPException(status_code=429, detail=_TOO_MANY)
+            window.events.append(now)
+            window.expires_at = now + window_seconds
 
 
-def _create_rate_limiter() -> RedisRateLimiter | InMemoryRateLimiter:
-    try:
-        rl = RedisRateLimiter(settings.redis_url)
-        rl._redis.ping()
-        logger.info("Rate limiter: using Redis at %s", settings.redis_url)
-        return rl
-    except Exception:
-        logger.warning("Rate limiter: Redis unavailable, falling back to in-memory")
-        return InMemoryRateLimiter()
-
-
-rate_limiter = _create_rate_limiter()
+rate_limiter = InMemoryRateLimiter()

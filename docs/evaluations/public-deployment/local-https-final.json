@@ -1,0 +1,335 @@
+{
+  "run_id": "public-check-20260910t165457z-06e7e735",
+  "passed": true,
+  "checks": [
+    {
+      "name": "HTTPS login page",
+      "passed": true
+    },
+    {
+      "name": "Public share image",
+      "passed": true
+    },
+    {
+      "name": "Share metadata uses HTTPS origin",
+      "passed": true
+    },
+    {
+      "name": "API readiness through HTTPS proxy",
+      "passed": true
+    },
+    {
+      "name": "Telemetry hidden from public proxy",
+      "passed": true
+    },
+    {
+      "name": "CORS matches public origin",
+      "passed": true
+    },
+    {
+      "name": "Unrelated CORS origin rejected",
+      "passed": true
+    },
+    {
+      "name": "HTTP redirects to HTTPS",
+      "passed": true
+    },
+    {
+      "name": "Sample source bytes downloadable",
+      "passed": true
+    },
+    {
+      "name": "Cross-account file access denied",
+      "passed": true
+    },
+    {
+      "name": "Three saved sample metrics",
+      "passed": true
+    },
+    {
+      "name": "Exact sample KPI",
+      "passed": true
+    },
+    {
+      "name": "SSE content type",
+      "passed": true
+    },
+    {
+      "name": "SSE frames arrive before completion",
+      "passed": true
+    },
+    {
+      "name": "Streaming metric equals independent sample sum",
+      "passed": true
+    },
+    {
+      "name": "Streaming reply persisted",
+      "passed": true
+    },
+    {
+      "name": "Spoofed forwarded IP cannot bypass login limit",
+      "passed": true
+    },
+    {
+      "name": "Account survives container recreation",
+      "passed": true
+    },
+    {
+      "name": "Original upload survives container recreation",
+      "passed": true
+    },
+    {
+      "name": "Saved widgets retained without duplicates",
+      "passed": true
+    },
+    {
+      "name": "KPI retained after recreation",
+      "passed": true
+    },
+    {
+      "name": "Verified source files unchanged during run",
+      "passed": true
+    }
+  ],
+  "public_cloud_deployed": false,
+  "tls": "local Caddy CA; explicitly trusted only by this test client",
+  "browser_evaluated": false,
+  "live_llm_questions": 1,
+  "api_mocks": false,
+  "source_commit": "8f65b36ad87efa1a1537fccea2c8c429629fc55f",
+  "source_sha256": {
+    "docker-compose.yml": "febe61df7d7cdca7a5d4bc8a9421123bec5cd1378612aaeec8f39c8e49b8f79b",
+    "deploy/compose.public.yaml": "6d4f103f4da670143d1892d2cf73b7066f5f46f34aeb006f378803294f4b234f",
+    "deploy/Caddyfile": "68aff276ea46021b6ad4de3d0cbb8d3991a66592a19dfeb0103252a99ded2977",
+    "deploy/check.py": "16cab3e2534f8b023011fa70cf3118df8054d198ba0839b1087fd526d0c0be8b",
+    "deploy/verify.py": "c10ced95370ed018596258764dcea13d0fcc249706ff1b22d868c4425ff60c2f",
+    "web/Dockerfile": "5210e4e3ba8d73f05a412332e0df85f3921d32412ccaa5d552e1819e3641c13e",
+    "web/package.json": "c9afb3fdd36912ed0ae369f8b05c9922025050e4c9dabfcc481292be12e01de6",
+    "web/package-lock.json": "2e6551c465c3f26fbefc67abc0851f0748c1d4ce30545973a34ec2d044af7b37",
+    "web/next.config.js": "47bc3ea7b0d2c7a630e1921ed1e2aa9e7c88df3ad1f9d4b4133f62d049f00863",
+    "web/app/layout.tsx": "854bcea74049f5fb6014adcccd47e4cc1090d0e514eab357eed5a64bb4086c51",
+    "web/components/brand/dataez-logo.tsx": "6d8d0ddc26be5614ff5c883e1d6a39b6a075b55ce4e7a57b6e119c48c71bc187",
+    "api/app/library_agent.py": "339a63823d8d4488e5b31ef85369d3efdcae7ce3178f52326f17ad5d370c8d00"
+  },
+  "web_packages": {
+    "next": "16.3.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "configuration": {
+    "origin": "https://localhost:1625",
+    "services": [
+      "api",
+      "db",
+      "proxy",
+      "web"
+    ],
+    "public_ports": [
+      "1624",
+      "1625"
+    ],
+    "app_environment": "production",
+    "api_public": false,
+    "database_public": false,
+    "persistent_uploads": true
+  },
+  "models": {
+    "OPENAI_MODEL": "gpt-5.4",
+    "OPENAI_ORCHESTRATOR_MODEL": "gpt-5.4-nano",
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small"
+  },
+  "stream": {
+    "first_frame_seconds": 6.266,
+    "total_seconds": 8.672,
+    "frame_types": [
+      "step",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "token",
+      "answer",
+      "done"
+    ]
+  },
+  "usage": {
+    "calls": 3,
+    "prompt_tokens": 23904,
+    "completion_tokens": 281,
+    "total_tokens": 24185,
+    "cost_usd": 0.03013,
+    "by_role": {
+      "orchestrator": {
+        "calls": 1,
+        "tokens": 1944,
+        "cost_usd": 0.000107
+      },
+      "worker": {
+        "calls": 2,
+        "tokens": 22241,
+        "cost_usd": 0.030024
+      }
+    }
+  },
+  "answer": "결과: 선택한 샘플 원본의 amount 전체 합계는 690,200원입니다.\n\n- 기준: `amount` 합계\n- 부호 처리: 취소 부호를 그대로 유지해 합산\n- 범위: 샘플 가게 · 모퉁이 카페의 `샘플_카페_매출.csv` 원본 파일만\n- 기간: 전체 기간\n- 상태: 미리보기만 했고 저장하지 않았습니다\n- 재계산 방식: 업로드 당시 원본 행 기준으로 다시 계산되는 지표 정의입니다. 연결 장부에 나중에 추가된 거래는 포함하지 않습니다",
+  "temporary_resources_removed": true,
+  "finished_at": "2026-09-10T16:57:48.098131+00:00"
+}

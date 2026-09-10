@@ -108,7 +108,7 @@ async function main() {
       await picker.getByRole('combobox', { name: `${input.filename} 분석 범위`, exact: true }).selectOption('linked_ledger');
       await picker.getByRole('checkbox', { name: `${input.filename} 분석에 선택`, exact: true }).check();
       await picker.getByRole('checkbox', { name: /파일별 분석 범위와 가게/ }).check();
-      await picker.getByRole('button', { name: '선택한 파일로 분석', exact: true }).click();
+      await picker.getByRole('button', { name: '선택한 파일을 채팅에 추가', exact: true }).click();
       pass('Real LLM file discovery leads to explicit library/whole-ledger selection');
 
       const result = await ask('선택한 성수점 파일에 연결된 장부 전체에서 paid_at 발생일별 amount 합계를 꺾은선 그래프로 미리 보여줘. 원화 금액이며 음수 취소는 원본 부호대로 합산해. 기간은 장부 전체 기간이고 다른 장부는 제외해. 나중에 새 거래를 반영해 다시 계산할 수 있는 지표로 준비하되, 아직 대시보드에 저장하지 마.');
@@ -196,7 +196,7 @@ async function main() {
       await picker.getByRole('combobox', { name: '연남점_매출.csv 분석 범위', exact: true }).selectOption('linked_ledger');
       await picker.getByRole('checkbox', { name: '연남점_매출.csv 분석에 선택', exact: true }).check();
       await picker.getByRole('checkbox', { name: /파일별 분석 범위와 가게/ }).check();
-      await picker.getByRole('button', { name: '선택한 파일로 분석', exact: true }).click();
+      await picker.getByRole('button', { name: '선택한 파일을 채팅에 추가', exact: true }).click();
       const external = await ask('이번에 선택한 연남점 파일의 연결 장부에서 amount 전체 합계만 표로 보여줘. 성수점 자료는 포함하지 말고, 대시보드 저장은 하지 마.');
       assert.ok(external.table_data?.some(row => Object.values(row).some(value => String(value) === '54321.09')));
       assert.equal(external.steps.find(s => s.tool_name === 'library_references').tool_output.files[0].project_id, input.other_project_id);
@@ -211,7 +211,7 @@ async function main() {
       await picker.getByRole('checkbox', {name:`${input.filename} 분석에 선택`,exact:true}).check();
       assert.equal(await picker.getByRole('combobox',{name:`${input.filename} 분석 범위`,exact:true}).inputValue(),'original_file');
       await picker.getByRole('checkbox',{name:/파일별 분석 범위와 가게/}).check();
-      await picker.getByRole('button',{name:'선택한 파일로 분석',exact:true}).click();
+      await picker.getByRole('button',{name:'선택한 파일을 채팅에 추가',exact:true}).click();
       const original = await ask('선택한 파일 원본의 paid_at 날짜별 amount 합계를 원화 꺾은선 그래프로 미리 보여줘. 전체 기간과 음수 취소를 그대로 유지하고 연결 장부의 추가 거래는 제외해. 재계산 가능한 지표로 준비하되 아직 저장하지 마.');
       const originalChart = original.charts.find(c=>c.metric_definition);
       assert.ok(originalChart);

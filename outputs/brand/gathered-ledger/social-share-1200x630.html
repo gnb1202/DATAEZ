@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DATA:EZ Social Share</title>
+  <style>
+    @font-face { font-family: "Spoqa"; src: url("../../../web/app/fonts/spoqa-400.woff2") format("woff2"); font-weight: 400; }
+    @font-face { font-family: "Spoqa"; src: url("../../../web/app/fonts/spoqa-700.woff2") format("woff2"); font-weight: 700; }
+    * { box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+    body { font-family: "Spoqa", sans-serif; background: #121417; color: #f2f4f7; }
+    .canvas {
+      position: relative; width: 1200px; height: 630px; overflow: hidden;
+      background: #121417 url("hero-background.png") center / cover no-repeat;
+    }
+    .canvas::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(9,12,17,.98) 0%, rgba(9,12,17,.92) 46%, rgba(9,12,17,.34) 78%, rgba(9,12,17,.18) 100%);
+    }
+    .canvas::after {
+      content: ""; position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.10); pointer-events: none;
+    }
+    .content { position: absolute; z-index: 1; top: 66px; left: 72px; bottom: 62px; display: flex; flex-direction: column; }
+    .logo { width: 250px; height: 50px; object-fit: contain; object-position: left center; }
+    h1 { margin: 78px 0 24px; font-size: 64px; line-height: 1.11; letter-spacing: -.048em; font-weight: 700; }
+    .sub { margin: 0; color: #b9c2d0; font-size: 24px; line-height: 1.55; letter-spacing: -.025em; }
+    .foot { margin-top: auto; display: flex; align-items: center; gap: 11px; color: #82b4ff; font-size: 15px; font-weight: 700; letter-spacing: .13em; }
+    .foot::before { content: ""; width: 28px; height: 2px; border-radius: 1px; background: #82b4ff; }
+  </style>
+</head>
+<body>
+  <main class="canvas" aria-label="DATA:EZ 공유 이미지">
+    <section class="content">
+      <img class="logo" src="lockup-dark.svg" alt="DATA:EZ" />
+      <h1>흩어진 매출을,<br />한눈에.</h1>
+      <p class="sub">파일을 모으고, 대화로 지표를 만들고,<br />내 대시보드에 저장하세요.</p>
+      <div class="foot">GATHERED LEDGER</div>
+    </section>
+  </main>
+</body>
+</html>

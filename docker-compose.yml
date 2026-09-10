@@ -7,7 +7,6 @@ x-logging: &default-logging
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: dataez-db
     restart: unless-stopped
     logging: *default-logging
     environment:
@@ -33,35 +32,14 @@ services:
           memory: 512M
           cpus: "1.0"
 
-  redis:
-    image: redis:7-alpine
-    container_name: dataez-redis
-    restart: unless-stopped
-    logging: *default-logging
-    # ports not exposed to host — API connects via Docker network (redis:6379)
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-          cpus: "0.5"
-
   api:
     build:
       context: ./api
-    container_name: dataez-api
     restart: unless-stopped
     logging: *default-logging
     environment:
       APP_ENV: ${APP_ENV:-development}
       DATABASE_URL: postgresql://${POSTGRES_USER:-dataez}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-dataez}
-      REDIS_URL: redis://redis:6379/0
       STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
       LOCAL_STORAGE_PATH: ${LOCAL_STORAGE_PATH:-/data/uploads}
       AWS_REGION: ${AWS_REGION:-}
@@ -92,11 +70,9 @@ services:
     volumes:
       - uploads:/data/uploads
     ports:
-      - "8000:8000"
+      - "${API_BIND:-0.0.0.0}:${API_PORT:-8000}:8000"
     depends_on:
       db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     deploy:
       resources:
@@ -110,11 +86,11 @@ services:
       args:
         # Baked into the client bundle at build time — see web/Dockerfile.
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-    container_name: dataez-web
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     restart: unless-stopped
     logging: *default-logging
     ports:
-      - "3000:3000"
+      - "${WEB_BIND:-0.0.0.0}:${WEB_PORT:-3000}:3000"
     depends_on:
       api:
         condition: service_started
@@ -126,5 +102,4 @@ services:
 
 volumes:
   pgdata:
-  redisdata:
   uploads:

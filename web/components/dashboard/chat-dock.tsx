@@ -21,7 +21,9 @@ export function ChatDock({ analysis, open, onOpenChange, onOpenResult, storeName
   const panel = <ChatPanel composer={analysis.composer} onComposerChange={analysis.setComposer} messages={analysis.messages}
     onOpenLibrary={onOpenLibrary} onSend={analysis.send} loading={analysis.loading} disabled={disabled || analysis.messageLoading}
     streamingSteps={analysis.stream.streamingSteps} streamingAnswer={analysis.stream.streamingAnswer}
-    streamError={analysis.error} onStop={analysis.stop} onOpenResult={(id) => { onOpenResult(id); if (narrow) onOpenChange(false); }} />;
+    streamError={analysis.error} onStop={analysis.stop}
+    onReviewConversation={analysis.recoveryAvailable ? () => void analysis.reviewCurrentConversation() : undefined} recoveryNotice={analysis.recoveryNotice}
+    onOpenResult={(id) => { onOpenResult(id); if (narrow) onOpenChange(false); }} />;
   if (narrow) return <Sheet open={open} onOpenChange={onOpenChange}>
     <SheetContent id="workspace-chat" className="w-full gap-0 bg-[var(--chat)] sm:max-w-[440px]" onCloseAutoFocus={(event) => { event.preventDefault(); document.getElementById("workspace-chat-toggle")?.focus(); }}>
       <div className="border-b border-border p-5 pr-12"><SheetTitle>AI 채팅</SheetTitle><SheetDescription className="mt-1 truncate text-xs">현재 작업 가게 · {storeName}</SheetDescription></div>

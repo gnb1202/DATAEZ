@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "status": "passed",
+  "run_id": "acceptance-20260910T120822Z",
+  "checked_at": "2026-09-10T12:17:34.789431+00:00",
+  "live_llm_questions": 1,
+  "api_mocks": false,
+  "models": {
+    "OPENAI_MODEL": "gpt-5.4",
+    "OPENAI_ORCHESTRATOR_MODEL": "gpt-5.4-nano",
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small"
+  },
+  "services_stopped_and_started": true,
+  "checks": [
+    "Real login and preset dashboard; repeat creates exactly three widgets",
+    "Sample selects original file and drafts the question without automatically sending it",
+    "Real LLM creates exact signed daily amounts, original scope, line chart and inspectable SQL",
+    "UI saves/resizes the LLM metric; additional ledger transaction changes 690200 to 720200 while original stays fixed",
+    "After browser and all services restart: original bytes, conversation, metric definitions and layouts match",
+    "Restart dialog cancellation is inert; confirmation opens a fresh sample and preserves previous saved work"
+  ],
+  "source_sha256": {
+    "api/app/sample_workspace.py": "8cdec1934c65a67ffb3e3db6eb9445c708beab3c59be312d12ba578c5d39ad71",
+    "api/app/library_routes.py": "4cdacae7b37b8f891ac41d41453d1d78c205bb27e667029031a6d177394e0080",
+    "api/app/library_schema.py": "891b4433cd8460796ecc34a5c4fb42426cac36289606361999cf715b837d92ca",
+    "web/components/dashboard/sample-workspace-actions.tsx": "c167411b15ce604493d4ef2c4cbe4cc09a8a87d045ed526a9cc24119c481bbb6",
+    "web/components/dashboard/sections/dashboard-section.tsx": "2067804d2e782f3c9bc6cdea569c61dba02ce9d47723e05b4fb3b0dab1f03f07",
+    "web/app/dashboard/page.tsx": "fcf3856d9a5b1e8eea9ca93d1a11037ecd13e5a184cab24757ce911105894668",
+    "web/Dockerfile": "a279ea1ab4521b67790f4c8982e8a578079732dd92124670d2472113e62f6eb5",
+    "docker-compose.yml": "f30d89d4b514f9d70c0da13a9aa1846d3efcffbc061104a4f4db09f7a6ee54fb",
+    "scripts/demo/run.py": "91e3eb66a23828ade166c6de23d7f1d9a789d47ca09f3faf5ea28b6eaecbc483",
+    "scripts/demo/verify.cjs": "5a23276da687d460a7baebb7190b7ce04f7471f89e134ae7bcd2443f13b5ed00"
+  }
+}

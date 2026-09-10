@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [projectsError, setProjectsError] = useState(false);
   const [reload, setReload] = useState(0);
-  const [sampleStart, setSampleStart] = useState<{ project: Project; file: LibraryFile } | null>(null);
+  const [sampleStart, setSampleStart] = useState<{ project: Project; file: LibraryFile; view?: "analysis" | "dashboard" } | null>(null);
   useEffect(() => {
     if (!initializing && !isAuthenticated) router.replace("/");
   }, [initializing, isAuthenticated, router]);
@@ -86,7 +86,7 @@ export default function DashboardPage() {
   return <StoreWorkspace key={selectedProjectId} projects={projects} selectedProjectId={selectedProjectId}
     sampleStart={sampleStart}
     onSampleConsumed={() => setSampleStart(null)}
-    onSampleReady={(project, file) => { setProjects(prev => [project, ...prev.filter(item => item.id !== project.id)]); setSampleStart({project,file}); setSelectedProjectId(project.id); }}
+    onSampleReady={(project, file, view) => { setProjects(prev => [project, ...prev.filter(item => item.id !== project.id)]); setSampleStart({project,file,view}); setSelectedProjectId(project.id); }}
     onSelectProject={setSelectedProjectId}
     onProjectCreated={(project) => { setProjects((prev) => [project, ...prev]); setSelectedProjectId(project.id); }}
     onProjectDeleted={(id) => { setProjects((prev) => prev.filter((item) => item.id !== id)); setSelectedProjectId((current) => current === id ? projects.find((item) => item.id !== id)?.id || "" : current); }}
@@ -94,7 +94,7 @@ export default function DashboardPage() {
 }
 
 function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects, selectedProjectId, onSelectProject, onProjectCreated, onProjectDeleted, token, email, logout, apiFetchWithRefresh }: {
-  sampleStart: { project: Project; file: LibraryFile } | null; onSampleConsumed: () => void; onSampleReady: (project: Project, file: LibraryFile) => void;
+  sampleStart: { project: Project; file: LibraryFile; view?: "analysis" | "dashboard" } | null; onSampleConsumed: () => void; onSampleReady: (project: Project, file: LibraryFile, view?: "analysis" | "dashboard") => void;
   projects: Project[]; selectedProjectId: string; onSelectProject: (id: string) => void;
   onProjectCreated: (project: Project) => void; onProjectDeleted: (id: string) => void;
   token: string; email: string; logout: () => Promise<void>;
@@ -131,6 +131,9 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
 
   useEffect(() => {
     if (!sampleStart || sampleStart.project.id !== selectedProjectId) return;
+    if (sampleStart.view === "dashboard") {
+      setActiveSection("dashboard"); setChatOpen(false); setDashboardRevision(value => value + 1); onSampleConsumed(); return;
+    }
     const file = sampleStart.file, binding = file.bindings[0];
     const text = "선택한 샘플 파일의 원본 행만 사용해 paid_at 날짜별 amount 합계를 원화 꺾은선 그래프로 미리 보여줘. 음수 취소를 그대로 차감하고 전체 기간을 사용해. 재계산 가능한 지표로 준비하되 아직 저장하지 마.";
     resetAnalysis(text);
