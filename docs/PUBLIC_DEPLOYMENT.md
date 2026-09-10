@@ -1,6 +1,6 @@
 # DATA:EZ 첫 공개 데모 배포안
 
-2026-09-11 · 배포 후보 브랜치 `codex/public-demo-deployment`.
+2026-09-11 · 배포 후보 `codex/public-demo-deployment`의 누적 작업을 main에 통합했다.
 
 **현재 상태: Supabase Free를 DB·원본 파일 저장소로 사용하기로 결정했다. Vercel 웹 + AWS API + Supabase 구성의 연결·배포 검증은 아직 수행하지 않았다.** Phase 3의 `9663f5f`와 브랜드의 `dbf6f0e`를 별도 배포 브랜치에 통합했다. 기존 작업 폴더의 미커밋 브랜드 변경은 건드리지 않는다. 사람의 사용성 관찰보다 공개 데모 준비를 먼저 진행한다. 공개 클라우드 서버는 아직 생성하지 않았다.
 
