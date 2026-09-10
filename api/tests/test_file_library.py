@@ -188,7 +188,11 @@ def test_scope_guard_blocks_outside_ids_and_writes_and_filters_discovery():
     for name,args in [('insert_rows',{}),('import_file',{}),('preview_metric',{'definition':{'sources':[{'table_id':'outside'}]}}),('inspect_store_table',{'project_id':'store','table_id':'outside'})]:
         assert library_agent.guard(executor,name,args)['error'] == 'library_scope'
     assert library_agent.guard(executor,'list_store_tables',{'project_id':'store'})['tables'][0]['id'] == 'chosen'
-    assert len(library_agent.guard(executor,'list_stores',{})['stores']) == 1
+    stores = library_agent.guard(executor,'list_stores',{})
+    assert stores['stores'] == [{'id':'store','name':'성수점'}]
+    assert stores['scope'] == 'selected_files' and stores['account_inventory_complete'] is False
+    assert '계정 전체' in stores['hint'] and '추가 선택' in stores['hint']
+    assert library_agent.guard(SimpleNamespace(library_refs=[]),'list_stores',{}) is None
     assert library_agent.guard(executor,'search_schema',{})['count'] == 1
 
 

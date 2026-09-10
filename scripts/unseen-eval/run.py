@@ -60,12 +60,17 @@ def main():
         INDEX_WORKER_ENABLED='true',STORAGE_BACKEND='local',LOCAL_STORAGE_PATH=str(out/'uploads'),
         METRIC_SCHEDULER_ENABLED='false',IMPORT_CLEANUP_ENABLED='false',DB_POOL_MIN_SIZE='1',DB_POOL_MAX_SIZE='5',
         UPLOAD_RATE_LIMIT_PER_MINUTE='300',QUERY_RATE_LIMIT_PER_MINUTE='300',PYTHONIOENCODING='utf-8')
+    # Read effective defaults as the API does, without printing any credentials.
+    model_settings=json.loads(subprocess.check_output([sys.executable,'-c',
+        'import json; from app.config import settings; print(json.dumps({k:getattr(settings,k.lower()) for k in ("OPENAI_MODEL","OPENAI_ORCHESTRATOR_MODEL","OPENAI_EMBEDDING_MODEL")}))'],
+        cwd=ROOT/'api',env=env,text=True,encoding='utf-8',creationflags=runtime.HIDDEN))
+    env.update(model_settings)
     sources=list((ROOT/'api/app').rglob('*.py'))
     fixture_paths=[p for p in DATA.rglob('*') if p.is_file() and not p.name.endswith('.ndjson')]
     report=dict(run_id=run_id,suite='regression' if args.cases else args.suite,as_of=AS_OF,version=VERSION,
         checked_at=datetime.now(timezone.utc).isoformat(),source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         source_sha256=hash_files(sources),fixture_sha256=hash_files(fixture_paths),benchmark_sha256=hash_files(list(Path(__file__).parent.glob('*.py'))),
-        real_api=True,api_mocks=False,real_postgres=True,real_embeddings=True,real_llm=args.live_llm,browser_evaluated=False,
+        real_api=True,api_mocks=False,real_postgres=True,real_embeddings=True,real_llm=args.live_llm,browser_evaluated=False,grader_version=2,
         worker_model=env.get('OPENAI_MODEL'),router_model=env.get('OPENAI_ORCHESTRATOR_MODEL'),embedding_model=env.get('OPENAI_EMBEDDING_MODEL'),
         cost_note='Repository price-table estimate, not current billing. Setup indexing counters are separate from question usage.',
         fixture_checks=[],cases=[],semantic_review='pending',passed=False,automatic_question_retries=0)
@@ -193,6 +198,7 @@ def main():
                         record['assistant_persisted']=bool(history and history[-1]['role']=='assistant')
                         after=widgets()
                         checks,details=grade(case,evidence,before,after,raw_before==snapshot(),ids)
+                        checks['assistant_persisted']=record['assistant_persisted']
                         record.update(checks=checks,automatic_passed=all(checks.values()),answer=evidence.get('content',''),usage=evidence.get('usage',{}))
                     except Exception as exc:
                         after=widgets();record.update(error=type(exc).__name__+': '+str(exc),automatic_passed=False)
