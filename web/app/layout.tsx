@@ -6,6 +6,8 @@ import { JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+
 const spoqaHanSansNeo = localFont({
   src: [
     { path: "./fonts/spoqa-400.woff2", weight: "400", style: "normal" },
@@ -32,9 +34,31 @@ const notoSansKR = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "DATAEZ",
-  description: "소상공인을 위한 데이터 시각화 자동화 도구",
+  metadataBase: new URL(siteUrl),
+  title: "DATA:EZ — 흩어진 매출을, 한눈에",
+  description: "매출 파일을 모으고, 대화로 지표를 만들고, 내 대시보드에 저장하세요.",
+  applicationName: "DATA:EZ",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "DATA:EZ — 흩어진 매출을, 한눈에",
+    description: "매출 파일을 모으고, 대화로 지표를 만들고, 내 대시보드에 저장하세요.",
+    images: [
+      {
+        url: "/og-dataez.png",
+        width: 1200,
+        height: 630,
+        alt: "DATA:EZ — 흩어진 매출을, 한눈에",
+      },
+    ],
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DATA:EZ — 흩어진 매출을, 한눈에",
+    description: "매출 파일을 모으고, 대화로 지표를 만들고, 내 대시보드에 저장하세요.",
+    images: ["/og-dataez.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

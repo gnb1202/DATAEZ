@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DATA:EZ — Gathered Ledger</title>
+  <style>
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-400.woff2") format("woff2"); font-weight: 400; }
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-500.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-700.woff2") format("woff2"); font-weight: 700; }
+    * { box-sizing: border-box; }
+    html, body { width: 1920px; height: 1080px; margin: 0; overflow: hidden; }
+    body { font-family: Spoqa, sans-serif; color: #f2f4f7; background: #121417; }
+    .canvas { position: relative; width: 1920px; height: 1080px; background: url("hero-background.png") center / cover no-repeat; }
+    .canvas::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,14,17,.52) 0%, rgba(12,14,17,.17) 38%, rgba(12,14,17,0) 67%); pointer-events: none; }
+    .content { position: absolute; z-index: 1; inset: 0; padding: 92px 110px 84px; display: flex; flex-direction: column; }
+    .logo { width: 336px; height: auto; }
+    .copy { margin-top: 232px; max-width: 660px; }
+    .eyebrow { display: flex; align-items: center; gap: 14px; color: #82b4ff; font-size: 18px; line-height: 1; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 34px; height: 3px; border-radius: 999px; background: #82b4ff; }
+    h1 { margin: 28px 0 0; font-size: 82px; line-height: 1.12; letter-spacing: -.045em; font-weight: 700; }
+    p { margin: 30px 0 0; color: #a8b0bb; font-size: 25px; line-height: 1.55; letter-spacing: -.012em; }
+    .footer { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; color: #7f8997; font-size: 15px; letter-spacing: .12em; }
+    .flow { display: flex; gap: 10px; align-items: center; letter-spacing: -.01em; font-size: 16px; color: #a8b0bb; }
+    .flow span { padding: 9px 13px; border: 1px solid rgba(130,180,255,.24); border-radius: 999px; background: rgba(18,20,23,.48); }
+    .flow i { width: 4px; height: 4px; border-radius: 50%; background: #82b4ff; opacity: .7; }
+  </style>
+</head>
+<body>
+  <main class="canvas">
+    <div class="content">
+      <img class="logo" src="lockup-dark.svg" alt="DATA:EZ" />
+      <section class="copy">
+        <div class="eyebrow">Gathered Ledger</div>
+        <h1>흩어진 매출을,<br />한눈에.</h1>
+        <p>파일을 모으고, 대화로 지표를 만들고,<br />내 대시보드에 저장하세요.</p>
+      </section>
+      <footer class="footer">
+        <div class="flow"><span>매출 파일</span><i></i><span>자연어 분석</span><i></i><span>검증된 계산</span><i></i><span>내 대시보드</span></div>
+        <div>DATA:EZ / BRAND IMAGE 01</div>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>

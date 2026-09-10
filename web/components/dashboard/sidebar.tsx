@@ -4,6 +4,7 @@ import { LayoutDashboard, Database, History, Settings, Plus, PanelLeftClose, Pan
 import { cn } from "@/lib/utils";
 import type { Project } from "@/app/lib/api";
 import type { Section } from "@/app/dashboard/page";
+import { DataEzLogo } from "@/components/brand/dataez-logo";
 
 export interface SidebarProps {
   activeSection: Section;
@@ -27,8 +28,10 @@ export function Sidebar({ activeSection, onSectionChange, collapsed, onCollapsed
   const compact = collapsed && !mobile;
   return (
     <div className={cn("flex h-full shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground", compact ? "w-[76px]" : "w-[232px]", mobile && "w-full border-0")}>
-      <div className="flex h-[76px] shrink-0 items-center justify-between gap-2 px-5">
-        <button onClick={() => onSectionChange("dashboard")} aria-label="DATA:EZ 대시보드" className="text-lg font-bold tracking-tight">{compact ? "D:" : "DATA:EZ"}</button>
+      <div className={cn("flex h-[76px] shrink-0 items-center gap-2", compact ? "justify-center" : "justify-between px-5")}>
+        <button onClick={() => onSectionChange("dashboard")} aria-label="DATA:EZ 대시보드" className={cn("flex min-h-11 shrink-0 items-center justify-center rounded-sm transition-opacity hover:opacity-80", compact && "w-11")}>
+          <DataEzLogo symbolOnly={compact} className={compact ? "h-7 w-7" : "w-[136px]"} />
+        </button>
         {!compact && !mobile && <button aria-label="메뉴 접기" onClick={() => onCollapsedChange(true)} className="rounded p-1 text-muted-foreground hover:text-foreground"><PanelLeftClose size={17} /></button>}
       </div>
       <div className="px-3">

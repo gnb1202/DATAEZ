@@ -74,3 +74,71 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+.dataez-logo--auto {
+  color: var(--text);
+  --brand-logo-accent: var(--accent);
+}
+
+.dataez-logo--dark {
+  color: #f2f4f7;
+  --brand-logo-accent: #82b4ff;
+}
+
+.dataez-logo--light {
+  color: #20262f;
+  --brand-logo-accent: #245bb5;
+}
+
+.brand-login-panel {
+  color: #f2f4f7;
+  background-color: #121417 !important;
+  border-color: #303640;
+}
+
+.brand-login-panel__image {
+  background-image: url("/brand/gathered-ledger-hero-bg.png");
+  background-repeat: no-repeat;
+  background-position: 66% center;
+  background-size: cover;
+  opacity: 0.4;
+}
+
+.brand-login-panel__scrim {
+  background: linear-gradient(
+    90deg,
+    #121417 0%,
+    rgba(18, 20, 23, 0.92) 52%,
+    rgba(18, 20, 23, 0.45) 100%
+  );
+}
+
+.brand-login-panel__eyebrow,
+.brand-login-panel__step-number {
+  color: #82b4ff;
+}
+
+.brand-login-panel__body {
+  color: #c5cdd8;
+}
+
+.brand-login-panel__step-number {
+  border-color: #526176;
+  background: rgba(23, 29, 38, 0.8);
+}
+
+.group:hover .brand-login-panel__step-number {
+  border-color: #82b4ff;
+}
+
+.brand-login-panel__step-title {
+  color: #f2f4f7;
+}
+
+.brand-login-panel__step-desc {
+  color: #a8b0bb;
+}
+
+.brand-login-panel__footer {
+  color: #7f8997;
+}

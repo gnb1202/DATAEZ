@@ -2,28 +2,29 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BarChart3, ArrowRight, Loader2, Upload, MessageSquare, LineChart } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "./hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DataEzLogo } from "@/components/brand/dataez-logo";
 
 const steps = [
   {
-    icon: Upload,
-    title: "업로드",
-    desc: "CSV, XLSX 파일을 간편하게 업로드",
+    number: "01",
+    title: "매출 파일을 모으고",
+    desc: "CSV·XLSX 원본을 가게별로 보관해요.",
   },
   {
-    icon: MessageSquare,
-    title: "질문",
-    desc: "자연어로 데이터에 대해 질문하세요",
+    number: "02",
+    title: "필요한 숫자를 물어보고",
+    desc: "일상적인 말로 기간과 계산 기준을 정해요.",
   },
   {
-    icon: LineChart,
-    title: "시각화",
-    desc: "AI가 자동으로 차트와 인사이트 생성",
+    number: "03",
+    title: "내 대시보드에 저장해요",
+    desc: "계산 근거를 확인한 차트와 지표를 다시 사용해요.",
   },
 ];
 
@@ -72,86 +73,77 @@ export default function LoginPage() {
   if (isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-dvh">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-card border-r border-border flex-col justify-between p-12 relative overflow-hidden">
-        {/* Subtle background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-chart-1/5 pointer-events-none" />
+      <div className="brand-login-panel relative hidden overflow-hidden border-r lg:flex lg:w-[54%] lg:flex-col lg:justify-between lg:gap-10 lg:p-14 xl:p-18">
+        <div className="brand-login-panel__image pointer-events-none absolute inset-0" />
+        <div className="brand-login-panel__scrim pointer-events-none absolute inset-0" />
 
-        <div className="relative">
+        <div className="relative z-10">
           <div
-            className="flex items-center gap-3 mb-2 animate-in fade-in slide-in-from-left-4 duration-700"
+            className="animate-in fade-in slide-in-from-left-4 duration-700"
             style={{ animationFillMode: "both" }}
           >
-            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-accent-foreground" />
-            </div>
-            <span className="text-3xl font-bold tracking-tight text-foreground">
-              DATAEZ
-            </span>
+            <DataEzLogo tone="dark" className="w-48" />
           </div>
-          <p
-            className="text-muted-foreground text-lg animate-in fade-in slide-in-from-left-4 duration-700"
-            style={{ animationDelay: "100ms", animationFillMode: "both" }}
-          >
-            소상공인을 위한 데이터 시각화 자동화 도구
-          </p>
         </div>
 
-        <div className="relative space-y-6">
-          {steps.map((item, i) => {
-            const Icon = item.icon;
-            return (
+        <div className="relative z-10 max-w-xl">
+          <p className="brand-login-panel__eyebrow mb-5 text-sm font-bold tracking-[0.18em]">GATHERED LEDGER</p>
+          <h1 className="text-balance text-5xl font-bold leading-[1.12] tracking-[-0.045em] xl:text-6xl">
+            흩어진 매출을,<br />한눈에.
+          </h1>
+          <p className="brand-login-panel__body mt-6 max-w-lg text-lg leading-8">
+            여러 파일과 가게의 숫자를 모아 묻고, 확인하고,<br className="hidden xl:block" /> 내 방식대로 저장하세요.
+          </p>
+
+          <div className="mt-12 space-y-5">
+            {steps.map((item, i) => (
               <div
                 key={item.title}
-                className="flex items-start gap-4 group animate-in fade-in slide-in-from-left-4 duration-700"
+                className="group flex items-start gap-4 animate-in fade-in slide-in-from-left-4 duration-700"
                 style={{
                   animationDelay: `${200 + i * 150}ms`,
                   animationFillMode: "both",
                 }}
               >
-                <div className="mt-0.5 h-10 w-10 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-accent/10 transition-colors duration-300">
-                  <Icon className="h-5 w-5 text-accent" />
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">{item.title}</p>
-                  <p className="text-muted-foreground text-sm">{item.desc}</p>
+                <span className="brand-login-panel__step-number mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold transition-colors duration-300">
+                  {item.number}
+                </span>
+                <div className="pt-0.5">
+                  <p className="brand-login-panel__step-title font-bold">{item.title}</p>
+                  <p className="brand-login-panel__step-desc mt-1 text-sm">{item.desc}</p>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        <p className="relative text-muted-foreground text-sm">
-          &copy; 2025 DATAEZ
+        <p className="brand-login-panel__footer relative z-10 text-xs tracking-[0.12em]">
+          &copy; 2026 DATA:EZ
         </p>
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+      <div className="flex min-w-0 flex-1 items-center justify-center bg-background p-8">
         <div
           className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700"
           style={{ animationFillMode: "both" }}
         >
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-accent-foreground" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">
-              DATAEZ
-            </span>
+          <div className="mb-10 lg:hidden">
+            <DataEzLogo className="w-40" />
           </div>
 
-          <h1 className="text-2xl font-bold mb-1 text-foreground">
+          <h1 className="mb-2 break-keep text-3xl font-bold tracking-[-0.035em] text-foreground">
             {mode === "login"
-              ? "다시 오신 것을 환영합니다"
-              : "계정 만들기"}
+              ? "우리 가게의 숫자를 확인해보세요"
+              : "내 대시보드를 시작하세요"}
           </h1>
-          <p className="text-muted-foreground mb-8">
+          <p className="mb-8 break-keep text-muted-foreground">
             {mode === "login"
-              ? "로그인하여 데이터를 분석하세요"
-              : "몇 분 안에 데이터 시각화를 시작하세요"}
+              ? "로그인하면 저장한 파일과 지표를 이어서 볼 수 있어요."
+              : "가게와 매출 파일을 등록하고 첫 지표를 만들어보세요."}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
