@@ -261,6 +261,12 @@ evaluation, browser fixtures, and a real browser/API/DB/LLM workspace run. See
 
 ## Current boundaries
 
+- The portfolio/demo deployment uses one API worker/replica. Request limits are
+  process-local, locked across request threads and measured with monotonic time.
+  Incoming requests periodically reclaim expired keys; restarting the process
+  resets counters. Redis has been removed from code and the default stack.
+  A shared limiter is future work if multi-process deployment becomes necessary.
+
 - Actual PG ingestion/connectors, remote storage acceptance, user usability and
   production load remain separate work. Synthetic test results are not those validations.
 - Metric changes have revision history; legacy arbitrary CRUD does not have a

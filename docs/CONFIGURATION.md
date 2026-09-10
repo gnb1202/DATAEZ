@@ -7,7 +7,7 @@ is a working local template.
 Updated 2026-09-10. Docker Compose reads the root `.env` and passes configured
 values to the API. A directly started Python process does not automatically
 read that file: export its variables or use `uvicorn --env-file ../.env` from
-`api/`. Override `DATABASE_URL`, `REDIS_URL` and `LOCAL_STORAGE_PATH` for a host
+`api/`. Override `DATABASE_URL` and `LOCAL_STORAGE_PATH` for a host
 process; Compose network names and container paths are not host defaults.
 
 Validation runs at startup and **fails fast** — a misconfigured deployment does
@@ -132,10 +132,16 @@ a single call can overshoot it. It is a circuit breaker, not a hard ceiling.
 | `QUERY_RATE_LIMIT_PER_MINUTE` | `60` |
 | `UPLOAD_RATE_LIMIT_PER_MINUTE` | `10` |
 | `DELETE_RATE_LIMIT_PER_MINUTE` | `20` |
-| `REDIS_URL` | `redis://redis:6379/0` |
 
-Redis-backed sliding window, falling back to in-memory when Redis is
-unreachable. In-memory is per-process and does not hold across replicas.
+The sliding-window limiter runs in process memory and needs no external service.
+A lock protects admission across request threads, monotonic time avoids wall-clock
+adjustments, and incoming requests trigger expired-key cleanup at most once per
+minute. Rejected requests do not extend the window or add history.
+
+Run one API worker/replica with this configuration. Counters reset when the API
+restarts and are not shared across processes. Revisit a shared limiter when
+multiple workers/replicas become a deployment requirement. `/ready` checks
+PostgreSQL; there is no rate-limit service connection to probe.
 
 ## CORS and frontend
 

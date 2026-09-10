@@ -50,7 +50,7 @@ def main():
     os.environ.update(DATABASE_URL=make_conninfo(admin, dbname=name), JWT_SECRET_KEY=secrets.token_hex(32),
                       APP_ENV='development', RAG_ENABLED='false', STORAGE_BACKEND='local',
                       LOCAL_STORAGE_PATH=str(out / 'uploads'), METRIC_SCHEDULER_ENABLED='false',
-                      IMPORT_CLEANUP_ENABLED='false', REDIS_URL='redis://127.0.0.1:1/0')
+                      IMPORT_CLEANUP_ENABLED='false')
     if not args.live_llm:
         os.environ.setdefault('OPENAI_API_KEY', 'unused-fixture-check')
     sys.path.insert(0, str(ROOT / 'api'))

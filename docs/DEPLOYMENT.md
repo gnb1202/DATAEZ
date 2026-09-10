@@ -10,15 +10,16 @@ cp .env.example .env      # fill in OPENAI_API_KEY
 docker compose up --build
 ```
 
-Brings up pgvector, Redis, the API, and the web app with healthchecks, memory
-and CPU limits, and log rotation. Postgres and Redis are not published to the
-host — the API reaches them over the compose network.
+Brings up three services: PostgreSQL with pgvector, the API, and the web app,
+with healthchecks, memory/CPU limits and log rotation. Postgres is not published
+to the host — the API reaches it over the Compose network. Request limiting
+runs inside the API; Redis is no longer a dependency.
 
 Verify:
 
 ```bash
 curl localhost:8000/health          # {"status":"ok","storage_backend":"local"}
-curl localhost:8000/ready           # 503 if Postgres or Redis is down
+curl localhost:8000/ready           # 503 if Postgres is unavailable
 curl -s localhost:8000/metrics | head
 ```
 
@@ -98,8 +99,10 @@ Known constraints, stated rather than discovered later:
   collector, so with `--workers > 1` a scrape reports whichever worker answered.
   Run one worker per container and scale containers, or add
   `PROMETHEUS_MULTIPROC_DIR`.
-- **In-memory rate limiting is per-process.** Keep Redis reachable in any
-  multi-replica deployment; the fallback is a degraded mode, not a design.
+- **Run one API worker and one replica for the demo.** The image uses
+  `--workers 1`. Request limits share a lock across threads, expire inactive
+  keys and reset on API restart. They do not share counts across processes.
+  Revisit a shared limiter before using multiple workers/replicas.
 - **Local storage is container-local.** Multiple replicas need S3.
 - **Import and indexing are distinct.** File parsing and transactional row
   import use request paths. Search chunking/embedding runs through durable DB
@@ -142,6 +145,22 @@ Both scripts are pinned to LF line endings via `.gitattributes`; a CRLF
 checkout would break them inside a Linux container.
 
 ## CI
+
+### Redis removal verification (2026-09-10)
+
+After removing Redis, the local API suite passed **487 tests / 239 skipped**
+(external test DBs and optional SQL dependencies were not configured). New
+coverage exercises concurrent admission, expiry boundaries, inactive-key cleanup,
+blocked requests and readiness with/without PostgreSQL.
+
+A freshly built API image and a disposable PostgreSQL container also passed
+`/health` and `/ready` over HTTP. The image had no installed `redis` package;
+with the test login limit set to two, three attempts returned `401, 401, 429`.
+No LLM calls were made. The temporary containers and volumes were cleaned up.
+This verifies API container startup and request limiting; it is not a public
+deployment or a rerun of the full browser/LLM acceptance.
+
+### Repository checks
 
 `.github/workflows/`:
 

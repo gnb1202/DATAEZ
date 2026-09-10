@@ -8,6 +8,7 @@
 |---|---|
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
+| 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
 | 원본과 누적 장부·저장 설정·샘플 | [최신 사용 흐름](FILE_SCOPE_AND_FIRST_USE.md) |
 | 코드 구조와 계산·검색·저장 경계 | [아키텍처](ARCHITECTURE.md) |
 | 개발 환경·테스트 실행 | [기여·개발 안내](../CONTRIBUTING.md) |

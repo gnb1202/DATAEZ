@@ -74,7 +74,7 @@ def main():
     os.environ.update(DATABASE_URL=make_conninfo(admin, dbname=name), JWT_SECRET_KEY=secrets.token_hex(32),
         APP_ENV='development', RAG_ENABLED='true', INDEX_WORKER_ENABLED='true', STORAGE_BACKEND='local',
         LOCAL_STORAGE_PATH=str(out/'uploads'), METRIC_SCHEDULER_ENABLED='false', IMPORT_CLEANUP_ENABLED='false',
-        REDIS_URL='redis://127.0.0.1:1/0', UPLOAD_RATE_LIMIT_PER_MINUTE='200', QUERY_RATE_LIMIT_PER_MINUTE='200')
+        UPLOAD_RATE_LIMIT_PER_MINUTE='200', QUERY_RATE_LIMIT_PER_MINUTE='200')
     sys.path.insert(0, str(ROOT/'api'))
     from app import db
     from app.agent import run_agent

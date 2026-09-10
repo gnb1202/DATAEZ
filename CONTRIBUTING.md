@@ -28,8 +28,9 @@ run against a real database. A placeholder model key suffices for offline tests;
 real chat and search embedding require a usable key.
 
 Before starting `uvicorn`, also set `DATABASE_URL` to an initialized development
-PostgreSQL database (`db/init.sql`, pgvector when RAG is enabled), `REDIS_URL`
-to your development Redis, and a writable `LOCAL_STORAGE_PATH`. Prefer the full
+PostgreSQL database (`db/init.sql`, pgvector when RAG is enabled) and a writable
+`LOCAL_STORAGE_PATH`. Request limits run in process memory with no external
+service; run one API worker/replica. Prefer the full
 Compose setup below for a ready database/network. Python settings do not read
 the root `.env` automatically; `uvicorn --env-file ../.env` can load it, but
 host database URLs and paths still need their own values.

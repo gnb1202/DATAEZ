@@ -281,7 +281,7 @@ def health() -> dict[str, str]:
 
 @app.get("/ready")
 def readiness() -> dict[str, Any]:
-    """Readiness probe — checks DB and Redis connectivity."""
+    """Readiness probe — checks the required PostgreSQL connection."""
     checks: dict[str, str] = {}
     try:
         from .db import _connect
@@ -291,13 +291,6 @@ def readiness() -> dict[str, Any]:
         checks["database"] = "ok"
     except Exception:
         checks["database"] = "error"
-    try:
-        import redis as _redis
-        r = _redis.from_url(settings.redis_url, decode_responses=True)
-        r.ping()
-        checks["redis"] = "ok"
-    except Exception:
-        checks["redis"] = "error"
     all_ok = all(v == "ok" for v in checks.values())
     if not all_ok:
         from fastapi.responses import JSONResponse

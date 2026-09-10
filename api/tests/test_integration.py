@@ -22,7 +22,7 @@ _FAKE_PROJECT_ID = str(uuid4())
 _FAKE_TABLE_ID = str(uuid4())
 _FAKE_CONV_ID = str(uuid4())
 
-# Patch startup tasks that need real DB/Redis before importing app
+# Patch startup tasks that need a real DB before importing app
 _startup_patches = [
     # Patch where lifespan looks up the names, even when another test already
     # imported main. Patching db alone depended on test collection order.
@@ -120,6 +120,20 @@ class TestHealthEndpoints:
         res = auth_client.get("/health")
         assert res.status_code == 200
         assert res.json()["status"] == "ok"
+
+    def test_ready_with_database(self, auth_client):
+        with patch("app.db._connect") as connect:
+            res = auth_client.get("/ready")
+        assert res.status_code == 200
+        assert res.json() == {"status": "ok", "checks": {"database": "ok"}}
+        cursor = connect.return_value.__enter__.return_value.cursor.return_value.__enter__.return_value
+        cursor.execute.assert_called_once_with("SELECT 1")
+
+    def test_ready_without_database(self, auth_client):
+        with patch("app.db._connect", side_effect=ConnectionError("test database unavailable")):
+            res = auth_client.get("/ready")
+        assert res.status_code == 503
+        assert res.json() == {"status": "degraded", "checks": {"database": "error"}}
 
 
 # ---------------------------------------------------------------------------

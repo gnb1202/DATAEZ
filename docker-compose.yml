@@ -33,25 +33,6 @@ services:
           memory: 512M
           cpus: "1.0"
 
-  redis:
-    image: redis:7-alpine
-    container_name: dataez-redis
-    restart: unless-stopped
-    logging: *default-logging
-    # ports not exposed to host — API connects via Docker network (redis:6379)
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-          cpus: "0.5"
-
   api:
     build:
       context: ./api
@@ -61,7 +42,6 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-development}
       DATABASE_URL: postgresql://${POSTGRES_USER:-dataez}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-dataez}
-      REDIS_URL: redis://redis:6379/0
       STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
       LOCAL_STORAGE_PATH: ${LOCAL_STORAGE_PATH:-/data/uploads}
       AWS_REGION: ${AWS_REGION:-}
@@ -96,8 +76,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -126,5 +104,4 @@ services:
 
 volumes:
   pgdata:
-  redisdata:
   uploads:

@@ -38,7 +38,7 @@ def main():
     dsn=make_conninfo(admin,dbname=name)
     env.update(DATABASE_URL=dsn,JWT_SECRET_KEY=secrets.token_hex(32),APP_ENV='development',RAG_ENABLED='true',
         INDEX_WORKER_ENABLED='true',STORAGE_BACKEND='local',LOCAL_STORAGE_PATH=str(out/'uploads'),
-        METRIC_SCHEDULER_ENABLED='false',IMPORT_CLEANUP_ENABLED='false',REDIS_URL='redis://127.0.0.1:1/0',
+        METRIC_SCHEDULER_ENABLED='false',IMPORT_CLEANUP_ENABLED='false',
         UPLOAD_RATE_LIMIT_PER_MINUTE='100',QUERY_RATE_LIMIT_PER_MINUTE='100',
         OPENAI_MODEL='gpt-5.4',OPENAI_ORCHESTRATOR_MODEL='gpt-5.4-nano',
         ALLOWED_ORIGINS=f'http://127.0.0.1:{web_port}',NEXT_PUBLIC_API_URL=f'http://127.0.0.1:{api_port}',
