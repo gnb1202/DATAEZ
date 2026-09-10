@@ -44,10 +44,11 @@ export function GettingStarted({completed,onCreateStore,onOpenTables,onCreated,o
     if(!r.ok)throw new Error(await parseError(r));onCreated();
   });}
   const steps=[{name:"가게 선택",done:!!selectedProjectId},{name:"파일 연결·반영",done:hasData},{name:"첫 지표 저장",done:completed}];
-  return <details open={open} onToggle={e=>setOpen(e.currentTarget.open)} aria-label="첫 대시보드 안내" className="rounded-xl border bg-card p-5">
+  return <div className="space-y-4">
+    <SampleWorkspaceActions compact={completed} onSampleReady={onSampleReady} onOpenLibrary={onOpenLibrary}/>
+    <details open={open} onToggle={e=>setOpen(e.currentTarget.open)} aria-label="첫 대시보드 안내" className="rounded-xl border bg-card p-5">
     <summary className="cursor-pointer font-semibold">{completed?"시작 안내 · 저장 지표가 준비되었습니다":"첫 대시보드를 만들어보세요"}</summary>
     <ol className="my-4 grid gap-2 sm:grid-cols-3" aria-label="시작 단계">{steps.map((s,i)=><li key={s.name} className="rounded-md border p-3 text-sm"><span className="mr-2 font-mono text-muted-foreground">{s.done?"✓":i+1}</span>{s.name}<span className="ml-2 text-xs text-muted-foreground">{s.done?"완료":"대기"}</span></li>)}</ol>
-    <SampleWorkspaceActions onSampleReady={onSampleReady} onOpenLibrary={onOpenLibrary}/>
 
     {!selectedProjectId?<div className="space-y-3"><p className="text-sm">가게마다 장부와 대시보드를 따로 관리합니다. 첫 가게를 만들어 시작하세요.</p><Button onClick={onCreateStore}>첫 가게 만들기</Button></div>:<>
       {sources===null&&!error?<p role="status" className="text-sm">이 가게의 준비 상태를 확인하고 있습니다.</p>:<>
@@ -74,5 +75,5 @@ export function GettingStarted({completed,onCreateStore,onOpenTables,onCreated,o
       <p className="text-xs text-muted-foreground">새 거래는 파일 반영 또는 직접 입력 후 다음 계산에 포함됩니다. 저장 후 위젯을 이동·크기 조절할 수 있습니다.</p>
       <Button disabled={busy||!title.trim()} onClick={save}>첫 지표 저장</Button>
     </div>}
-  </details>;
+  </details></div>;
 }

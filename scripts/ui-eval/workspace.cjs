@@ -34,6 +34,7 @@ async function main() {
       else if (p === "/api/auth/refresh") body = { access_token: "workspace-fixture", refresh_token: "workspace-fixture" };
       else if (p === "/api/auth/me") body = { email: "owner@example.test" };
       else if (p === "/api/projects") body = { projects: stores };
+      else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p.endsWith("/cash-entries")) body = { entries: [], total: 0 };
       else if (p.endsWith("/search-index")) body = { jobs: [], counts: {}, total: 0, search_enabled: false, worker_enabled: false, max_attempts: 3 };
       else if (p.endsWith("/tables")) body = { tables: [] };

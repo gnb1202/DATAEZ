@@ -21,6 +21,10 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
   const [messageLoading, setMessageLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recoveryAvailable, setRecoveryAvailable] = useState(false);
+  const [recoveryNotice, setRecoveryNotice] = useState("");
+  const pendingDraft = useRef<Composer | null>(null);
+  const streamStarted = useRef(false);
   const epoch = useRef(0);
   const historyRequest = useRef(0);
   const sendLock = useRef(false);
@@ -59,6 +63,10 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
     setResultId("");
     setComposer({ text, file: null });
     setError(null);
+    setRecoveryAvailable(false);
+    setRecoveryNotice("");
+    pendingDraft.current = null;
+    streamStarted.current = false;
   }, [abortStream]);
 
   const openConversation = async (id: string) => {
@@ -89,6 +97,10 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
     sendLock.current = true;
     setSending(true);
     setError(null);
+    setRecoveryAvailable(false);
+    setRecoveryNotice("");
+    pendingDraft.current = { text, file: file || null, libraryFiles: composer.libraryFiles };
+    streamStarted.current = false;
     const request = epoch.current;
     const active = () => alive.current && request === epoch.current;
     let libraryFiles = composer.libraryFiles || [];
@@ -111,20 +123,25 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
       }
       if (!active()) return;
       setMessages((prev) => [...prev, { message_id: crypto.randomUUID(), role: "user", content: text, steps: libraryFiles.length ? [referenceStep(libraryFiles)] : undefined }]);
+      pendingDraft.current = { text, file: file || null, libraryFiles };
+      streamStarted.current = true;
       setComposer({ text: "", file: null, libraryFiles });
       const result = await stream.sendMessage(id, text, file, libraryFiles);
       if (!active()) return;
       if (result) {
         setMessages((prev) => [...prev, result]);
         setResultId(result.message_id);
+      } else {
+        setComposer({ text, file: file || null, libraryFiles });
+        setRecoveryAvailable(true);
       }
-      // A failed stream may already have performed a write. Keep the question
-      // in history rather than implicitly retrying a financial mutation.
+      // Restore the draft, never resend it: the server may already have written
+      // transactions or widgets. Let the user read persisted messages first.
       void refreshHistory();
     } catch (err) {
       if (active()) setError(err instanceof Error ? err.message : "분석을 시작하지 못했습니다.");
     } finally {
-      if (active()) { sendLock.current = false; setSending(false); }
+      if (active()) { sendLock.current = false; setSending(false); pendingDraft.current = null; streamStarted.current = false; }
     }
   };
 
@@ -134,10 +151,36 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
     abortStream();
     setSending(false);
     setError("응답 수신을 중지했습니다. 처리된 내용은 분석 이력에서 확인할 수 있습니다.");
+    if (pendingDraft.current) setComposer(pendingDraft.current);
+    setRecoveryAvailable(streamStarted.current);
+    pendingDraft.current = null;
+    streamStarted.current = false;
     void refreshHistory();
+  };
+
+  const reviewCurrentConversation = async () => {
+    if (!conversationId || sendLock.current || messageLoading) return;
+    const request = epoch.current;
+    setMessageLoading(true); setRecoveryNotice("");
+    try {
+      const response = await apiFetch(`/api/conversations/${encodeURIComponent(conversationId)}/messages`);
+      if (!response.ok) throw new Error(await parseError(response));
+      const data = await response.json();
+      if (!alive.current || request !== epoch.current) return;
+      const list: Message[] = data.messages || [];
+      setMessages(list);
+      setResultId(list.filter(item => item.role === "assistant").at(-1)?.message_id || "");
+      abortStream(); setError(null);
+      setRecoveryNotice(list.at(-1)?.role === "assistant"
+        ? "저장된 답변을 불러왔습니다. 이번 질문의 처리 내용인지 확인하세요. 질문 초안과 첨부는 유지했습니다."
+        : "아직 완료된 답변을 확인하지 못했습니다. 잠시 후 기록을 다시 확인하세요. 질문 초안과 첨부는 유지했습니다.");
+    } catch (err) {
+      if (alive.current && request === epoch.current) setError(err instanceof Error ? err.message : "처리 기록을 불러오지 못했습니다.");
+    } finally { if (alive.current && request === epoch.current) setMessageLoading(false); }
   };
 
   return { conversations, conversationId, messages, result: messages.find((item) => item.message_id === resultId), setResultId,
     composer, setComposer, historyLoading, messageLoading, loading: sending || stream.loading,
-    error: error || stream.error, stream, reset, openConversation, send, stop, refreshHistory };
+    error: error || stream.error, stream, reset, openConversation, send, stop, refreshHistory,
+    recoveryAvailable, recoveryNotice, reviewCurrentConversation };
 }

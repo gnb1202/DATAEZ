@@ -9,7 +9,7 @@ import type { LibraryFile } from "@/app/lib/file-library";
 
 export type SampleReady = (project: Project, file: LibraryFile, view?: "analysis" | "dashboard") => void;
 
-export function SampleWorkspaceActions({onSampleReady, onOpenLibrary}: {onSampleReady: SampleReady; onOpenLibrary: () => void}) {
+export function SampleWorkspaceActions({onSampleReady, onOpenLibrary, compact = false}: {onSampleReady: SampleReady; onOpenLibrary: () => void; compact?: boolean}) {
   const {apiFetch, selectedProjectId} = useDashboard();
   const [current, setCurrent] = useState<Project | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -55,9 +55,9 @@ export function SampleWorkspaceActions({onSampleReady, onOpenLibrary}: {onSample
     }
   }
 
-  return <div className="mb-5 space-y-3 rounded-lg bg-secondary p-4">
-    <p className="text-sm font-medium">파일이 없어도 먼저 경험해보세요</p>
-    <p className="text-xs leading-5 text-muted-foreground">가상 카드·현금·취소 거래 8행, 합계 690,200원입니다. 샘플을 준비하면 원본 파일과 질문 초안을 확인한 뒤 직접 전송할 수 있습니다.</p>
+  return <div className="space-y-3 rounded-lg bg-secondary p-4">
+    <p className="text-sm font-medium">{compact ? "다음 분석을 시작하세요" : "파일이 없어도 먼저 경험해보세요"}</p>
+    {!compact && <p className="text-xs leading-5 text-muted-foreground">가상 카드·현금·취소 거래 8행, 합계 690,200원입니다. 샘플을 준비하면 원본 파일과 질문 초안을 확인한 뒤 직접 전송할 수 있습니다.</p>}
     <div className="flex flex-wrap gap-2">
       <Button disabled={busy} onClick={() => void perform("analysis")}>샘플 데이터로 시작</Button>
       <Button variant="outline" disabled={busy} onClick={() => void perform("dashboard")}>예시 대시보드 보기</Button>

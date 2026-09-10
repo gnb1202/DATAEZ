@@ -302,9 +302,10 @@ function StoreDashboardSection({
     <div className="space-y-6">
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {metricCards}
+      {guide}
       <details className="rounded-lg border border-border bg-card px-4 py-3">
-        <summary className="cursor-pointer text-sm font-medium">지표 만들기·시작 안내</summary>
-        <div className="mt-4 space-y-4">{guide}<MetricCreateForm onCreated={fetchWidgets} /><StoreMetricForm onCreated={fetchWidgets} /></div>
+        <summary className="cursor-pointer text-sm font-medium">직접 지표 만들기</summary>
+        <div className="mt-4 space-y-4"><MetricCreateForm onCreated={fetchWidgets} /><StoreMetricForm onCreated={fetchWidgets} /></div>
       </details>
 
       <div className="flex items-center justify-between">

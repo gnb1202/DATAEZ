@@ -49,6 +49,8 @@ def main():
     model = json.loads(run.docker(*run.compose_args(), 'config','--format','json',env=run.compose_env(config),quiet=True))['services']['api']['environment']
     sources = ['api/app/sample_workspace.py','api/app/library_routes.py','api/app/library_schema.py',
         'web/components/dashboard/sample-workspace-actions.tsx','web/components/dashboard/sections/dashboard-section.tsx',
+        'web/components/dashboard/getting-started.tsx','web/components/dashboard/file-library.tsx',
+        'web/components/dashboard/chat-dock.tsx','web/app/components/chat-panel.tsx','web/app/hooks/use-workspace-analysis.ts',
         'web/app/dashboard/page.tsx','web/Dockerfile','docker-compose.yml','scripts/demo/run.py','scripts/demo/verify.cjs']
     evidence = {'passed':all(r['passed'] for r in reports), 'status':'passed', 'run_id':out.name,
         'checked_at':datetime.now(timezone.utc).isoformat(), 'live_llm_questions':1,

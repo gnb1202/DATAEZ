@@ -1,0 +1,64 @@
+{
+  "passed": false,
+  "api_mocks": true,
+  "live_llm": false,
+  "checks": [
+    {
+      "name": "Saved dashboard exposes sample/file start without expanding nested guides",
+      "passed": false
+    },
+    {
+      "name": "Question suggestion fills an editable draft without sending a request",
+      "passed": false
+    },
+    {
+      "name": "Failed response keeps the complete question and original device attachment",
+      "passed": false
+    },
+    {
+      "name": "New file selection defaults to original rows and explains additional transactions",
+      "passed": true
+    },
+    {
+      "name": "Cumulative scope explains that refresh includes additional transactions",
+      "passed": true
+    },
+    {
+      "name": "Adding a library file does not submit a question",
+      "passed": true
+    },
+    {
+      "name": "Failed response retains question and selected original-file scope",
+      "passed": false
+    },
+    {
+      "name": "390px chat has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "390px question and send action are visible",
+      "passed": true
+    },
+    {
+      "name": "390px Escape restores keyboard focus to chat toggle",
+      "passed": true
+    },
+    {
+      "name": "320px chat has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "320px question and send action are visible",
+      "passed": true
+    },
+    {
+      "name": "320px Escape restores keyboard focus to chat toggle",
+      "passed": true
+    },
+    {
+      "name": "Browser reports no runtime or unhandled fixture errors",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

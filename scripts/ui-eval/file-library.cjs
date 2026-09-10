@@ -30,6 +30,7 @@ async function main() {
       else if (p === "/api/auth/refresh") body = { access_token: "library-fixture", refresh_token: "library-fixture" };
       else if (p === "/api/auth/me") body = { email: "owner@example.test" };
       else if (p === "/api/projects") body = { projects: stores };
+      else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p === "/api/library/files" && method === "GET") {
         const project = url.searchParams.get("project_id"), search = url.searchParams.get("search") || "", kind = url.searchParams.get("kind");
         const visible = files.filter((f) => (!project || f.project_id === project) && f.filename.includes(search) && (!kind || f.kind === kind));
@@ -77,17 +78,17 @@ async function main() {
     await dialog().getByRole("article", { name: files[0].filename }).waitFor();
     assert.equal(await dialog().getByRole("article", { name: files[1].filename }).count(), 0);
     await dialog().getByRole("checkbox", { name: `${files[0].filename} 분석에 선택` }).check();
-    assert.equal(await dialog().getByRole("button", { name: "선택한 파일로 분석", exact: true }).isEnabled(), false);
+    assert.equal(await dialog().getByRole("button", { name: "선택한 파일을 채팅에 추가", exact: true }).isEnabled(), false);
     await dialog().getByRole("button", { name: "내 계정 전체", exact: true }).click();
     await dialog().getByRole("checkbox", { name: `${files[1].filename} 분석에 선택` }).check();
     await dialog().getByText("연남점 · 다른 가게 포함", { exact: true }).waitFor();
     await dialog().getByRole("checkbox", { name: /파일별 분석 범위와 가게/ }).check();
     assert.equal(await dialog().getByRole("combobox",{name:`${files[0].filename} 분석 범위`,exact:true}).inputValue(),"original_file");
     await dialog().getByRole("combobox",{name:`${files[0].filename} 분석 범위`,exact:true}).selectOption("linked_ledger");
-    assert.equal(await dialog().getByRole("button",{name:"선택한 파일로 분석",exact:true}).isEnabled(),false);
+    assert.equal(await dialog().getByRole("button",{name:"선택한 파일을 채팅에 추가",exact:true}).isEnabled(),false);
     await dialog().getByRole("checkbox",{name:/파일별 분석 범위와 가게/}).check();
     await page.screenshot({ path: path.join(artifacts, "library-picker-dark.png"), animations: "disabled" });
-    await dialog().getByRole("button", { name: "선택한 파일로 분석", exact: true }).click();
+    await dialog().getByRole("button", { name: "선택한 파일을 채팅에 추가", exact: true }).click();
     assert.equal(uploaded, 0); assert.equal(prepared, 0);
     pass("original-file default, explicit ledger switch resets confirmation; cross-store selection performs no uploads");
 
@@ -159,7 +160,7 @@ async function main() {
     await dialog().getByRole("checkbox", { name: `${files[1].filename} 분석에 선택` }).check();
     await dialog().getByRole("checkbox", { name: /파일별 분석 범위와 가게/ }).check();
     await page.screenshot({ path: path.join(artifacts, "library-picker-mobile.png"), animations: "disabled" });
-    await dialog().getByRole("button", { name: "선택한 파일로 분석", exact: true }).click();
+    await dialog().getByRole("button", { name: "선택한 파일을 채팅에 추가", exact: true }).click();
     assert.equal(await page.locator('[aria-label="선택한 보관 파일"] button').count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     pass("mobile chat sheet opens library dialog and returns with selected file without horizontal overflow");

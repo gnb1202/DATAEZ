@@ -9,11 +9,9 @@ import { referenceScope, referenceKey } from "../lib/file-library";
 import MessageBubble from "./message-bubble";
 
 const QUICK_PROMPTS = [
-  "어떤 장부들이 있어?",
-  "전체 데이터 보여줘",
-  "월별 매출 추이 보여줘",
-  "카테고리별 매출 비율 차트",
-  "매출 장부 만들어줘",
+  "이 가게에서 분석할 수 있는 자료를 찾아줘",
+  "선택한 파일의 기간과 컬럼을 알려줘",
+  "결제수단별 금액을 비교해줘. 아직 저장하지 마.",
 ];
 
 const TOOL_LABELS: Record<string, string> = {
@@ -83,12 +81,14 @@ type ChatPanelProps = {
   streamingAnswer?: string;
   streamError?: string | null;
   onStop?: () => void;
+  onReviewConversation?: () => void;
+  recoveryNotice?: string;
   onPinChart?: (chart: import("../lib/api").ChartData) => void;
 };
 
 const ALLOWED_FILE_TYPES = ".csv,.xlsx,.xls";
 
-export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onPinChart }: ChatPanelProps) {
+export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onReviewConversation, recoveryNotice, onPinChart }: ChatPanelProps) {
   const [localInput, setLocalInput] = useState("");
   const input = composer?.text ?? localInput;
   const setInput = (text: string) => {
@@ -110,6 +110,10 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) { textarea.style.height = "auto"; textarea.style.height = Math.min(textarea.scrollHeight, 128) + "px"; }
+  }, [input]);
 
   useEffect(() => {
     const region = scrollRef.current;
@@ -127,7 +131,8 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
 
   const handleQuickPrompt = async (prompt: string) => {
     if (loading || disabled) return;
-    await onSend(prompt);
+    setInput(prompt);
+    textareaRef.current?.focus();
   };
 
   const handleFileSelect = () => {
@@ -153,10 +158,10 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
               <Sparkles className="h-8 w-8 text-accent" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              데이터에 대해 무엇이든 물어보세요
+              가게의 어떤 숫자가 궁금하세요?
             </h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
-              AI가 데이터를 단계별로 분석하여 인사이트와 시각화를 자동으로 생성합니다.
+              파일을 선택하고 원하는 기간과 계산 기준을 질문하세요. 아래 예시를 누르면 질문을 편집할 수 있습니다.
             </p>
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">
               {QUICK_PROMPTS.map((prompt) => (
@@ -218,6 +223,7 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
                   <button
                     type="button"
                     onClick={onStop}
+                    aria-label="응답 중지"
                     className="ml-auto text-xs text-muted-foreground hover:text-destructive transition-colors"
                   >
                     중지
@@ -265,6 +271,11 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
 
       {/* Input area */}
       <div className="shrink-0 border-t border-border bg-[var(--chat)] px-3 py-3">
+        {onReviewConversation && <div className="mb-3 space-y-2 rounded-lg border border-border bg-card p-3 text-xs leading-5">
+          <p className="text-muted-foreground">요청이 이미 처리됐을 수 있습니다. 기록을 확인한 뒤 아래 질문을 수정해 보내세요.</p>
+          {recoveryNotice && <p role="status">{recoveryNotice}</p>}
+          <Button type="button" size="sm" variant="outline" disabled={loading || disabled} onClick={onReviewConversation}>이 대화의 처리 결과 확인</Button>
+        </div>}
         {onOpenLibrary && <div className="mb-2 flex items-center justify-between gap-2"><button type="button" disabled={disabled || loading || !!attachedFile} onClick={() => onOpenLibrary()} className="rounded px-1 py-1 text-xs text-accent hover:underline disabled:opacity-40">보관함에서 선택</button><span className="text-[10px] text-muted-foreground">{attachedFile ? "기기에서 첨부됨" : "계정에 저장된 파일 사용"}</span></div>}
         {!!composer?.libraryFiles?.length && <div className="mb-3 space-y-2" aria-label="선택한 보관 파일"><div className="flex max-h-28 flex-wrap gap-1 overflow-auto">{composer.libraryFiles.map((ref) => <span key={referenceKey(ref)} className="inline-flex max-w-full items-center gap-1 rounded-md border border-border bg-secondary px-2 py-1 text-xs"><span className="truncate" title={`${ref.project_name} · ${ref.table_name || "문서"}`}>{ref.filename} · {ref.project_name} · {referenceScope(ref)}</span><button type="button" aria-label={`${ref.filename} 선택 해제`} disabled={loading} onClick={() => onComposerChange?.({ ...composer, libraryFiles: composer.libraryFiles?.filter((item) => referenceKey(item) !== referenceKey(ref)) })}><X size={13} /></button></span>)}</div><p className="text-[10px] leading-4 text-muted-foreground">표시된 파일별 범위로 분석합니다. 선택은 다음 질문에도 유지됩니다.</p></div>}
         {/* Attached file indicator */}
@@ -276,6 +287,7 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
               <button
                 type="button"
                 aria-label="첨부 파일 제거"
+                disabled={disabled || loading}
                 onClick={() => setAttachedFile(null)}
                 className="ml-0.5 text-muted-foreground hover:text-destructive transition-colors"
               >

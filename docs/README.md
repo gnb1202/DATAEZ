@@ -10,6 +10,7 @@
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
 | 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
+| 첫 분석·실패 복구·직접 체험 과제 | [Phase 2 사용성 개선·검증](DEMO_USABILITY.md) |
 | 원본과 누적 장부·저장 설정·샘플 | [최신 사용 흐름](FILE_SCOPE_AND_FIRST_USE.md) |
 | 코드 구조와 계산·검색·저장 경계 | [아키텍처](ARCHITECTURE.md) |
 | 개발 환경·테스트 실행 | [기여·개발 안내](../CONTRIBUTING.md) |
@@ -31,6 +32,7 @@
 | 범위 | 설명·실행 방법 |
 |---|---|
 | 지속형 데모·종료 후 재접속 | [Phase 1: 질문 1개·브라우저 점검 6개](DEMO_ACCEPTANCE.md) |
+| 첫 사용·분석 실패 복구 | [Phase 2: 합성 API UI 56개·사용자 관찰 상태](DEMO_USABILITY.md) |
 | 파일·누적 장부 전체 흐름 | [6개 질문·29개 점검](WORKSPACE_LIVE_ACCEPTANCE.md), [결과 JSON](../outputs/frontend-design/workspace-live/report.json), [화면 모음](../outputs/frontend-design/integration-validation.html) |
 | 최신 파일·저장·샘플 회귀 | [API·브라우저 검증 범위](FILE_SCOPE_AND_FIRST_USE.md#검증) |
 | 자연어 50문항 N | [전체 47/50 및 후속 10/10](NATURAL_LANGUAGE_ACCEPTANCE.md), [평가 실행 도구](../scripts/nl-eval/README.md) |

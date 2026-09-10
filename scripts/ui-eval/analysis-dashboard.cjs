@@ -30,6 +30,7 @@ async function main() {
       else if (p === "/api/auth/refresh") body = { access_token: "fixture", refresh_token: "fixture" };
       else if (p === "/api/auth/me") body = { email: "owner@example.test" };
       else if (p === "/api/projects") body = { projects: [{ id: "store-a", name: "성수점" }, { id: "store-b", name: "연남점" }] };
+      else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p.endsWith("/tables")) body = { tables: [] };
       else if (p.endsWith("/ledger-sources")) body = { sources: [] };
       else if (p === "/api/conversations") body = { conversations: [{ conversation_id: "history", title: "9월 결제액 분석" }] };
