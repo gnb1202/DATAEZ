@@ -1,0 +1,25 @@
+# Only the Next.js frontend is needed for this deployment.
+.git/**
+.github/**
+.claude/**
+.omc/**
+.local-test/**
+.pytest_cache/**
+.env*
+**/.env*
+**/node_modules/**
+**/.next/**
+**/__pycache__/**
+**/*.log
+api/**
+data/**
+db/**
+deploy/**
+docs/**
+outputs/**
+portfolio/**
+samples/**
+scripts/**
+CORE_FEATURES.md
+PROMPT_ENGINEERING_ANALYSIS.md
+eval-report.*

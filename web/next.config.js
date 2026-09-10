@@ -1,7 +1,7 @@
 // Validate required env vars at build time (production only)
-if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_API_URL) {
+if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_API_URL?.trim()) {
   console.warn(
-    "[DATAEZ] WARNING: NEXT_PUBLIC_API_URL is not set. Falling back to http://localhost:8000"
+    "[DATAEZ] NEXT_PUBLIC_API_URL is not set. Publishing the frontend with authentication disabled."
   );
 }
 
@@ -17,4 +17,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-

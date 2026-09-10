@@ -1,4 +1,11 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, "") ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:8000");
+export const API_CONFIGURED = Boolean(API_URL);
+export const API_UNAVAILABLE_MESSAGE = "체험 서비스를 준비하고 있어요. 준비가 끝나면 다시 이용해주세요.";
+
+export function requireApiConfiguration(): void {
+  if (!API_CONFIGURED) throw new Error(API_UNAVAILABLE_MESSAGE);
+}
 
 export async function parseError(res: Response): Promise<string> {
   try {
@@ -103,6 +110,7 @@ export function createApiFetcher(getToken: () => string) {
     authRequired = true,
     accessTokenOverride = ""
   ): Promise<Response> => {
+    requireApiConfiguration();
     const headers = new Headers(init.headers || {});
     const accessToken = accessTokenOverride || getToken();
     if (authRequired && accessToken) {

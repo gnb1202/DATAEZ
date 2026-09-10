@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataEzLogo } from "@/components/brand/dataez-logo";
+import { API_CONFIGURED } from "./lib/api";
 
 const steps = [
   {
@@ -146,7 +147,15 @@ export default function LoginPage() {
               : "가게와 매출 파일을 등록하고 첫 지표를 만들어보세요."}
           </p>
 
+          {!API_CONFIGURED && (
+            <div role="status" className="mb-6 rounded-xl border border-border bg-card px-4 py-4 text-sm leading-6">
+              <p className="font-semibold text-foreground">체험 서비스를 준비하고 있어요</p>
+              <p className="mt-1 text-muted-foreground">준비가 끝나면 매출 파일을 올리고, AI와 대화하며 대시보드를 만들 수 있습니다.</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            <fieldset disabled={!API_CONFIGURED} className="space-y-4">
             {/* Mode toggle */}
             <div className="flex rounded-lg bg-secondary p-1">
               <button
@@ -220,7 +229,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || !API_CONFIGURED}
               className="w-full bg-accent text-accent-foreground hover:bg-accent/90 transition-colors"
               size="lg"
             >
@@ -233,6 +242,7 @@ export default function LoginPage() {
                 </>
               )}
             </Button>
+            </fieldset>
           </form>
         </div>
       </div>

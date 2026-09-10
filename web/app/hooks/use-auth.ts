@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { API_URL, parseError } from "../lib/api";
+import { API_URL, API_CONFIGURED, parseError, requireApiConfiguration } from "../lib/api";
 
 type AuthState = {
   token: string;
@@ -48,7 +48,7 @@ export function useAuth() {
 
   const requestNewAccessToken = useCallback(
     async (rt: string): Promise<{ accessToken: string; refreshToken: string } | null> => {
-      if (!rt) return null;
+      if (!API_CONFIGURED || !rt) return null;
       const MAX_RETRIES = 3;
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
@@ -80,6 +80,7 @@ export function useAuth() {
       authRequired = true,
       accessTokenOverride = ""
     ): Promise<Response> => {
+      requireApiConfiguration();
       const headers = new Headers(init.headers || {});
       const accessToken = accessTokenOverride || auth.token;
       if (authRequired && accessToken) {
@@ -108,6 +109,7 @@ export function useAuth() {
 
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
+      requireApiConfiguration();
       setLoading(true);
       try {
         const res = await fetch(`${API_URL}/api/auth/login`, {
@@ -127,6 +129,7 @@ export function useAuth() {
 
   const signup = useCallback(
     async (email: string, password: string, name: string): Promise<void> => {
+      requireApiConfiguration();
       setLoading(true);
       try {
         const res = await fetch(`${API_URL}/api/auth/signup`, {
@@ -146,7 +149,7 @@ export function useAuth() {
 
   const logout = useCallback(async () => {
     try {
-      if (auth.refreshToken) {
+      if (API_CONFIGURED && auth.refreshToken) {
         await fetch(`${API_URL}/api/auth/logout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -161,6 +164,10 @@ export function useAuth() {
 
   // On mount: restore session from refresh token only
   useEffect(() => {
+    if (!API_CONFIGURED) {
+      setInitializing(false);
+      return;
+    }
     const storedRefresh = window.localStorage.getItem("dataez_refresh_token") || "";
     // Clean up legacy access token key if present
     window.localStorage.removeItem("dataez_token");

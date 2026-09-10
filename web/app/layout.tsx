@@ -6,7 +6,9 @@ import { JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  (vercelHost ? `https://${vercelHost}` : "http://localhost:3000");
 
 const spoqaHanSansNeo = localFont({
   src: [
