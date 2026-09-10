@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DATA:EZ — Mini Brand Guide</title>
+  <style>
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-400.woff2") format("woff2"); font-weight: 400; }
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-500.woff2") format("woff2"); font-weight: 500; }
+    @font-face { font-family: Spoqa; src: url("../../../web/app/fonts/spoqa-700.woff2") format("woff2"); font-weight: 700; }
+    * { box-sizing: border-box; }
+    html, body { width: 1600px; height: 1200px; margin: 0; overflow: hidden; }
+    body { padding: 36px; background: #e9edf3; font-family: Spoqa, sans-serif; color: #20262f; }
+    .board { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 430px 310px 320px; gap: 18px; width: 100%; height: 100%; }
+    .panel { position: relative; overflow: hidden; border: 1px solid #d7dde6; border-radius: 22px; background: #fff; padding: 34px; }
+    .dark { grid-column: span 7; background: #121417; border-color: #2f343b; color: #f2f4f7; display: flex; align-items: center; justify-content: center; }
+    .light { grid-column: span 5; display: flex; align-items: center; justify-content: center; }
+    .construction { grid-column: span 5; }
+    .scale { grid-column: span 4; }
+    .voice { grid-column: span 3; background: #245bb5; border-color: #245bb5; color: white; display: flex; flex-direction: column; justify-content: space-between; }
+    .palette { grid-column: span 7; }
+    .type { grid-column: span 5; }
+    .label { position: absolute; top: 24px; left: 28px; font-size: 13px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #7f8997; }
+    .dark .label { color: #7f8997; }
+    .dark .logo { width: 590px; }
+    .light .logo { width: 410px; }
+    .grid { position: absolute; inset: 58px 24px 24px; background-image: linear-gradient(#e6eaf0 1px, transparent 1px), linear-gradient(90deg, #e6eaf0 1px, transparent 1px); background-size: 24px 24px; border-radius: 14px; }
+    .construction .mark { position: absolute; width: 176px; left: 50%; top: 58%; transform: translate(-50%, -50%); }
+    .x { position: absolute; left: 50%; top: 84%; transform: translateX(-50%); font-size: 14px; color: #5b6574; }
+    .sizes { height: 100%; display: flex; align-items: center; justify-content: center; gap: 32px; padding-top: 30px; }
+    .size { text-align: center; color: #5b6574; font-size: 13px; }
+    .size img { display: block; margin: 0 auto 14px; }
+    .voice h2 { margin: 58px 0 0; font-size: 38px; line-height: 1.22; letter-spacing: -.04em; }
+    .voice p { margin: 0; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.78); }
+    .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 48px; }
+    .swatch { height: 178px; border-radius: 15px; padding: 128px 16px 14px; font-size: 13px; font-weight: 700; line-height: 1.45; }
+    .swatch small { display: block; opacity: .72; font-weight: 500; }
+    .c1 { color: #f2f4f7; background: #121417; }.c2 { color: #f2f4f7; background: #191b1f; }.c3 { color: #121417; background: #82b4ff; }.c4 { color: #fff; background: #245bb5; }
+    .type .sample { margin-top: 46px; }
+    .type .latin { margin: 0; font-size: 62px; font-weight: 700; letter-spacing: -.05em; }
+    .type .korean { margin: 18px 0 0; font-size: 27px; font-weight: 500; letter-spacing: -.025em; }
+    .type .digits { margin: 22px 0 0; color: #245bb5; font-size: 35px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .type .meta { margin-top: 20px; font-size: 14px; color: #7f8997; }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <section class="panel dark"><div class="label">01 / Primary · Dark</div><img class="logo" src="lockup-dark.svg" alt="DATA:EZ dark logo" /></section>
+    <section class="panel light"><div class="label">02 / Primary · Light</div><img class="logo" src="lockup-light.svg" alt="DATA:EZ light logo" /></section>
+    <section class="panel construction"><div class="label">03 / Construction</div><div class="grid"></div><img class="mark" src="symbol-blue.svg" alt="Gathered Ledger symbol" /><div class="x">보호 여백 = 기본 획 두께 x</div></section>
+    <section class="panel scale"><div class="label">04 / Icon Scale</div><div class="sizes"><div class="size"><img src="symbol-blue.svg" width="16" height="16" />16</div><div class="size"><img src="symbol-blue.svg" width="24" height="24" />24</div><div class="size"><img src="symbol-blue.svg" width="32" height="32" />32</div><div class="size"><img src="icon-light.svg" width="72" height="72" />APP</div></div></section>
+    <section class="panel voice"><div><div class="label" style="color:rgba(255,255,255,.62)">05 / Brand Voice</div><h2>흩어진 매출을,<br />한눈에.</h2></div><p>명료함 · 신뢰 · 정돈 · 친근함</p></section>
+    <section class="panel palette"><div class="label">06 / Core Palette</div><div class="swatches"><div class="swatch c1">DEEP CHARCOAL<small>#121417</small></div><div class="swatch c2">CHARCOAL<small>#191B1F</small></div><div class="swatch c3">BRIGHT BLUE<small>#82B4FF</small></div><div class="swatch c4">TRUST BLUE<small>#245BB5</small></div></div></section>
+    <section class="panel type"><div class="label">07 / Typography</div><div class="sample"><p class="latin">DATA:EZ</p><p class="korean">우리 가게의 숫자를 더 쉽게</p><p class="digits">690,200원</p><p class="meta">Spoqa Han Sans Neo · 400 / 500 / 700</p></div></section>
+  </main>
+</body>
+</html>

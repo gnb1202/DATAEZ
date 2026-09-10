@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">DATA:EZ Gathered Ledger symbol</title>
+  <desc id="desc">Three ledger rows gathered into a rounded dashboard frame.</desc>
+  <path d="M10 11H37C47.5 11 53 16.5 53 27V37C53 47.5 47.5 53 37 53H10" fill="none" stroke="#245BB5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 32H36" fill="none" stroke="#245BB5" stroke-width="10" stroke-linecap="round"/>
+</svg>
