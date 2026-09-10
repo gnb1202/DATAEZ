@@ -1,10 +1,13 @@
 # Deployment
 
-Updated 2026-09-10. This is a local/deployment runbook; the current work has not
+Updated 2026-09-11. This is a local/deployment runbook; the current work has not
 published a live service. [Integration and validation record](RELEASE_INTEGRATION.md)
 
 The first public deployment candidate now integrates the verified brand and Phase 3
-work. See [AWS single-server proposal, HTTPS Compose configuration and status](PUBLIC_DEPLOYMENT.md).
+work. The selected direction is Vercel for the web, AWS for the API, and Supabase
+Free for PostgreSQL and original files. See [deployment decisions and verification status](PUBLIC_DEPLOYMENT.md).
+The existing public Compose configuration still implements the earlier single-server
+candidate; it has not yet been adapted or verified for the selected split deployment.
 This candidate has not yet created a paid cloud server or published a public URL.
 
 For a persistent portfolio demo, use [the demo runbook](DEMO_RUNBOOK.md):

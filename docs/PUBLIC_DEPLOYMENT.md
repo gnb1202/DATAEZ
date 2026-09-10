@@ -2,9 +2,29 @@
 
 2026-09-11 · 배포 후보 브랜치 `codex/public-demo-deployment`.
 
-**현재 상태: 로컬 배포 준비·검증 완료, 공개 서버 생성 비용·주소 확인 대기. 공개 클라우드 서버는 아직 생성하지 않았다.** Phase 3의 `9663f5f`와 브랜드의 `dbf6f0e`를 별도 배포 브랜치에 통합했다. 기존 작업 폴더의 미커밋 브랜드 변경은 건드리지 않는다. 사람의 사용성 관찰보다 공개 데모 준비를 먼저 진행한다.
+**현재 상태: Supabase Free를 DB·원본 파일 저장소로 사용하기로 결정했다. Vercel 웹 + AWS API + Supabase 구성의 연결·배포 검증은 아직 수행하지 않았다.** Phase 3의 `9663f5f`와 브랜드의 `dbf6f0e`를 별도 배포 브랜치에 통합했다. 기존 작업 폴더의 미커밋 브랜드 변경은 건드리지 않는다. 사람의 사용성 관찰보다 공개 데모 준비를 먼저 진행한다. 공개 클라우드 서버는 아직 생성하지 않았다.
 
-## 권장 구성과 비용
+## 2026-09-11 배포 방향 결정
+
+- 웹은 Vercel, FastAPI와 색인·지표 갱신 작업은 AWS에서 실행하는 방향이다. AWS 인스턴스 크기와 비용은 DB 분리 후 필요한 메모리를 확인해 확정한다.
+- PostgreSQL과 pgvector, 원본 CSV·Excel은 우선 Supabase Free를 사용한다. 기존 자체 JWT 인증을 유지할 수 있으며, Supabase Auth 전환은 이번 결정에 포함하지 않는다.
+- Free 한도는 DB 500MB, 원본 Storage 1GB, 단일 파일 50MB다. DB 테이블·벡터·인덱스는 DB 용량을, 원본 파일은 Storage 용량을 사용한다. 파일을 S3로 옮겨도 DB 500MB 한도는 별도로 남는다.
+- 무료 프로젝트는 7일간 DB 활동이 적으면 일시 중지될 수 있고 자동 백업이 포함되지 않는다. 이를 수용하고 실험·데모부터 시작한다. 2026-09-11의 로컬 데모 DB 측정값은 10,697,751바이트이며, Supabase 이전 후 사용량이나 원격 부하 검증 결과가 아니다.
+- 현재 `deploy/compose.public.yaml`은 여전히 웹·DB·파일을 한 VM에 두는 아래의 이전 구성이다. Supabase 배포용으로 그대로 실행하지 않는다. API 전용 배포 설정, Supabase 연결·스키마·접근 권한, 비공개 버킷, Vercel 환경변수와 CORS를 준비한 뒤 실제 파일 왕복·계정 격리·분석·저장·갱신을 검증해야 한다.
+
+근거: [Supabase 요금과 Free 한도](https://supabase.com/pricing), [프로젝트 일시 중지](https://supabase.com/docs/guides/platform/free-project-pausing), [DB 용량 산정](https://supabase.com/docs/guides/platform/database-size).
+
+### 향후 원본 저장소를 AWS S3로 전환
+
+`api/app/storage.py`는 boto3 S3 클라이언트와 사용자 지정 endpoint를 지원하고 DB에는 원본의 `storage_key`를 저장한다. Supabase Storage도 S3 프로토콜을 지원하므로 같은 저장소 인터페이스를 재사용할 수 있다. 기존 S3 호환 어댑터 테스트는 모의 클라이언트 검사이며 실제 Supabase 또는 AWS S3 이전 완료를 뜻하지 않는다.
+
+현재 설정은 배포 전체에서 저장소 하나를 선택한다. 전환 시 원본과 필요한 임시 업로드 객체를 같은 키로 대상 버킷에 복사하고 파일 수·크기·바이트 해시를 검증한다. 복사 중 추가 업로드나 작업이 생기지 않도록 쓰기를 잠시 멈추거나 최종 증분 복사를 수행해야 한다. 이후 버킷·리전·서버 자격 증명을 변경하고, AWS S3를 사용할 때 Supabase용 endpoint와 자격 증명이 남지 않게 한다. 다운로드·재분석·계정 격리를 확인한 뒤 기존 저장소 정리를 별도로 진행한다. 환경변수 변경만으로 파일이 자동 이전되지는 않는다.
+
+동일한 객체 키와 파일 ID를 보존하면 기존 파일 참조를 유지할 수 있다. DB와 대시보드는 Supabase에 남겨 둘 수 있다. 두 저장소에 파일을 나누어 보관하며 동시에 읽는 기능은 현재 구현되지 않았으며, 필요해질 때 파일별 저장소 정보를 추가한다.
+
+근거: [Supabase S3 호환 범위](https://supabase.com/docs/guides/storage/s3/compatibility).
+
+## 이전 단일 서버 후보와 비용
 
 현재 웹·API·PostgreSQL 구조를 유지하는 **AWS Lightsail 단일 서버**를 첫 후보로 삼는다. 서울 `ap-northeast-2`, Ubuntu 24.04 LTS(`ubuntu_24_04`), IPv4 포함 2GB/2 vCPU/60GB(`small_3_0`)의 표시 요금은 **월 최대 $12**다. 실제 AWS 읽기 전용 API로 해당 리전의 활성 번들과 블루프린트를 확인했다. 현재 연결 계정에서 서울 Lightsail 인스턴스와 Route 53 hosted zone은 조회되지 않았다. 다른 리전·외부 DNS까지 비어 있다는 의미는 아니다.
 
@@ -14,7 +34,7 @@ Google Cloud에서도 VM 한 대로 같은 구성을 운영할 수 있다. Cloud
 
 근거: [AWS 번들 요금](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-bundles.html), [Lightsail 요금·추가 항목](https://aws.amazon.com/lightsail/pricing/), [Cloud Run 확장과 백그라운드 작업](https://docs.cloud.google.com/run/docs/about-instance-autoscaling).
 
-## 배포 파일
+## 이전 단일 서버 배포 파일
 
 - [공개용 Compose 추가 설정](../deploy/compose.public.yaml): 기존 `docker-compose.yml`에 덧붙여 API·웹의 직접 공개 포트를 제거하고 HTTPS 프록시를 추가한다.
 - [Caddy 설정](../deploy/Caddyfile): `/api/*`, `/health`, `/ready`를 API에 전달하고 나머지는 웹에 전달한다. SSE 응답을 버퍼링하지 않으며 `/metrics`는 공개하지 않는다.
@@ -26,7 +46,7 @@ Google Cloud에서도 VM 한 대로 같은 구성을 운영할 수 있다. Cloud
 
 이미지 빌드 중 기존 의존성 경고를 확인해 Next.js와 `eslint-config-next`를 **16.3.4**로 올리고, 호환 범위의 간접 의존성을 잠금 파일에 갱신했다. 기존 16.1.6은 [Next.js의 AVIF 처리 보안 공지](https://github.com/vercel/next.js/security/advisories/GHSA-2xp9-vwfh-vxw4)의 영향 범위였다. 수정 후 `npm audit --omit=dev`와 전체 `npm audit` 모두 알려진 취약점 **0건**이다. 이는 해당 시점의 npm 의존성 검사이며 OS·Python을 포함한 전체 시스템 보안 보증은 아니다.
 
-## 서버 생성 후 실행
+## 이전 단일 서버 구성의 실행 절차
 
 아래 절차는 서버 생성 비용과 사용할 주소를 확정한 뒤 실행한다. 새 서버와 전용 데이터 볼륨을 사용하며 로컬 데모 계정·파일을 복사하지 않는다.
 
