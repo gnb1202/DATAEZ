@@ -39,6 +39,35 @@ def resolve(body: ResolveRequest,user=Depends(get_current_user)):
     return {'files':library.resolve_references(user['id'],str(body.project_id),body.selections,confirmed=body.confirmed)}
 
 
+@router.get('/sample-workspace')
+def sample_status(user=Depends(get_current_user)):
+    from .sample_workspace import current_sample
+    return current_sample(user['id'])
+
+
+class RestartSampleRequest(BaseModel):
+    expected_project_id: UUID
+    request_id: UUID
+
+
+class SampleDashboardRequest(BaseModel):
+    project_id: UUID
+
+
+@router.post('/sample-workspace/restart')
+def restart_sample_workspace(body: RestartSampleRequest, user=Depends(get_current_user)):
+    from .sample_workspace import restart_sample
+    rate_limiter.check(f"sample:{user['id']}",10,60)
+    return restart_sample(user['id'],str(body.expected_project_id),str(body.request_id))
+
+
+@router.post('/sample-workspace/dashboard')
+def sample_dashboard(body: SampleDashboardRequest, user=Depends(get_current_user)):
+    from .sample_workspace import prepare_dashboard
+    rate_limiter.check(f"sample:{user['id']}",10,60)
+    return prepare_dashboard(user['id'],str(body.project_id))
+
+
 @router.get('/{file_id}')
 def detail(file_id: UUID,user=Depends(get_current_user)):
     return library.public(library.get_record(user['id'],str(file_id)))

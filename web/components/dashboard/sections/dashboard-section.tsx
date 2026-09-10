@@ -14,12 +14,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { EChartsChart } from "@/components/dashboard/echarts-chart";
 import { MetricEditDialog } from "@/components/dashboard/metric-edit-dialog";
-import { MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
+import { exactMetricValue, MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
 import { MetricCreateForm } from "@/components/dashboard/metric-create-form";
 import { GettingStarted } from "@/components/dashboard/getting-started";
 import { StoreMetricForm } from "@/components/dashboard/store-metric-form";
-import type { Project } from "@/app/lib/api";
-import type { LibraryFile } from "@/app/lib/file-library";
+import type { SampleReady } from "../sample-workspace-actions";
 import { parseError } from "@/app/lib/api";
 import { useDashboard } from "@/app/contexts/dashboard-context";
 import "react-grid-layout/css/styles.css";
@@ -63,7 +62,7 @@ interface DashboardSectionProps {
   onNavigateToTables: () => void;
   onCreateStore: () => void;
   onStartMetricChat: (prompt: string) => void;
-  onSampleReady: (project: Project, file: LibraryFile) => void;
+  onSampleReady: SampleReady;
   onOpenLibrary: () => void;
 }
 
@@ -414,7 +413,9 @@ function StoreDashboardSection({
 }
 
 function KpiWidget({ data }: { data: Record<string, unknown> }) {
-  const formatted = String(data.formatted ?? data.value ?? "\u2014");
+  const formatted = data.metric_definition
+    ? exactMetricValue(data.value, String(data.unit || data.currency || ""))
+    : String(data.formatted ?? data.value ?? "\u2014");
   const label = String(data.label ?? "");
 
   return (

@@ -3,6 +3,14 @@
 Updated 2026-09-10. This is a local/deployment runbook; the current work has not
 published a live service. [Integration and validation record](RELEASE_INTEGRATION.md)
 
+For a persistent portfolio demo, use [the demo runbook](DEMO_RUNBOOK.md):
+`python scripts/demo/run.py start`, `status`, `stop`, and `restart --no-build`.
+It uses a separate Compose project with retained database/upload volumes,
+generated local DB/JWT secrets, loopback-only ports and workspace ownership labels.
+Ordinary Compose service names remain `db`, `api`, `web`; fixed container names
+have been removed to let these environments coexist. Use `docker compose exec api`
+instead of assuming a global container name.
+
 ## Local
 
 ```bash
@@ -51,6 +59,7 @@ Back up an existing database before upgrading and verify `/ready` after startup.
 | `011_widget_save_keys.sql` | Stable widget save keys and payload hashes |
 | `012_original_file_analysis.sql` | Original-file analysis binding and write guard function |
 | `013_sample_workspace.sql` | Per-account sample store mapping |
+| `014_sample_restarts.sql` | Owner-scoped retry keys for non-destructive sample restarts |
 
 `main.py` calls the idempotent `ensure_*` functions before serving requests.
 `ensure_library()` includes the original-file schema and sample mapping. The

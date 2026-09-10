@@ -6,12 +6,11 @@ import { useDashboard } from "@/app/contexts/dashboard-context";
 import { parseError } from "@/app/lib/api";
 import { exactMetricValue, MetricAnalysisDialog } from "./metric-analysis-dialog";
 import { EChartsChart } from "./echarts-chart";
-import type { Project } from "@/app/lib/api";
-import type { LibraryFile } from "@/app/lib/file-library";
+import { SampleWorkspaceActions, type SampleReady } from "./sample-workspace-actions";
 import type { Source } from "./ledger-import-panel";
 
 const field="block w-full rounded-md border border-input bg-background p-2 text-sm";
-type Props={completed:boolean;onCreateStore:()=>void;onOpenTables:()=>void;onCreated:()=>void;onStartChat:(prompt:string)=>void;onSampleReady:(project:Project,file:LibraryFile)=>void;onOpenLibrary:()=>void};
+type Props={completed:boolean;onCreateStore:()=>void;onOpenTables:()=>void;onCreated:()=>void;onStartChat:(prompt:string)=>void;onSampleReady:SampleReady;onOpenLibrary:()=>void};
 
 export function GettingStarted({completed,onCreateStore,onOpenTables,onCreated,onStartChat,onSampleReady,onOpenLibrary}:Props){
   const {selectedProjectId,apiFetch}=useDashboard();
@@ -44,16 +43,12 @@ export function GettingStarted({completed,onCreateStore,onOpenTables,onCreated,o
     const r=await apiFetch(`/api/projects/${selectedProjectId}/metrics`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,definition,refresh_interval_seconds:interval})});
     if(!r.ok)throw new Error(await parseError(r));onCreated();
   });}
-  async function sample(){await run(async()=>{
-    const response=await apiFetch("/api/library/files/sample-workspace",{method:"POST"});
-    if(!response.ok)throw new Error(await parseError(response));
-    const data=await response.json();onSampleReady(data.project,data.file);
-  });}
   const steps=[{name:"가게 선택",done:!!selectedProjectId},{name:"파일 연결·반영",done:hasData},{name:"첫 지표 저장",done:completed}];
   return <details open={open} onToggle={e=>setOpen(e.currentTarget.open)} aria-label="첫 대시보드 안내" className="rounded-xl border bg-card p-5">
     <summary className="cursor-pointer font-semibold">{completed?"시작 안내 · 저장 지표가 준비되었습니다":"첫 대시보드를 만들어보세요"}</summary>
     <ol className="my-4 grid gap-2 sm:grid-cols-3" aria-label="시작 단계">{steps.map((s,i)=><li key={s.name} className="rounded-md border p-3 text-sm"><span className="mr-2 font-mono text-muted-foreground">{s.done?"✓":i+1}</span>{s.name}<span className="ml-2 text-xs text-muted-foreground">{s.done?"완료":"대기"}</span></li>)}</ol>
-    <div className="mb-5 space-y-3 rounded-lg bg-secondary p-4"><p className="text-sm font-medium">파일이 없어도 먼저 경험해보세요</p><p className="text-xs leading-5 text-muted-foreground">별도의 샘플 가게에서 카드·현금·취소 거래 8행으로 시작합니다. 파일 원본 선택 → 자연어 질문 → 그래프 확인 → 저장 설정 순서로 진행합니다.</p><div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={()=>void sample()}>{busy?"준비 중…":"샘플 데이터로 시작"}</Button>{!!selectedProjectId&&<Button variant="outline" disabled={busy} onClick={onOpenLibrary}>내 파일로 시작</Button>}</div><p className="text-[11px] text-muted-foreground">가상 데이터입니다. 다시 시작해도 같은 샘플 가게와 파일을 사용합니다.</p></div>
+    <SampleWorkspaceActions onSampleReady={onSampleReady} onOpenLibrary={onOpenLibrary}/>
+
     {!selectedProjectId?<div className="space-y-3"><p className="text-sm">가게마다 장부와 대시보드를 따로 관리합니다. 첫 가게를 만들어 시작하세요.</p><Button onClick={onCreateStore}>첫 가게 만들기</Button></div>:<>
       {sources===null&&!error?<p role="status" className="text-sm">이 가게의 준비 상태를 확인하고 있습니다.</p>:<>
         {!completed&&<p className="mb-3 text-sm text-muted-foreground">파일을 연결하고 검토한 거래로 첫 지표를 만듭니다. 컬럼 이름을 외우거나 SQL을 작성할 필요가 없습니다.</p>}

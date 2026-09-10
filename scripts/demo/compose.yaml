@@ -1,0 +1,18 @@
+# Additive override; scripts/demo/run.py sets an isolated Compose project.
+services:
+  db:
+    labels:
+      dataez.demo.workspace: ${DATAEZ_DEMO_WORKSPACE:?Use scripts/demo/run.py}
+  api:
+    labels:
+      dataez.demo.workspace: ${DATAEZ_DEMO_WORKSPACE:?Use scripts/demo/run.py}
+  web:
+    labels:
+      dataez.demo.workspace: ${DATAEZ_DEMO_WORKSPACE:?Use scripts/demo/run.py}
+volumes:
+  pgdata:
+    labels:
+      dataez.demo.workspace: ${DATAEZ_DEMO_WORKSPACE:?Use scripts/demo/run.py}
+  uploads:
+    labels:
+      dataez.demo.workspace: ${DATAEZ_DEMO_WORKSPACE:?Use scripts/demo/run.py}

@@ -2,6 +2,11 @@
 
 ## Development Setup
 
+For a persistent portfolio demo with isolated Docker volumes and repeatable
+sample data, see [the demo runbook](docs/DEMO_RUNBOOK.md). Runner safeguards use
+`python scripts/demo/test_run.py`; sample transaction tests are in
+`api/tests/test_sample_demo.py` and require `DATAEZ_TEST_DATABASE_URL`.
+
 ### Prerequisites
 
 - Python 3.12+

@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "currency": "KRW",
+  "period": ["2026-09-01", "2026-09-04"],
+  "original_rows": 8,
+  "original_total": "690200",
+  "daily": {"2026-09-01": "164500", "2026-09-02": "190000", "2026-09-03": "139800", "2026-09-04": "195900"},
+  "method": {"card": "582700", "cash": "107500"},
+  "after_one_additional_transaction": {
+    "original_rows": 8, "original_total": "690200",
+    "ledger_rows": 9, "ledger_total": "720200",
+    "card_total": "612700", "cash_total": "107500"
+  }
+}

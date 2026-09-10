@@ -10,6 +10,12 @@ read that file: export its variables or use `uvicorn --env-file ../.env` from
 `api/`. Override `DATABASE_URL` and `LOCAL_STORAGE_PATH` for a host
 process; Compose network names and container paths are not host defaults.
 
+The [persistent demo runner](DEMO_RUNBOOK.md) generates and retains separate
+DB/JWT secrets in ignored `.local-test/demo/settings.json`. It overrides storage
+to a local volume, binds `WEB_PORT`/`API_PORT` to loopback with `WEB_BIND`/`API_BIND`,
+and sets matching build-time API and CORS URLs. Model configuration still comes
+from the root `.env` or process environment.
+
 Validation runs at startup and **fails fast** — a misconfigured deployment does
 not boot into a half-working state.
 
