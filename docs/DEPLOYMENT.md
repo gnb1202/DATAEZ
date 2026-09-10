@@ -1,14 +1,16 @@
 # Deployment
 
-Updated 2026-09-11. This is a local/deployment runbook; the current work has not
-published a live service. [Integration and validation record](RELEASE_INTEGRATION.md)
+Updated 2026-09-11. The [frontend is live on Vercel](https://dataez.vercel.app),
+with authentication disabled until the public API is configured.
+AWS API and Supabase integration are still pending. See the
+[Vercel deployment record](VERCEL_DEPLOYMENT.md) and [integration record](RELEASE_INTEGRATION.md).
 
 The first public deployment candidate now integrates the verified brand and Phase 3
 work. The selected direction is Vercel for the web, AWS for the API, and Supabase
 Free for PostgreSQL and original files. See [deployment decisions and verification status](PUBLIC_DEPLOYMENT.md).
 The existing public Compose configuration still implements the earlier single-server
 candidate; it has not yet been adapted or verified for the selected split deployment.
-This candidate has not yet created a paid cloud server or published a public URL.
+No paid AWS server has been created. The Vercel frontend is on the existing Hobby plan.
 
 For a persistent portfolio demo, use [the demo runbook](DEMO_RUNBOOK.md):
 `python scripts/demo/run.py start`, `status`, `stop`, and `restart --no-build`.

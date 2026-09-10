@@ -116,7 +116,7 @@ Python·Node 의존성 설치와 실제 DB·브라우저 실행 조건은 [개�
 
 지속형 데모, 내부 사용성 개선, 새 파일·질문 평가를 완료했습니다. **Phase 2의 실제 사용자 관찰은 대기** 상태이며, 관찰에서 드러난 막힘과 범위 이해 문제를 다음 개선 대상으로 삼습니다. 작업 범위·산출물·완료 조건은 [다음 Phase 계획](docs/NEXT_PHASE_DEMO_AND_QUALITY.md)을 참고하세요.
 
-사용자 관찰에 앞서 [Vercel·AWS·Supabase 공개 데모](docs/PUBLIC_DEPLOYMENT.md)를 준비 중입니다. DB와 원본 파일은 우선 Supabase Free를 사용하기로 결정했습니다. 브랜드·Phase 3 통합과 기존 단일 서버 HTTPS 검증은 완료했지만, 분리 배포 설정·실제 Supabase 연결·공개 주소 검증은 아직 진행 전입니다.
+프론트엔드를 [dataez.vercel.app](https://dataez.vercel.app)에 공개했습니다. 현재는 서비스 준비 안내와 비활성 인증 화면을 표시합니다. [Vercel 공개 검증](docs/VERCEL_DEPLOYMENT.md)은 완료했으며, AWS API와 Supabase Free DB·원본 저장소의 실제 연결 및 전체 흐름 검증은 다음 배포 작업입니다. [전체 배포 상태](docs/PUBLIC_DEPLOYMENT.md)를 참고하세요.
 
 실제 PG 파일·외부 결제 연동은 서비스 일정이 정해질 때까지 보류합니다. 원격 저장소 연결, 실제 사용자 사용성, 더 넓은 비정형 입력과 운영 부하는 후속 검증입니다. 현재 결과는 합성 자료를 사용한 개발 검증이며 금융 거래 실행이나 세무 신고를 제공하지 않습니다.
 

@@ -1,0 +1,21 @@
+{
+  "base": "https://dataez.vercel.app",
+  "checkedAt": "2026-09-10T19:47:28.558Z",
+  "passed": 12,
+  "checks": [
+    "public page returns 200",
+    "unconfigured service status is visible",
+    "authentication controls are disabled",
+    "brand title is present",
+    "sharing image uses the public origin",
+    "brand assets return 200",
+    "dark desktop has no horizontal overflow",
+    "light desktop has no horizontal overflow",
+    "mobile has no horizontal overflow",
+    "dashboard returns to the unauthenticated entry",
+    "no API requests including stale-session refresh",
+    "no browser runtime errors"
+  ],
+  "apiRequests": [],
+  "pageErrors": []
+}

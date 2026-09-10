@@ -154,12 +154,22 @@ PostgreSQL; there is no rate-limit service connection to probe.
 | Variable | Default | Notes |
 |---|---|---|
 | `ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | **Build-time** |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | **Build-time**; canonical origin for social preview URLs |
+| `NEXT_PUBLIC_API_URL` | Development: `http://localhost:8000`; production: unset | **Build-time**; an unset production URL disables authentication and API requests |
+| `NEXT_PUBLIC_SITE_URL` | Vercel production/deployment hostname, otherwise `http://localhost:3000` | **Build-time**; explicit value overrides the origin for social preview URLs |
 
 Both `NEXT_PUBLIC_*` values are resolved while Next.js builds the application.
 Setting them only at runtime has no effect — compose passes them as build args.
 Deploying to another host requires rebuilding the web image.
+
+Docker Compose passes its local API default explicitly. Vercel can publish the
+frontend before the API is available: leave `NEXT_PUBLIC_API_URL` unset to show
+the service preparation notice and disable authentication. Once the HTTPS API
+is ready, configure this variable and redeploy. API/model/database secrets do
+not belong in frontend environment variables.
+
+When `NEXT_PUBLIC_SITE_URL` is omitted on Vercel, server-side metadata uses
+`VERCEL_PROJECT_PRODUCTION_URL`, falling back to `VERCEL_URL`. Set an explicit
+site URL when a custom canonical domain is selected.
 
 ## Retention
 
