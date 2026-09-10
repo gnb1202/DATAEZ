@@ -43,6 +43,7 @@ fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 �
 
 ## 디자인 결정과 기록
 
+- [BI·이미지 생성 세션 전달서](brand/BRAND_HANDOFF.md), [새 세션 시작 프롬프트](brand/SESSION_START_PROMPT.md): 제품·확정 디자인·미정 브랜드 항목·참고 화면과 작업 범위.
 - [글꼴](TYPOGRAPHY.md): Spoqa Han Sans Neo 확정, 후보·출처·숫자 정렬.
 - [컬러 팔레트](COLOR_PALETTE.md), [레퍼런스 비교](PALETTE_REFERENCES.md): Charcoal + Blue, 다크 기본·라이트 지원.
 - [프론트엔드 재설계](FRONTEND_REDESIGN.md): 메뉴·접이식 채팅·파일 보관함의 합의와 단계별 진행.
