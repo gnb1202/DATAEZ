@@ -59,3 +59,4 @@ eval-report.json
 
 scripts/onboarding-eval/artifacts/
 scripts/nl-eval/artifacts/
+samples/unseen-v1/**/*.inspect.ndjson
