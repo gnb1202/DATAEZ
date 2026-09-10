@@ -155,10 +155,11 @@ PostgreSQL; there is no rate-limit service connection to probe.
 |---|---|---|
 | `ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | **Build-time** |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | **Build-time**; canonical origin for social preview URLs |
 
-`NEXT_PUBLIC_API_URL` is inlined into the client bundle by Next.js at build
-time. Setting it only at runtime has no effect — compose passes it as a build
-arg. Deploying to another host requires rebuilding the web image.
+Both `NEXT_PUBLIC_*` values are resolved while Next.js builds the application.
+Setting them only at runtime has no effect — compose passes them as build args.
+Deploying to another host requires rebuilding the web image.
 
 ## Retention
 

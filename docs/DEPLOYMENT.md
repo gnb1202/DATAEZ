@@ -90,6 +90,8 @@ cd api && python ../scripts/reindex_fts.py
 - [ ] `ALLOWED_ORIGINS` restricted to real frontend origins
 - [ ] `NEXT_PUBLIC_API_URL` set **as a build arg** and the web image rebuilt —
       it is inlined into the client bundle and cannot be changed at runtime
+- [ ] `NEXT_PUBLIC_SITE_URL` set to the public HTTPS origin as a build arg —
+      Open Graph and X/Twitter image URLs are resolved from this value
 
 **Recommended**
 
@@ -99,6 +101,22 @@ cd api && python ../scripts/reindex_fts.py
       writes to a container-local volume
 - [ ] Scheduled `db/backup.sh`, and a restore actually tested with `db/restore.sh`
 - [ ] Pricing rows in `api/app/llm_cost.py` matching the deployed models
+
+### Pending public site origin (2026-09-11)
+
+No public service domain is recorded in the repository or the local configuration
+reviewed during Gathered Ledger integration. `http://localhost:3000` is a local
+development default only; assigning the real `NEXT_PUBLIC_SITE_URL` remains an
+open deployment task. Use the frontend HTTPS origin, without a path, query, or
+fragment. For a direct Next.js build, supply it in the build environment or
+`web/.env.local`; the root `.env` is used by Compose.
+
+After the domain is assigned, set `NEXT_PUBLIC_SITE_URL` in the Compose `.env`,
+rebuild with `docker compose build web`, and use that image for deployment.
+Verify that the rendered `og:image` and `twitter:image` URLs resolve to
+`/og-dataez.png` on the real HTTPS origin and return the 1200×630 PNG publicly.
+Changing only the running container's environment does not update the built
+metadata. No push or deployment was performed during this integration.
 
 ## Scaling notes
 
