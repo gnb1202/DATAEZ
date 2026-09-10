@@ -3,6 +3,10 @@
 Updated 2026-09-10. This is a local/deployment runbook; the current work has not
 published a live service. [Integration and validation record](RELEASE_INTEGRATION.md)
 
+The first public deployment candidate now integrates the verified brand and Phase 3
+work. See [AWS single-server proposal, HTTPS Compose configuration and status](PUBLIC_DEPLOYMENT.md).
+This candidate has not yet created a paid cloud server or published a public URL.
+
 For a persistent portfolio demo, use [the demo runbook](DEMO_RUNBOOK.md):
 `python scripts/demo/run.py start`, `status`, `stop`, and `restart --no-build`.
 It uses a separate Compose project with retained database/upload volumes,

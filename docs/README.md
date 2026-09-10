@@ -10,6 +10,7 @@
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
 | 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
+| 첫 공개 배포·HTTPS·비용과 상태 | [AWS 단일 서버 배포 후보](PUBLIC_DEPLOYMENT.md) |
 | 첫 분석·실패 복구·직접 체험 과제 | [Phase 2 사용성 개선·검증](DEMO_USABILITY.md) |
 | 새 파일·질문의 정확성과 한계 | [Phase 3 본 평가·별도 평가](UNSEEN_DATA_ACCEPTANCE.md) |
 | 원본과 누적 장부·저장 설정·샘플 | [최신 사용 흐름](FILE_SCOPE_AND_FIRST_USE.md) |
