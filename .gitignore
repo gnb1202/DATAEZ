@@ -62,3 +62,7 @@ eval-report.json
 scripts/onboarding-eval/artifacts/
 scripts/nl-eval/artifacts/
 samples/unseen-v1/**/*.inspect.ndjson
+
+# Regenerable login image preview captures (keep original artwork).
+output/imagegen/*.png
+!output/imagegen/login-owner-*.png

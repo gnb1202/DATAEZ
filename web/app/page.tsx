@@ -4,30 +4,11 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "./hooks/use-auth";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataEzLogo } from "@/components/brand/dataez-logo";
 import { API_CONFIGURED } from "./lib/api";
-
-const steps = [
-  {
-    number: "01",
-    title: "매출 파일을 모으고",
-    desc: "CSV·XLSX 원본을 가게별로 보관해요.",
-  },
-  {
-    number: "02",
-    title: "필요한 숫자를 물어보고",
-    desc: "일상적인 말로 기간과 계산 기준을 정해요.",
-  },
-  {
-    number: "03",
-    title: "내 대시보드에 저장해요",
-    desc: "계산 근거를 확인한 차트와 지표를 다시 사용해요.",
-  },
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -76,9 +57,9 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-dvh">
       {/* Left branding panel */}
-      <div className="brand-login-panel relative hidden overflow-hidden border-r lg:flex lg:w-[54%] lg:flex-col lg:justify-between lg:gap-10 lg:p-14 xl:p-18">
-        <div className="brand-login-panel__image pointer-events-none absolute inset-0" />
-        <div className="brand-login-panel__scrim pointer-events-none absolute inset-0" />
+      <div className="brand-login-panel relative hidden overflow-hidden border-r lg:flex lg:min-h-[760px] lg:w-[54%] lg:flex-col lg:justify-between lg:gap-10 lg:p-12 xl:p-14">
+        <div aria-hidden="true" className="brand-login-panel__image pointer-events-none absolute inset-0" />
+        <div aria-hidden="true" className="brand-login-panel__scrim pointer-events-none absolute inset-0" />
 
         <div className="relative z-10">
           <div
@@ -89,35 +70,15 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="relative z-10 max-w-xl">
-          <p className="brand-login-panel__eyebrow mb-5 text-sm font-bold tracking-[0.18em]">GATHERED LEDGER</p>
+        <div className="relative z-10 mt-auto max-w-xl pt-72">
           <h1 className="text-balance text-5xl font-bold leading-[1.12] tracking-[-0.045em] xl:text-6xl">
-            흩어진 매출을,<br />한눈에.
+            우리 가게 매출,<br />한눈에.
           </h1>
           <p className="brand-login-panel__body mt-6 max-w-lg text-lg leading-8">
-            여러 파일과 가게의 숫자를 모아 묻고, 확인하고,<br className="hidden xl:block" /> 내 방식대로 저장하세요.
+            매출 파일을 모으고, 궁금한 것을 물어보세요.<br />
+            내 가게에 필요한 통계가 대시보드로 완성됩니다.
           </p>
 
-          <div className="mt-12 space-y-5">
-            {steps.map((item, i) => (
-              <div
-                key={item.title}
-                className="group flex items-start gap-4 animate-in fade-in slide-in-from-left-4 duration-700"
-                style={{
-                  animationDelay: `${200 + i * 150}ms`,
-                  animationFillMode: "both",
-                }}
-              >
-                <span className="brand-login-panel__step-number mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold transition-colors duration-300">
-                  {item.number}
-                </span>
-                <div className="pt-0.5">
-                  <p className="brand-login-panel__step-title font-bold">{item.title}</p>
-                  <p className="brand-login-panel__step-desc mt-1 text-sm">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         <p className="brand-login-panel__footer relative z-10 text-xs tracking-[0.12em]">
@@ -126,7 +87,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex min-w-0 flex-1 items-center justify-center bg-background p-8">
+      <div className="flex min-w-0 flex-1 items-center justify-center bg-card px-7 py-12 sm:px-12 lg:px-16">
         <div
           className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700"
           style={{ animationFillMode: "both" }}
@@ -136,15 +97,15 @@ export default function LoginPage() {
             <DataEzLogo className="w-40" />
           </div>
 
-          <h1 className="mb-2 break-keep text-3xl font-bold tracking-[-0.035em] text-foreground">
+          <h1 className="mb-2.5 break-keep text-[28px] font-bold leading-snug tracking-[-0.035em] text-foreground">
             {mode === "login"
-              ? "우리 가게의 숫자를 확인해보세요"
-              : "내 대시보드를 시작하세요"}
+              ? "내 가게의 숫자를 만나보세요"
+              : "우리 가게 매출, 여기서 시작해요"}
           </h1>
-          <p className="mb-8 break-keep text-muted-foreground">
+          <p className="mb-10 break-keep text-sm leading-7 text-muted-foreground">
             {mode === "login"
-              ? "로그인하면 저장한 파일과 지표를 이어서 볼 수 있어요."
-              : "가게와 매출 파일을 등록하고 첫 지표를 만들어보세요."}
+              ? <>로그인하고 우리 가게의 매출을 살펴보세요.<br />저장한 파일과 대시보드를 이어서 볼 수 있어요.</>
+              : <>계정을 만들고 매출 파일을 모아보세요.<br />궁금한 숫자를 물어보며 첫 대시보드를 만들어보세요.</>}
           </p>
 
           {!API_CONFIGURED && (
@@ -154,75 +115,51 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <fieldset disabled={!API_CONFIGURED} className="space-y-4">
-            {/* Mode toggle */}
-            <div className="flex rounded-lg bg-secondary p-1">
-              <button
-                type="button"
-                onClick={() => { setMode("login"); setError(""); }}
-                className={cn(
-                  "flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                  mode === "login"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                로그인
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMode("signup"); setError(""); }}
-                className={cn(
-                  "flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                  mode === "signup"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                회원가입
-              </button>
-            </div>
+          <form onSubmit={handleSubmit}>
+            <fieldset disabled={!API_CONFIGURED || loading} className="space-y-5">
 
             {mode === "signup" && (
-              <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                <Label htmlFor="auth-name">이름</Label>
+              <div className="space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label htmlFor="auth-name" className="text-[13px] font-normal">이름</Label>
                 <Input
                   id="auth-name"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="이름 (선택사항)"
-                  className="transition-all duration-200 focus:border-accent"
+                  className="h-[50px] rounded-[7px] border-border bg-transparent px-3.5 text-sm shadow-none dark:bg-transparent"
                 />
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <Label htmlFor="auth-email">이메일</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="auth-email" className="text-[13px] font-normal">이메일</Label>
               <Input
                 id="auth-email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
-                className="transition-all duration-200 focus:border-accent"
+                placeholder="you@example.com"
+                className="h-[50px] rounded-[7px] border-border bg-transparent px-3.5 text-sm shadow-none dark:bg-transparent"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="auth-password">비밀번호</Label>
+            <div className="space-y-2.5">
+              <Label htmlFor="auth-password" className="text-[13px] font-normal">비밀번호</Label>
               <Input
                 id="auth-password"
                 type="password"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
-                className="transition-all duration-200 focus:border-accent"
+                className="h-[50px] rounded-[7px] border-border bg-transparent px-3.5 text-sm shadow-none dark:bg-transparent"
               />
             </div>
 
             {error && (
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive animate-in fade-in duration-200">
+              <div role="alert" className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive animate-in fade-in duration-200">
                 {error}
               </div>
             )}
@@ -230,11 +167,11 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !API_CONFIGURED}
-              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 transition-colors"
+              className="mt-1 h-[52px] w-full rounded-[7px] bg-accent font-bold text-accent-foreground hover:bg-accent/90 transition-colors"
               size="lg"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <><Loader2 className="h-4 w-4 animate-spin" /><span>처리 중...</span></>
               ) : (
                 <>
                   {mode === "login" ? "로그인" : "회원가입"}
@@ -244,6 +181,17 @@ export default function LoginPage() {
             </Button>
             </fieldset>
           </form>
+          <p className="mt-6 text-center text-xs leading-6 text-muted-foreground">
+            {mode === "login" ? "아직 계정이 없으신가요?" : "이미 계정이 있으신가요?"}
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
+              className="ml-2 rounded-sm font-medium text-foreground underline-offset-4 hover:underline disabled:opacity-50"
+            >
+              {mode === "login" ? "회원가입" : "로그인"}
+            </button>
+          </p>
         </div>
       </div>
     </div>

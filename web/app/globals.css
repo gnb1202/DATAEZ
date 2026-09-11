@@ -97,19 +97,20 @@
 }
 
 .brand-login-panel__image {
-  background-image: url("/brand/gathered-ledger-hero-bg.png");
+  background-image: url("/brand/login-owner-pos.webp");
   background-repeat: no-repeat;
-  background-position: 66% center;
+  background-position: 61% center;
   background-size: cover;
-  opacity: 0.4;
+  filter: saturate(0.25) brightness(1);
 }
 
 .brand-login-panel__scrim {
   background: linear-gradient(
-    90deg,
-    #121417 0%,
-    rgba(18, 20, 23, 0.92) 52%,
-    rgba(18, 20, 23, 0.45) 100%
+    180deg,
+    rgba(10, 14, 19, 0.26) 0%,
+    transparent 28%,
+    transparent 48%,
+    rgba(10, 14, 19, 0.88) 100%
   );
 }
 
