@@ -12,6 +12,7 @@
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
 | 첫 공개 배포·HTTPS·비용과 상태 | [배포 방향 변경과 검증 상태](PUBLIC_DEPLOYMENT.md) |
 | 공개 프론트엔드·Vercel 설정과 검증 | [Vercel 프론트엔드 배포](VERCEL_DEPLOYMENT.md) |
+| 최신 main 통합·로그인 디자인 배포 | [커밋·Production·검증 기록](LOGIN_RELEASE.md), [이미지·카피 결정](LOGIN_IMAGE_DECISION.md) |
 | 월 고정비 없는 API 구성 검토 | [Vercel API 실제 검증과 필요한 수정](VERCEL_API_FEASIBILITY.md) |
 | 서버리스 실행 프로필·원격 연결 준비 | [API 실행 기반 구현과 검증](SERVERLESS_FOUNDATION.md) |
 | Supabase 프로젝트·DB·파일 저장소 적용 | [실제 연결·Vercel API 검증과 남은 공개 전환](SUPABASE_SETUP.md) |

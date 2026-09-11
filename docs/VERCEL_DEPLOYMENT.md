@@ -2,7 +2,7 @@
 
 2026-09-11 · 공개 주소: **https://dataez.vercel.app**
 
-프론트와 API의 Production 연결 및 실제 공개 데모 검증을 완료했다. 현재 로그인·회원가입·업로드·AI 분석·저장 지표를 사용할 수 있다. [최신 공개 배포 기록](PUBLIC_DEMO_ACCEPTANCE.md)을 우선한다. 아래 초기 배포 기록은 당시 상태를 보존한다.
+프론트와 API의 Production 연결 및 실제 공개 데모 검증을 완료했다. 현재 로그인·회원가입·업로드·AI 분석·저장 지표를 사용할 수 있다. [공개 데모 기록](PUBLIC_DEMO_ACCEPTANCE.md)과 [최신 main 통합·로그인 배포 기록](LOGIN_RELEASE.md)을 우선한다. 아래 초기 배포 기록은 당시 상태를 보존한다.
 
 ## 프로젝트 설정
 

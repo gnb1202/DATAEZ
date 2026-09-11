@@ -1,0 +1,20 @@
+{
+  "site": "https://dataez.vercel.app",
+  "checks": [
+    "public login copy, enabled authentication form, deployed image matches repository",
+    "dark and light login screenshots",
+    "mobile signup and login switching without account mutation",
+    "API readiness and anonymous access guards"
+  ],
+  "page_errors": [],
+  "api": {
+    "/health": 200,
+    "/ready": 200,
+    "/api/projects": 403,
+    "/api/internal/maintenance/status": 401
+  },
+  "image": {
+    "bytes": 80984,
+    "sha256": "1463a600e181f2440f5a02935cedae8a5a97beb83a789119aa56355a1177cec5"
+  }
+}
