@@ -1,5 +1,7 @@
 "use client";
 
+import { uploadSourceForm } from "@/app/lib/direct-upload";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -284,8 +286,7 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
     if (!selectedProjectId) return;
     setUploadLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const formData = await uploadSourceForm(apiFetchWithRefresh, file, selectedProjectId!);
       formData.append("table_name", tableName);
       const res = await apiFetchWithRefresh(
         `/api/projects/${selectedProjectId}/tables/import`,

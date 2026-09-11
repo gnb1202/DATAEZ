@@ -10,8 +10,15 @@
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
 | 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
-| 첫 공개 배포·HTTPS·비용과 상태 | [Vercel·AWS·Supabase 배포 결정](PUBLIC_DEPLOYMENT.md) |
+| 첫 공개 배포·HTTPS·비용과 상태 | [배포 방향 변경과 검증 상태](PUBLIC_DEPLOYMENT.md) |
 | 공개 프론트엔드·Vercel 설정과 검증 | [Vercel 프론트엔드 배포](VERCEL_DEPLOYMENT.md) |
+| 월 고정비 없는 API 구성 검토 | [Vercel API 실제 검증과 필요한 수정](VERCEL_API_FEASIBILITY.md) |
+| 서버리스 실행 프로필·원격 연결 준비 | [API 실행 기반 구현과 검증](SERVERLESS_FOUNDATION.md) |
+| Supabase 프로젝트·DB·파일 저장소 적용 | [실제 연결·Vercel API 검증과 남은 공개 전환](SUPABASE_SETUP.md) |
+| 대용량 파일 보관·원본 다운로드 | [직접 업로드와 검증·만료 처리](DIRECT_UPLOADS.md) |
+| 서버리스 문서 색인·지표 갱신·정리 | [Supabase Cron 연결과 실제 검증](SERVERLESS_MAINTENANCE.md) |
+| 서버리스 업로드·AI 요청/실행 제한 | [배포 전 제한 구현과 검증](SERVERLESS_RELEASE_GUARDS.md) |
+| 공개 서비스·실제 데모 흐름 | [Production 배포와 종합 검증](PUBLIC_DEMO_ACCEPTANCE.md) |
 | 첫 분석·실패 복구·직접 체험 과제 | [Phase 2 사용성 개선·검증](DEMO_USABILITY.md) |
 | 새 파일·질문의 정확성과 한계 | [Phase 3 본 평가·별도 평가](UNSEEN_DATA_ACCEPTANCE.md) |
 | 원본과 누적 장부·저장 설정·샘플 | [최신 사용 흐름](FILE_SCOPE_AND_FIRST_USE.md) |

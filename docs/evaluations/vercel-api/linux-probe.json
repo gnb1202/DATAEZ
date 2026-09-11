@@ -1,0 +1,269 @@
+{
+  "scope": "offline Linux dependency/import/parser probe, NOT Vercel deployment or full API validation",
+  "python": "3.12.14",
+  "architecture": "x86_64",
+  "source_sha256": "3ae3d1eea07dcd6fdf177cf59aee4ef16c966f6528b37b9049abc4c17e483ca9",
+  "requirements_sha256": "d1ed2d2a506e35a86c7a41d4deef0a94646aea0d50e43d5bd94618ec8a9849ad",
+  "requirements": [
+    {
+      "requirement": "fastapi==0.115.8",
+      "installed": "0.115.8",
+      "matches": true
+    },
+    {
+      "requirement": "uvicorn[standard]==0.34.0",
+      "installed": "0.34.0",
+      "matches": true
+    },
+    {
+      "requirement": "psycopg[binary]==3.2.6",
+      "installed": "3.2.6",
+      "matches": true
+    },
+    {
+      "requirement": "psycopg_pool==3.2.6",
+      "installed": "3.2.6",
+      "matches": true
+    },
+    {
+      "requirement": "python-multipart==0.0.20",
+      "installed": "0.0.20",
+      "matches": true
+    },
+    {
+      "requirement": "pydantic==2.11.3",
+      "installed": "2.11.3",
+      "matches": true
+    },
+    {
+      "requirement": "pydantic-settings>=2.10.1",
+      "installed": "2.15.0",
+      "matches": true
+    },
+    {
+      "requirement": "pandas==2.2.3",
+      "installed": "2.2.3",
+      "matches": true
+    },
+    {
+      "requirement": "openpyxl==3.1.5",
+      "installed": "3.1.5",
+      "matches": true
+    },
+    {
+      "requirement": "xlrd==2.0.2",
+      "installed": "2.0.2",
+      "matches": true
+    },
+    {
+      "requirement": "boto3==1.36.24",
+      "installed": "1.36.24",
+      "matches": true
+    },
+    {
+      "requirement": "openai==1.82.0",
+      "installed": "1.82.0",
+      "matches": true
+    },
+    {
+      "requirement": "pypdf==5.1.0",
+      "installed": "5.1.0",
+      "matches": true
+    },
+    {
+      "requirement": "PyJWT==2.10.1",
+      "installed": "2.10.1",
+      "matches": true
+    },
+    {
+      "requirement": "python-json-logger==4.1.0",
+      "installed": "4.1.0",
+      "matches": true
+    },
+    {
+      "requirement": "prometheus-client==0.21.1",
+      "installed": "0.21.1",
+      "matches": true
+    },
+    {
+      "requirement": "tiktoken==0.8.0",
+      "installed": "0.8.0",
+      "matches": true
+    },
+    {
+      "requirement": "kiwipiepy==0.23.2",
+      "installed": "0.23.2",
+      "matches": true
+    }
+  ],
+  "installed_packages": {
+    "h11": "0.16.0",
+    "pandas": "2.2.3",
+    "tzdata": "2026.3",
+    "urllib3": "2.7.0",
+    "tqdm": "4.70.0",
+    "openai": "1.82.0",
+    "openpyxl": "3.1.5",
+    "python-json-logger": "4.1.0",
+    "certifi": "2026.7.22",
+    "psycopg-pool": "3.2.6",
+    "kiwipiepy": "0.23.2",
+    "requests": "2.34.2",
+    "python-multipart": "0.0.20",
+    "six": "1.17.0",
+    "sniffio": "1.3.1",
+    "distro": "1.9.0",
+    "PyYAML": "6.0.3",
+    "httpcore": "1.0.9",
+    "pydantic": "2.11.3",
+    "boto3": "1.36.24",
+    "numpy": "2.5.3",
+    "PyJWT": "2.10.1",
+    "tiktoken": "0.8.0",
+    "botocore": "1.36.26",
+    "s3transfer": "0.11.3",
+    "pypdf": "5.1.0",
+    "pydantic-settings": "2.15.0",
+    "httpx": "0.28.1",
+    "uvloop": "0.22.1",
+    "pydantic_core": "2.33.1",
+    "psycopg-binary": "3.2.6",
+    "uvicorn": "0.34.0",
+    "xlrd": "2.0.2",
+    "et_xmlfile": "2.0.0",
+    "charset-normalizer": "3.5.1",
+    "kiwipiepy_model": "0.23.0",
+    "anyio": "4.15.1",
+    "typing_extensions": "4.16.0",
+    "click": "8.5.0",
+    "pytz": "2026.3.post1",
+    "psycopg": "3.2.6",
+    "regex": "2026.9.10",
+    "idna": "3.19",
+    "websockets": "17.1",
+    "jiter": "0.16.0",
+    "fastapi": "0.115.8",
+    "watchfiles": "1.2.0",
+    "prometheus_client": "0.21.1",
+    "python-dotenv": "1.2.3",
+    "annotated-types": "0.8.0",
+    "starlette": "0.45.3",
+    "jmespath": "1.1.0",
+    "httptools": "0.8.0",
+    "typing-inspection": "0.4.4",
+    "python-dateutil": "2.9.0.post0",
+    "pip": "26.2.1"
+  },
+  "site_packages_bytes": 401012657,
+  "site_packages_without_pyc_bytes": 338358586,
+  "largest_package_directories": [
+    {
+      "name": "kiwipiepy_model",
+      "bytes": 109043184
+    },
+    {
+      "name": "pandas",
+      "bytes": 70728825
+    },
+    {
+      "name": "_kiwipiepy.abi3.so",
+      "bytes": 41317768
+    },
+    {
+      "name": "numpy",
+      "bytes": 40661062
+    },
+    {
+      "name": "numpy.libs",
+      "bytes": 27463459
+    },
+    {
+      "name": "botocore",
+      "bytes": 18676726
+    },
+    {
+      "name": "uvloop",
+      "bytes": 16403823
+    },
+    {
+      "name": "pip",
+      "bytes": 10538227
+    },
+    {
+      "name": "psycopg_binary.libs",
+      "bytes": 10316934
+    },
+    {
+      "name": "pydantic_core",
+      "bytes": 5137937
+    },
+    {
+      "name": "openai",
+      "bytes": 4788973
+    },
+    {
+      "name": "regex",
+      "bytes": 3559863
+    }
+  ],
+  "app_python_bytes": 704922,
+  "app_import_seconds": 3.092,
+  "route_count": 86,
+  "import_peak_rss_bytes": 128778240,
+  "korean_first_call_seconds": 5.446,
+  "korean_tokens": [
+    "강남점",
+    "이번",
+    "달",
+    "카드",
+    "매출",
+    "현금",
+    "비교"
+  ],
+  "korean_peak_rss_bytes": 653619200,
+  "parse_cases": [
+    {
+      "extension": "csv",
+      "rows": 1000,
+      "file_bytes": 35039,
+      "parse_seconds": 0.033,
+      "peak_rss_bytes": 653619200,
+      "row_count_and_amount_sum_match": true
+    },
+    {
+      "extension": "csv",
+      "rows": 10000,
+      "file_bytes": 350039,
+      "parse_seconds": 0.224,
+      "peak_rss_bytes": 658100224,
+      "row_count_and_amount_sum_match": true
+    },
+    {
+      "extension": "csv",
+      "rows": 100000,
+      "file_bytes": 3500039,
+      "parse_seconds": 2.527,
+      "peak_rss_bytes": 720228352,
+      "row_count_and_amount_sum_match": true
+    },
+    {
+      "extension": "xlsx",
+      "rows": 1000,
+      "file_bytes": 22933,
+      "parse_seconds": 0.134,
+      "peak_rss_bytes": 720228352,
+      "row_count_and_amount_sum_match": true
+    },
+    {
+      "extension": "xlsx",
+      "rows": 10000,
+      "file_bytes": 178680,
+      "parse_seconds": 1.446,
+      "peak_rss_bytes": 720228352,
+      "row_count_and_amount_sum_match": true
+    }
+  ],
+  "application_accepts_6mb_upload": true,
+  "lifespan_executed": false,
+  "external_requests": 0
+}

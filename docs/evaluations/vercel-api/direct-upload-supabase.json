@@ -1,0 +1,16 @@
+{
+  "project_ref": "whbygnzoaehvlddltwlb",
+  "deployment": null,
+  "checks": [
+    "other_account_and_missing_upload_rejected",
+    "production_origin_storage_cors",
+    "20_mib_signed_upload_without_api_body_or_user_jwt",
+    "signed_token_cannot_overwrite_even_with_upsert_header",
+    "concurrent_completion_creates_one_file",
+    "20_mib_private_signed_download_exact_bytes",
+    "korean_csv_preview_prepare_sql_total_20000",
+    "session_table_rls_and_browser_role_denied"
+  ],
+  "scope": "Authenticated API reservations/completion + real direct Storage PUT/GET; SQL checks and cleanup local; no LLM",
+  "synthetic_data_removed": true
+}

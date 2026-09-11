@@ -133,7 +133,7 @@ def preview_file(user_id, file_id, storage=None):
     return {'file': public(row), 'text': content.decode('utf-8', errors='replace')[:4000] if not row['filename'].lower().endswith('.pdf') else None}
 
 
-def prepare_file(user_id, file_id, project_id, storage=None):
+def prepare_file(user_id, file_id, project_id, storage=None, *, table_name=None):
     """An explicit UI action. Repeated calls return the same linked ledger/job."""
     row = get_record(user_id,file_id)
     project_id = uid(project_id)
@@ -178,7 +178,7 @@ def prepare_file(user_id, file_id, project_id, storage=None):
         elif prepared:
             from .data_import import write_import
             table_id = str(uuid4())
-            name = row['filename'][:85]+' · '+str(file_id)[:8]
+            name = table_name or row['filename'][:85]+' · '+str(file_id)[:8]
             write_import(cur, db.get_user_table_name(user_id,table_id), prepared, create=True)
             cur.execute('''INSERT INTO table_meta(id,project_id,user_id,name,columns_schema,row_count,source_file_id)
                 VALUES(%s,%s,%s,%s,%s::jsonb,%s,%s)''', (table_id,project_id,user_id,name,json.dumps(prepared.columns_schema),len(prepared.rows),file_id))

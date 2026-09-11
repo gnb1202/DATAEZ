@@ -12,6 +12,7 @@ from . import attribute_restoration as restoration
 from .auth import get_current_user
 from .config import settings
 from .rate_limiter import rate_limiter
+from .upload_sources import read_source
 from .storage import StorageService
 from . import import_mapping
 from .payment_imports import PaymentImportMapping
@@ -24,21 +25,21 @@ storage = StorageService()
 
 
 @router.post('/import-mapping/inspect')
-async def inspect_mapping_file(project_id: UUID, file: UploadFile = File(...), user=Depends(get_current_user)):
+async def inspect_mapping_file(project_id: UUID, file: UploadFile | None = File(default=None), stored_file_id: UUID | None = Form(default=None), user=Depends(get_current_user)):
     rate_limiter.check(f'mapping:{user["id"]}', settings.upload_rate_limit_per_minute, 60)
-    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
-    return await asyncio.to_thread(import_mapping.inspect_file, user['id'], str(project_id), content, file.filename or '')
+    filename, content = await read_source(user["id"], str(project_id), file, stored_file_id, storage)
+    return await asyncio.to_thread(import_mapping.inspect_file, user['id'], str(project_id), content, filename)
 
 
 @router.post('/import-mapping/validate')
-async def validate_mapping_file(project_id: UUID, file: UploadFile = File(...), mapping: str = Form(..., max_length=10000), user=Depends(get_current_user)):
+async def validate_mapping_file(project_id: UUID, file: UploadFile | None = File(default=None), stored_file_id: UUID | None = Form(default=None), mapping: str = Form(..., max_length=10000), user=Depends(get_current_user)):
     rate_limiter.check(f'mapping:{user["id"]}', settings.upload_rate_limit_per_minute, 60)
     try:
         parsed = PaymentImportMapping.model_validate_json(mapping)
     except ValidationError:
         raise AppException(422, 'invalid_mapping', '필수 컬럼과 금액 해석을 확인해주세요.') from None
-    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
-    return await asyncio.to_thread(import_mapping.validate_mapping, user['id'], str(project_id), content, file.filename or '', parsed)
+    filename, content = await read_source(user["id"], str(project_id), file, stored_file_id, storage)
+    return await asyncio.to_thread(import_mapping.validate_mapping, user['id'], str(project_id), content, filename, parsed)
 
 
 @router.post('/ledger-sources/{source_id}/attribute-restorations/preview')
@@ -94,11 +95,11 @@ async def baseline(project_id: UUID, source_id: UUID, payload: BaselineRequest, 
 
 @router.post("/imports")
 async def upload(project_id: UUID, source_id: UUID = Form(...), request_key: UUID = Form(...),
-                 file: UploadFile = File(...), user=Depends(get_current_user)):
+                 file: UploadFile | None = File(default=None), stored_file_id: UUID | None = Form(default=None), user=Depends(get_current_user)):
     rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
-    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
+    filename, content = await read_source(user["id"], str(project_id), file, stored_file_id, storage)
     return await asyncio.to_thread(service.upload_batch, user["id"], str(project_id), str(source_id),
-                                   str(request_key), content, (file.filename or "").strip(), storage)
+                                   str(request_key), content, filename, storage)
 
 
 @router.get("/imports")
@@ -154,6 +155,9 @@ async def run_import_cleanup(stop: asyncio.Event):
     while not stop.is_set():
         try:
             await asyncio.to_thread(service.expire_pending_batches, storage)
+            if settings.storage_backend == "supabase":
+                from .direct_uploads import cleanup_expired_uploads
+                await asyncio.to_thread(cleanup_expired_uploads)
         except Exception:
             logger.exception("Pending import cleanup failed; retrying next tick")
         try:

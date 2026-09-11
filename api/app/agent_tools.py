@@ -1366,7 +1366,8 @@ class ToolExecutor:
                 )
 
             from .storage import StorageService
-            imported = create_imported_table(self.user_id, self.project_id, table_name, content, filename, StorageService())
+            imported = create_imported_table(self.user_id, self.project_id, table_name, content, filename, StorageService(),
+                **({"source_file_id": file_info["source_file_id"]} if file_info.get("source_file_id") else {}))
             table_id = str(imported["id"])
             columns_schema, row_count = imported["columns_schema"], imported["row_count"]
 

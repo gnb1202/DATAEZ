@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class StorageService:
-    """File storage with two interchangeable backends: S3 and local disk.
+    """File storage backed by Supabase, S3, or local disk.
 
     The S3 client is created lazily so a local-only deployment never depends on
     AWS configuration being present.
@@ -20,11 +20,22 @@ class StorageService:
     def __init__(self) -> None:
         self._local_root = Path(settings.local_storage_path)
         self._s3_client_cache = None
+        self._supabase_cache = None
         if settings.storage_backend == "local":
             self._local_root.mkdir(parents=True, exist_ok=True)
             logger.info("Storage backend: local (%s)", self._local_root.resolve())
-        else:
+        elif settings.storage_backend == "s3":
             logger.info("Storage backend: s3 (bucket=%s)", settings.s3_bucket)
+        else:
+            logger.info("Storage backend: supabase (bucket=%s)", settings.supabase_storage_bucket)
+
+    @property
+    def _supabase(self):
+        if self._supabase_cache is None:
+            from .supabase_storage import SupabaseObjectStore
+            self._supabase_cache = SupabaseObjectStore(settings.supabase_url,
+                settings.supabase_secret_key, settings.supabase_storage_bucket)
+        return self._supabase_cache
 
     @property
     def _s3_client(self):
@@ -44,6 +55,14 @@ class StorageService:
         safe_name = re.sub(r"[^a-zA-Z0-9가-힣._-]", "_", safe_name)[:180]
         key = f"{settings.s3_prefix}/{uuid4()}-{safe_name}"
 
+        if settings.storage_backend == "supabase":
+            # Supabase rejects non-ASCII object keys. Keep the original filename
+            # in file metadata, and use an opaque ASCII object key for storage.
+            suffix = re.sub(r"[^a-zA-Z0-9.]", "", Path(safe_name).suffix)[:12]
+            key = f"{settings.s3_prefix}/{uuid4()}{suffix}"
+            self._supabase.put(key, content)
+            return key
+
         if settings.storage_backend == "s3":
             if not settings.s3_bucket:
                 raise ValueError("S3_BUCKET is required when STORAGE_BACKEND=s3")
@@ -60,6 +79,8 @@ class StorageService:
     def read_bytes(self, storage_key: str) -> bytes:
         if storage_key.startswith("ledger-staging/"):
             return self.read_staged(storage_key)
+        if settings.storage_backend == "supabase":
+            return self._supabase.get(storage_key)
         if settings.storage_backend == "s3":
             if not settings.s3_bucket:
                 raise ValueError("S3_BUCKET is required when STORAGE_BACKEND=s3")
@@ -80,8 +101,8 @@ class StorageService:
     def _staged_location(self, key: str):
         if not re.fullmatch(r"ledger-staging/[0-9a-f]{32}\.bin", key):
             raise ValueError("Invalid ledger staging key")
-        if settings.storage_backend == "s3":
-            if not settings.s3_bucket:
+        if settings.storage_backend in ("s3", "supabase"):
+            if settings.storage_backend == "s3" and not settings.s3_bucket:
                 raise ValueError("S3_BUCKET is required")
             return f"{settings.s3_prefix}/{key}"
         root = self._local_root.resolve()
@@ -92,7 +113,9 @@ class StorageService:
 
     def write_staged(self, key: str, content: bytes) -> None:
         target = self._staged_location(key)
-        if settings.storage_backend == "s3":
+        if settings.storage_backend == "supabase":
+            self._supabase.put(target, content, upsert=True)
+        elif settings.storage_backend == "s3":
             self._s3_client.put_object(Bucket=settings.s3_bucket, Key=target, Body=content)
         else:
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -100,13 +123,17 @@ class StorageService:
 
     def read_staged(self, key: str) -> bytes:
         target = self._staged_location(key)
+        if settings.storage_backend == "supabase":
+            return self._supabase.get(target)
         if settings.storage_backend == "s3":
             return self._s3_client.get_object(Bucket=settings.s3_bucket, Key=target)["Body"].read()
         return target.read_bytes()
 
     def delete_staged(self, key: str) -> None:
         target = self._staged_location(key)
-        if settings.storage_backend == "s3":
+        if settings.storage_backend == "supabase":
+            self._supabase.delete(target)
+        elif settings.storage_backend == "s3":
             self._s3_client.delete_object(Bucket=settings.s3_bucket, Key=target)
         else:
             target.unlink(missing_ok=True)

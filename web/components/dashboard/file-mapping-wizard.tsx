@@ -1,5 +1,7 @@
 "use client";
 
+import { uploadSourceForm } from "@/app/lib/direct-upload";
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/app/contexts/dashboard-context";
@@ -40,12 +42,12 @@ export function FileMappingWizard({ onPrepared, onBusyChange }: {onPrepared:(sou
   async function run(action:()=>Promise<void>){setBusy(true);onBusyChange(true);setError("");try{await action();}catch(e){if(alive.current)setError(e instanceof Error?e.message:"다시 시도해주세요.");}finally{if(alive.current){setBusy(false);onBusyChange(false);}}}
   async function inspect(){if(!file)return;await run(async()=>{
     setInspection(null);setChecked(null);setConfirmed(false);setKind("");
-    const data=new FormData();data.set("file",file);
+    const data=await uploadSourceForm(apiFetch,file,selectedProjectId!);
     const result:Inspection=await json(base+"/import-mapping/inspect",{method:"POST",body:data});
     if(alive.current){setInspection(result);setMapping(result.suggested_mapping);}
   });}
   async function validate(){if(!file)return;await run(async()=>{
-    setChecked(null);const data=new FormData();data.set("file",file);data.set("mapping",JSON.stringify(definition));
+    setChecked(null);const data=await uploadSourceForm(apiFetch,file,selectedProjectId!);data.set("mapping",JSON.stringify(definition));
     const result=await json(base+"/import-mapping/validate",{method:"POST",body:data});
     if(alive.current)setChecked({key,data:result});
   });}
@@ -53,12 +55,12 @@ export function FileMappingWizard({ onPrepared, onBusyChange }: {onPrepared:(sou
     const source:Source=created||await json(base+"/ledger-sources",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),provider:provider.trim(),account:account.trim(),feed:"결제·취소 이벤트",mapping:definition})});
     if(!alive.current)return;setCreated(source);
     if(!requestKey.current)requestKey.current=crypto.randomUUID();
-    const data=new FormData();data.set("file",file);data.set("source_id",source.id);data.set("request_key",requestKey.current);
+    const data=await uploadSourceForm(apiFetch,file,selectedProjectId!);data.set("source_id",source.id);data.set("request_key",requestKey.current);
     const batch=await json(base+"/imports",{method:"POST",body:data});
     if(alive.current){onBusyChange(false);onPrepared(source,batch);}
   });}
   return <section aria-label="파일 연결 안내" className="space-y-4 rounded-lg border bg-secondary/20 p-4">
-    <div><h4 className="font-medium">파일을 보고 컬럼을 연결하세요</h4><p className="mt-1 text-sm text-muted-foreground">컬럼 확인과 연결 검사는 데이터를 저장하지 않습니다. 다음 단계에서 중복·오류를 검토한 뒤 장부에 반영합니다.</p></div>
+    <div><h4 className="font-medium">파일을 보고 컬럼을 연결하세요</h4><p className="mt-1 text-sm text-muted-foreground">원본은 보관함에 저장되며, 컬럼 확인과 연결 검사만으로 장부에 반영되지 않습니다. 다음 단계에서 중복·오류를 검토한 뒤 장부에 반영합니다.</p></div>
     <fieldset disabled={busy||!!created} className="space-y-4">
       <div className="flex flex-wrap items-end gap-3"><label className="flex-1 text-sm">연결할 결제 파일<input aria-label="연결할 결제 파일" type="file" accept=".csv,.xlsx,.xls" className={field} onChange={e=>{const f=e.target.files?.[0]||null;setFile(f);setInspection(null);setChecked(null);setConfirmed(false);setKind("");requestKey.current="";if(f)setName(f.name.replace(/\.(csv|xlsx?)$/i,"").slice(0,120));}}/></label><Button type="button" disabled={!file} onClick={inspect}>파일 컬럼 확인</Button></div>
       <p className="text-xs text-muted-foreground">CSV·XLSX·XLS, 최대 20MB·10만 행. Excel은 첫 시트만 읽습니다. 금액은 쉼표 없는 숫자, 날짜는 2026-09-08 같은 형식을 사용하세요.</p>

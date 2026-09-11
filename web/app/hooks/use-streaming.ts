@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { referencePayload, type LibraryReference } from "../lib/file-library";
+import { uploadSourceForm } from "../lib/direct-upload";
 import { API_URL, parseError } from "../lib/api";
 import type { Message, StreamingStep } from "../lib/api";
 
@@ -28,7 +29,7 @@ export function useStreaming({ getToken }: { getToken: () => string }) {
   }, []);
   useEffect(() => () => { current.current?.abort(); current.current = null; }, []);
 
-  const sendMessage = useCallback(async (conversationId: string, message: string, file?: File | null, libraryFiles: LibraryReference[] = []): Promise<Message | null> => {
+  const sendMessage = useCallback(async (conversationId: string, message: string, file?: File | null, libraryFiles: LibraryReference[] = [], projectId?: string): Promise<Message | null> => {
     current.current?.abort();
     const controller = new AbortController();
     current.current = controller;
@@ -45,11 +46,13 @@ export function useStreaming({ getToken }: { getToken: () => string }) {
       clearTimeout(timer);
       timer = setTimeout(() => { timedOut = true; controller.abort(); }, 60_000);
     };
-    heartbeat();
     try {
-      const body = new FormData();
+      const uploadFetch = (path: string, init?: RequestInit) => fetch(`${API_URL}${path}`, { ...init, headers: { ...Object.fromEntries(new Headers(init?.headers)), Authorization: `Bearer ${getToken()}` }, signal: controller.signal });
+      const body = file && projectId ? await uploadSourceForm(uploadFetch, file, projectId, "files", controller.signal) : new FormData();
+      if (!active()) return null;
+      heartbeat();
       body.append("message", message);
-      if (file) body.append("files", file);
+      if (file && !projectId) body.append("files", file);
       if (libraryFiles.length) { body.append("library_selections", JSON.stringify(referencePayload(libraryFiles))); body.append("library_scope_confirmed", "true"); }
       const res = await fetch(`${API_URL}/api/conversations/${conversationId}/messages/stream`, {
         method: "POST", headers: { Authorization: `Bearer ${getToken()}` }, body, signal: controller.signal,

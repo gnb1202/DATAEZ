@@ -2,12 +2,14 @@
 
 Updated 2026-09-11. The [frontend is live on Vercel](https://dataez.vercel.app),
 with authentication disabled until the public API is configured.
-AWS API and Supabase integration are still pending. See the
+Real API-to-Supabase DB/Storage integration has passed; public API rollout remains pending. See [Supabase setup](SUPABASE_SETUP.md) and the
 [Vercel deployment record](VERCEL_DEPLOYMENT.md) and [integration record](RELEASE_INTEGRATION.md).
 
 The first public deployment candidate now integrates the verified brand and Phase 3
-work. The selected direction is Vercel for the web, AWS for the API, and Supabase
-Free for PostgreSQL and original files. See [deployment decisions and verification status](PUBLIC_DEPLOYMENT.md).
+work. AWS/Lightsail is now deferred due to recurring cost. Vercel Hobby for web/API
+and Supabase Free for PostgreSQL and original files are being evaluated.
+The [temporary Vercel API probe](VERCEL_API_FEASIBILITY.md) passed dependency, parser and SSE checks;
+it does not establish full backend compatibility. See [deployment decisions and verification status](PUBLIC_DEPLOYMENT.md).
 The existing public Compose configuration still implements the earlier single-server
 candidate; it has not yet been adapted or verified for the selected split deployment.
 No paid AWS server has been created. The Vercel frontend is on the existing Hobby plan.

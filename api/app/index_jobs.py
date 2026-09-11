@@ -35,8 +35,14 @@ def adopt_indexed_documents():
             GROUP BY f.id,d.project_id ON CONFLICT(file_id) DO NOTHING""")
 
 
-def register_document(user_id, project_id, filename, content, storage):
+def register_document(user_id, project_id, filename, content, storage, *, source_file_id=None):
     """Original object first, then file registration + job in one transaction."""
+    if source_file_id:
+        from .file_library import prepare_file
+        record = prepare_file(user_id, source_file_id, project_id, storage)
+        binding = next(b for b in record['bindings'] if b['kind'] == 'document' and b['project_id'] == project_id)
+        return {'file_id': source_file_id, 'filename': filename, 'size_bytes': len(content),
+                'chunks': 0, 'index_status': binding['index_status'], 'index_job_id': binding['job_id']}
     file_id = str(uuid4())
     # Fixed server-generated staging keys avoid filename/path interpretation.
     key = storage.staged_key(file_id)
@@ -184,7 +190,7 @@ def list_jobs(user_id, project_id, limit=50, offset=0):
             j.updated_at DESC,j.id LIMIT %s OFFSET %s''', (user_id, project_id, limit, offset)).fetchall()
     return {'jobs': rows, 'counts': {r['status']: r['count'] for r in counts}, 'total': sum(r['count'] for r in counts),
             'limit': limit, 'offset': offset, 'search_enabled': settings.rag_enabled,
-            'worker_enabled': settings.rag_enabled and settings.index_worker_enabled, 'max_attempts': MAX_ATTEMPTS}
+            'worker_enabled': settings.rag_enabled and (settings.index_worker_enabled or settings.maintenance_enabled), 'max_attempts': MAX_ATTEMPTS}
 
 
 def retry_job(user_id, project_id, job_id):

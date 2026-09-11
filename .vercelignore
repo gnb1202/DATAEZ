@@ -17,6 +17,8 @@ db/**
 deploy/**
 docs/**
 outputs/**
+output/**
+supabase/**
 portfolio/**
 samples/**
 scripts/**

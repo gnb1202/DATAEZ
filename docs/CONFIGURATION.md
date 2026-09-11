@@ -63,20 +63,33 @@ rotated on use and stored as hashes.
 | `DB_POOL_MIN_SIZE` | `2` |
 | `DB_POOL_MAX_SIZE` | `10` |
 | `DB_POOL_TIMEOUT` | `30` |
+| `DB_CONNECT_TIMEOUT` | `10` seconds |
+| `DB_POOL_MAX_IDLE` | `600` seconds |
+| `DB_PREPARED_STATEMENTS` | `true` |
 
 Requires the `vector` extension. The compose stack uses `pgvector/pgvector:pg16`.
+
+`RUNTIME_MODE=persistent` is the default. `RUNTIME_MODE=serverless` defaults to
+pool min/max `0/2`, pool wait `5s`, idle `60s`, and disabled prepared statements.
+`STARTUP_MIGRATIONS_ENABLED` defaults to `true` for persistent deployments and
+`false` for serverless. Serverless rejects startup migrations, persistent workers,
+local storage, and enabled prepared statements. Use the separate migration command
+and connection setup in [serverless foundation](SERVERLESS_FOUNDATION.md).
 
 ## Storage
 
 | Variable | Default | Notes |
 |---|---|---|
-| `STORAGE_BACKEND` | `local` | `local` or `s3`; any other value is rejected at startup |
+| `STORAGE_BACKEND` | `local` | `local`, `s3`, or `supabase`; serverless rejects local disk |
 | `LOCAL_STORAGE_PATH` | `./data/uploads` | compose mounts a named volume at `/data/uploads` |
 | `S3_BUCKET` | — | Required when `STORAGE_BACKEND=s3` |
 | `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | — | S3 only |
 | `S3_PREFIX` | `uploads` | |
 | `S3_ENDPOINT_URL` | empty | Optional private S3-compatible endpoint |
 | `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | empty | Explicit server-side credentials for the S3-compatible client |
+| `SUPABASE_URL` | empty | HTTPS project origin, required for the Supabase Storage backend |
+| `SUPABASE_SECRET_KEY` | empty | Server-only secret API key or legacy service-role JWT; never expose as `NEXT_PUBLIC_*` |
+| `SUPABASE_STORAGE_BUCKET` | `dataez-files` | Private bucket for the Supabase Storage backend |
 | `MAX_UPLOAD_SIZE_MB` | `20` | |
 
 The S3 client is constructed lazily, so a local-only deployment never needs AWS
@@ -184,8 +197,23 @@ site URL when a custom canonical domain is selected.
 | `METRIC_SCHEDULER_ENABLED` | `true` | Executes due saved metrics; poll interval 15 seconds |
 | `INDEX_WORKER_ENABLED` | `true` | Executes search indexing/retry jobs; poll interval 5 seconds |
 | `IMPORT_CLEANUP_ENABLED` | `true` | Expires pending import staging; poll interval 60 seconds |
+| `MAINTENANCE_ENABLED` | `false` | Enables the authenticated bounded runner for Supabase Cron |
+| `MAINTENANCE_SECRET` | empty | Separate server-only ASCII secret, at least 32 characters |
 
 Widget schedules are stored separately: `0` (manual), `3600` (hourly) or
 `86400` (every 24 hours). These are recalculation schedules, not PG collection
-schedules. API processes must stay running for background execution. Details
+schedules. Persistent workers require a running API process. The serverless profile
+disables those loops and uses [Supabase scheduled maintenance](SERVERLESS_MAINTENANCE.md)
+instead. Each invocation has a 120-second child-process deadline and DB lease. Details
 and retained-file policy: [Deployment](DEPLOYMENT.md), [file scope](FILE_SCOPE_AND_FIRST_USE.md).
+
+## Serverless AI admission and execution
+
+Serverless instances share PostgreSQL request counters; database failures reject admission (503).
+`AI_USER_REQUESTS_PER_DAY=30` and `AI_TOTAL_REQUESTS_PER_DAY=100` count attempts in a
+24-hour window beginning at first admission, including failed/interrupted turns. These are
+request limits, not billing caps; background embeddings are separate.
+`AGENT_TIMEOUT_SECONDS=200` (10–240) bounds a disposable child process. Serverless
+defaults also set `AGENT_MAX_ITERATIONS=8`, `AGENT_MAX_TOKEN_BUDGET=24000`; worker
+completions are capped at 4096 tokens per call. Chat messages allow 1–8000 characters.
+See [release guards](SERVERLESS_RELEASE_GUARDS.md) for upload paths, recovery and validation.

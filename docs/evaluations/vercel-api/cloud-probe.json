@@ -1,0 +1,79 @@
+{
+  "checked_at": "2026-09-11T01:30:06.1991452Z",
+  "source_commit": "b133c9ebb67a5fad66bfd5f4f172748145dd9c3e",
+  "scope": "Temporary dependency probe on Vercel; not a full DATAEZ API deployment",
+  "project": "dataez-api-feasibility-20260911",
+  "deployment": {
+    "id": "dpl_HKHQyMoZyjcfJCdRVHN4pssYogTm",
+    "url": "https://dataez-api-feasibility-20260911-jgc90ptmk.vercel.app",
+    "inspectorUrl": "https://vercel.com/gnb1202-navercoms-projects/dataez-api-feasibility-20260911/HKHQyMoZyjcfJCdRVHN4pssYogTm",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_HKHQyMoZyjcfJCdRVHN4pssYogTm"
+  },
+  "builder_reported_preoptimization_mb": 322.79,
+  "checks": [
+    {
+      "name": "deployment_ready",
+      "passed": true
+    },
+    {
+      "name": "source_app_import_without_lifespan",
+      "passed": true
+    },
+    {
+      "name": "korean_and_csv",
+      "passed": true
+    },
+    {
+      "name": "sse_three_events",
+      "passed": true
+    },
+    {
+      "name": "one_mb_accepted",
+      "passed": true
+    },
+    {
+      "name": "six_mb_rejected_by_gateway",
+      "passed": true
+    }
+  ],
+  "runtime": {
+    "scope": "dependency probe only",
+    "python": "3.12.13",
+    "source_routes_imported": 86,
+    "source_routes_mounted": false,
+    "source_lifespan_executed": false,
+    "import_seconds": 2.167,
+    "database_connected": false,
+    "llm_calls": 0,
+    "versions": {
+      "fastapi": "0.115.8",
+      "pandas": "2.2.3",
+      "numpy": "2.5.3",
+      "kiwipiepy": "0.23.2",
+      "psycopg": "3.2.6",
+      "openai": "1.82.0"
+    }
+  },
+  "parser": {
+    "passed": true,
+    "rows": 1000,
+    "amount_sum": 12000000,
+    "korean_tokens": [
+      "강남점",
+      "카드",
+      "매출",
+      "현금",
+      "비교"
+    ],
+    "seconds": 4.075,
+    "peak_rss_bytes": 663420928
+  },
+  "database_tested": false,
+  "storage_tested": false,
+  "real_llm_tested": false,
+  "scheduler_tested": false,
+  "temporary_project_removed": true,
+  "cleanup_evidence": "Vercel CLI project rm completed successfully after all six checks"
+}

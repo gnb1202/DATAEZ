@@ -1,0 +1,27 @@
+{
+  "scope": "local PostgreSQL with Supabase role/storage shims",
+  "runtime_schema_parity": true,
+  "dynamic_table_rls_and_denied_client_grants": true,
+  "upload_transaction_tests": "===== warnings summary ===============================\ntests/test_maintenance.py::test_child_configuration_and_invalid_output\ntests/test_maintenance.py::test_child_configuration_and_invalid_output\n  D:\\Github\\DATAEZ\\api\\app\\maintenance.py:58: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.\n    for name in settings.model_fields:\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n35 passed, 2 warnings in 13.28s",
+  "api_with_backend_role": {
+    "fresh_process_reconnect": false,
+    "checks": [
+      "database_ready",
+      "two_accounts_login_and_refresh",
+      "cross_account_project_isolation",
+      "concurrent_reads_with_two_connection_pool",
+      "no_automatic_prepared_statements"
+    ]
+  },
+  "reconnect": {
+    "fresh_process_reconnect": true,
+    "checks": [
+      "database_ready",
+      "two_accounts_login_and_refresh",
+      "cross_account_project_isolation",
+      "concurrent_reads_with_two_connection_pool",
+      "no_automatic_prepared_statements"
+    ]
+  },
+  "temporary_database_removed": true
+}

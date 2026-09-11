@@ -1,0 +1,64 @@
+{
+  "verified_on": "2026-09-11",
+  "project_ref": "whbygnzoaehvlddltwlb",
+  "region": "ap-northeast-2",
+  "scope": "Remote Supabase schema/privileges/bucket via authenticated MCP, not API/pooler/Storage object round trip",
+  "tables": 25,
+  "tables_without_rls": 0,
+  "client_readable_tables": 0,
+  "bucket": {
+    "id": "dataez-files",
+    "public": false,
+    "file_size_limit": 20971520
+  },
+  "backend_role": {
+    "name": "dataez_app",
+    "login": false,
+    "superuser": false,
+    "bypass_rls": false
+  },
+  "vector_schema": "extensions",
+  "event_trigger_enabled": true,
+  "backend_synthetic_write_read": true,
+  "anonymous_read_denied": true,
+  "verification_transaction_rolled_back": true,
+  "security_advisor": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 25,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    }
+  ],
+  "performance_advisor": [
+    {
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "count": 20,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys"
+    },
+    {
+      "name": "unused_index",
+      "level": "INFO",
+      "count": 36,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index"
+    }
+  ],
+  "migrations": [
+    {
+      "version": "20260911022219",
+      "name": "dataez_initial_schema"
+    },
+    {
+      "version": "20260911022227",
+      "name": "dataez_access_and_storage"
+    }
+  ],
+  "pending": [
+    "correct-account CLI authentication",
+    "runtime login credential provisioning",
+    "transaction pooler integration",
+    "Storage S3 keys and object round trip",
+    "full API deployment and web integration"
+  ]
+}

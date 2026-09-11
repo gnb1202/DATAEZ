@@ -5,6 +5,7 @@ import { Archive, Download, FileSpreadsheet, FileText, Search, Upload, X } from 
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/app/contexts/dashboard-context";
 import { parseError } from "@/app/lib/api";
+import { uploadLibraryFile, downloadLibraryFile } from "@/app/lib/direct-upload";
 import { referenceScope, referenceKey, type LibraryFile, type LibraryReference } from "@/app/lib/file-library";
 
 const statusLabels: Record<string, string> = { stored: "보관 중", linked: "분석 가능", document_ready: "검색 가능", index_pending: "문서 준비 중", index_failed: "문서 준비 실패" };
@@ -57,13 +58,12 @@ export function FileLibrary({ initial = [], initialSearch = "", onSelect, onPrep
     if (busy) return;
     setBusy(true); setError(""); setNotice("");
     try { await work(); }
-    catch (err) { if (alive.current) setError(err instanceof Error ? err.message : "파일 작업을 완료하지 못했습니다."); }
+    catch (err) { if (alive.current) { setNotice(""); setError(err instanceof Error ? err.message : "파일 작업을 완료하지 못했습니다."); } }
     finally { if (alive.current) setBusy(false); }
   };
   const upload = (file: File) => action(async () => {
-    const body = new FormData(); body.append("file", file);
-    if (!unassigned && selectedProjectId) body.append("project_id", selectedProjectId);
-    const data = await (await read("/api/library/files", { method: "POST", body })).json();
+    const data = await uploadLibraryFile(apiFetch, file, !unassigned ? selectedProjectId || undefined : undefined,
+      message => { if (alive.current) setNotice(message); });
     if (!alive.current) return;
     setNotice(data.replayed ? "같은 파일이 이미 보관되어 있습니다." : "원본을 보관했습니다. 미리보기에서 검사 후 분석에 연결하세요.");
     if (unassigned && !accountWide) setAccountWide(true);
@@ -80,7 +80,7 @@ export function FileLibrary({ initial = [], initialSearch = "", onSelect, onPrep
     onPrepared?.(); await load();
   });
   const download = (file: LibraryFile) => action(async () => {
-    const blob = await (await read(`/api/library/files/${file.file_id}/download`)).blob();
+    const blob = await downloadLibraryFile(apiFetch, file.file_id);
     if (!alive.current) return;
     const url = URL.createObjectURL(blob); const anchor = document.createElement("a");
     anchor.href = url; anchor.download = file.filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

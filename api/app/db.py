@@ -2,6 +2,7 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any
+from threading import Lock
 
 import json
 import psycopg
@@ -15,31 +16,40 @@ from .ledger_guards import assert_unmanaged_table, assert_not_original
 logger = logging.getLogger(__name__)
 
 _pool: ConnectionPool | None = None
+_pool_lock = Lock()
 
 
 def get_pool() -> ConnectionPool:
     """Return the shared connection pool, creating it on first call."""
     global _pool
-    if _pool is None:
-        _pool = ConnectionPool(
-            conninfo=settings.database_url,
-            min_size=settings.db_pool_min_size,
-            max_size=settings.db_pool_max_size,
-            timeout=settings.db_pool_timeout,
-            kwargs={"row_factory": dict_row},
-            # Explicit: psycopg_pool's default flips to False in a future release.
-            open=True,
-        )
-        logger.info("DB connection pool created (min=%d, max=%d)", settings.db_pool_min_size, settings.db_pool_max_size)
-    return _pool
+    with _pool_lock:
+        if _pool is None:
+            _pool = ConnectionPool(
+                conninfo=settings.database_url,
+                min_size=settings.db_pool_min_size,
+                max_size=settings.db_pool_max_size,
+                timeout=settings.db_pool_timeout,
+                max_idle=settings.db_pool_max_idle,
+                check=ConnectionPool.check_connection if settings.runtime_mode == "serverless" else None,
+                kwargs={"row_factory": dict_row,
+                        "connect_timeout": settings.db_connect_timeout,
+                        "prepare_threshold": 5 if settings.db_prepared_statements else None},
+                open=True,
+            )
+            logger.info("DB connection pool created (min=%d, max=%d)", settings.db_pool_min_size, settings.db_pool_max_size)
+        return _pool
 
 
 def close_pool() -> None:
     """Shut down the connection pool (call on app shutdown)."""
     global _pool
-    if _pool is not None:
-        _pool.close()
-        _pool = None
+    with _pool_lock:
+        pool, _pool = _pool, None
+    if pool is not None:
+        if settings.runtime_mode == "serverless":
+            pool.close(timeout=0.25)
+        else:
+            pool.close()
         logger.info("DB connection pool closed")
 
 

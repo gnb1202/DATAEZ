@@ -1,0 +1,49 @@
+{
+  "deployment": "https://dataez-api.vercel.app",
+  "scheduled": true,
+  "checks": [
+    "internal_runner_rejects_missing_and_wrong_secret",
+    "actual_cron_index_and_metric_ticks_with_pg_net_cleanup_dispatch",
+    "real_document_and_schema_vectors_committed",
+    "scheduled_metric_100_to_300_and_next_refresh_advanced",
+    "expired_upload_removed_live_upload_preserved",
+    "library_reports_document_ready"
+  ],
+  "real_embeddings": true,
+  "chat_agent_called": false,
+  "maintenance_status": {
+    "tasks": [
+      {
+        "kind": "cleanup",
+        "status": "succeeded",
+        "processed": 1,
+        "attempts": 3,
+        "failures": 0,
+        "last_started_at": "2026-09-11T05:28:23.693026+00:00",
+        "last_finished_at": "2026-09-11T05:28:26.278319+00:00",
+        "lease_until": null
+      },
+      {
+        "kind": "index",
+        "status": "succeeded",
+        "processed": 2,
+        "attempts": 4,
+        "failures": 1,
+        "last_started_at": "2026-09-11T05:29:01.598420+00:00",
+        "last_finished_at": "2026-09-11T05:29:15.155484+00:00",
+        "lease_until": null
+      },
+      {
+        "kind": "metrics",
+        "status": "succeeded",
+        "processed": 1,
+        "attempts": 3,
+        "failures": 0,
+        "last_started_at": "2026-09-11T05:29:00.086008+00:00",
+        "last_finished_at": "2026-09-11T05:29:01.549601+00:00",
+        "lease_until": null
+      }
+    ]
+  },
+  "synthetic_data_removed": true
+}

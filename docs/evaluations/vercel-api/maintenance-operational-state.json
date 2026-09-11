@@ -1,0 +1,59 @@
+{
+  "jobs": [
+    {
+      "name": "dataez-cleanup",
+      "active": true,
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "name": "dataez-cron-history",
+      "active": true,
+      "schedule": "17 3 * * *"
+    },
+    {
+      "name": "dataez-index",
+      "active": true,
+      "schedule": "* * * * *"
+    },
+    {
+      "name": "dataez-metrics",
+      "active": true,
+      "schedule": "* * * * *"
+    }
+  ],
+  "runs": [
+    {
+      "kind": "cleanup",
+      "status": "succeeded",
+      "attempts": 2,
+      "last_finished_at": "2026-09-11T04:31:55.234658+00:00"
+    },
+    {
+      "kind": "index",
+      "status": "succeeded",
+      "attempts": 3,
+      "last_finished_at": "2026-09-11T04:32:16.996683+00:00"
+    },
+    {
+      "kind": "metrics",
+      "status": "succeeded",
+      "attempts": 2,
+      "last_finished_at": "2026-09-11T04:32:01.694713+00:00"
+    }
+  ],
+  "observed_at": "2026-09-11T04:36:26.024649+00:00",
+  "http_responses": [
+    {
+      "timed_out": false,
+      "status_code": 200
+    },
+    {
+      "timed_out": false,
+      "status_code": 200
+    },
+    {
+      "timed_out": false,
+      "status_code": 200
+    }
+  ]
+}

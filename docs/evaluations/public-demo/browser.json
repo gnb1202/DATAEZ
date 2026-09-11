@@ -1,0 +1,1286 @@
+{
+  "passed": true,
+  "api_mocks": false,
+  "checks": [
+    "Public login and authenticated store workspace",
+    "Browser signed upload, original preview, ledger preparation and explicit file scope",
+    "Real natural-language SQL aggregation and chart: daily amounts 120000 / 170000",
+    "Dashboard save, hourly schedule, appended transaction recalculation and reload persistence"
+  ],
+  "errors": [],
+  "result": {
+    "message_id": "b02e22f2-7717-4c99-918f-c17c01adf3eb",
+    "role": "assistant",
+    "content": "미리보기로 만들었습니다. 아직 저장하지 않았습니다.\n\n- 지표명: 공개데모_매출 일별 매출 합계\n- 사용 장부: 공개데모_매출.csv → 연결된 누적 장부 전체\n- 계산 기준: `paid_at` 날짜별 `amount` 합계\n- 단위: 원(KRW)\n- 차트 형태: 선그래프\n- 기간: 전체 기간\n- 새 거래 반영: 가능합니다. 이 미리보기 정의 그대로 저장하면, 나중에 새 거래를 추가한 뒤 다시 계산할 수 있는 지표로 사용됩니다.\n\n현재 미리보기 결과\n- 2026-09-10: 120,000원\n- 2026-09-11: 170,000원\n\n해석\n- 현재 집계된 날짜 그룹은 2개입니다.\n- 이 미리보기는 연결된 누적 장부 전체를 기준으로 계산했고, 저장은 아직 하지 않았습니다.\n\n원하시면 다음 단계로 바로\n1) 이 정의 그대로 대시보드 지표로 저장하거나\n2) 같은 결과를 일반 차트로도 다시 보여드릴 수 있습니다.",
+    "steps": [
+      {
+        "type": "meta",
+        "tool_name": "library_references",
+        "tool_output": {
+          "files": [
+            {
+              "kind": "ledger",
+              "scope": "linked_ledger",
+              "file_id": "396350c8-f125-4ec2-a792-997c19416d3a",
+              "filename": "공개데모_매출.csv",
+              "table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+              "row_count": 3,
+              "project_id": "c1157b7e-a0a5-4984-bd8f-178464ab080e",
+              "table_name": "공개데모_매출.csv · 396350c8",
+              "content_hash": "a6e9cd71ff8ac1dae561ffde749660b2e94a36586a61516d9b333b0f02a6c7a9",
+              "project_name": "성수점 · 공개 데모 검증",
+              "binding_table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+              "query_table_name": "공개데모_매출.csv · 396350c8"
+            }
+          ],
+          "scope_note": "파일별 scope를 따릅니다. original_file은 업로드 당시 행만, linked_ledger는 연결 장부 전체, document는 선택 문서를 사용합니다."
+        }
+      },
+      {
+        "type": "tool_call",
+        "tool_name": "preview_metric",
+        "tool_input": {
+          "unit": "KRW",
+          "title": "공개데모_매출 일별 매출 합계",
+          "column": "amount",
+          "version": 1,
+          "group_by": "paid_at",
+          "operation": "sum",
+          "chart_type": "line",
+          "date_grain": "day",
+          "table_name": "공개데모_매출.csv · 396350c8",
+          "time_range": "all",
+          "date_column": "paid_at"
+        },
+        "tool_output": {
+          "data": [
+            {
+              "value": "120000",
+              "dimension": "2026-09-10"
+            },
+            {
+              "value": "170000",
+              "dimension": "2026-09-11"
+            }
+          ],
+          "unit": "KRW",
+          "label": "공개데모_매출.csv · 396350c8 · sum",
+          "saved": false,
+          "title": "공개데모_매출 일별 매출 합계",
+          "x_key": "dimension",
+          "y_key": "value",
+          "execution": {
+            "sql": "SELECT date_trunc(%s, \"paid_at\")::date AS dimension, SUM(\"amount\") AS value, COUNT(*) FILTER (WHERE \"amount\" IS NULL) AS missing_values FROM \"ut_8f1649cd_680bef12\" GROUP BY 1 ORDER BY 1 NULLS LAST LIMIT %s",
+            "dialect": "PostgreSQL",
+            "timezone": "Asia/Seoul",
+            "parameters": [
+              "day",
+              1001
+            ],
+            "parameterized": true
+          },
+          "chart_type": "line",
+          "scope_label": "누적 장부 전체",
+          "period_label": "전체 기간",
+          "refresh_note": "새로고침할 때 연결 장부의 최신 거래를 반영합니다.",
+          "calculated_at": "2026-09-11T05:27:13.200524+00:00",
+          "refresh_error": null,
+          "suggested_title": "공개데모_매출.csv · 396350c8 · 합계 · 일별",
+          "analysis_sources": [
+            {
+              "scope": "linked_ledger",
+              "table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+              "table_name": "공개데모_매출.csv · 396350c8",
+              "scope_label": "누적 장부 전체",
+              "refresh_note": "새로고침할 때 연결 장부의 최신 거래를 반영합니다."
+            }
+          ],
+          "calculation_label": "합계 (amount)",
+          "metric_definition": {
+            "unit": "KRW",
+            "column": "amount",
+            "filters": [],
+            "version": 1,
+            "group_by": "paid_at",
+            "table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+            "operation": "sum",
+            "chart_type": "line",
+            "date_grain": "day",
+            "time_range": "all",
+            "date_column": "paid_at"
+          },
+          "source_table_name": "공개데모_매출.csv · 396350c8",
+          "source_updated_at": "2026-09-11T05:27:04.545661"
+        }
+      },
+      {
+        "type": "token",
+        "content": "미"
+      },
+      {
+        "type": "token",
+        "content": "리"
+      },
+      {
+        "type": "token",
+        "content": "보기"
+      },
+      {
+        "type": "token",
+        "content": "로"
+      },
+      {
+        "type": "token",
+        "content": " 만들"
+      },
+      {
+        "type": "token",
+        "content": "었습니다"
+      },
+      {
+        "type": "token",
+        "content": "."
+      },
+      {
+        "type": "token",
+        "content": " 아직"
+      },
+      {
+        "type": "token",
+        "content": " 저장"
+      },
+      {
+        "type": "token",
+        "content": "하지"
+      },
+      {
+        "type": "token",
+        "content": " 않았"
+      },
+      {
+        "type": "token",
+        "content": "습니다"
+      },
+      {
+        "type": "token",
+        "content": ".\n\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 지"
+      },
+      {
+        "type": "token",
+        "content": "표"
+      },
+      {
+        "type": "token",
+        "content": "명"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 공개"
+      },
+      {
+        "type": "token",
+        "content": "데"
+      },
+      {
+        "type": "token",
+        "content": "모"
+      },
+      {
+        "type": "token",
+        "content": "_"
+      },
+      {
+        "type": "token",
+        "content": "매"
+      },
+      {
+        "type": "token",
+        "content": "출"
+      },
+      {
+        "type": "token",
+        "content": " 일"
+      },
+      {
+        "type": "token",
+        "content": "별"
+      },
+      {
+        "type": "token",
+        "content": " 매"
+      },
+      {
+        "type": "token",
+        "content": "출"
+      },
+      {
+        "type": "token",
+        "content": " 합"
+      },
+      {
+        "type": "token",
+        "content": "계"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 사용"
+      },
+      {
+        "type": "token",
+        "content": " 장"
+      },
+      {
+        "type": "token",
+        "content": "부"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 공개"
+      },
+      {
+        "type": "token",
+        "content": "데"
+      },
+      {
+        "type": "token",
+        "content": "모"
+      },
+      {
+        "type": "token",
+        "content": "_"
+      },
+      {
+        "type": "token",
+        "content": "매"
+      },
+      {
+        "type": "token",
+        "content": "출"
+      },
+      {
+        "type": "token",
+        "content": ".csv"
+      },
+      {
+        "type": "token",
+        "content": " →"
+      },
+      {
+        "type": "token",
+        "content": " 연결"
+      },
+      {
+        "type": "token",
+        "content": "된"
+      },
+      {
+        "type": "token",
+        "content": " 누"
+      },
+      {
+        "type": "token",
+        "content": "적"
+      },
+      {
+        "type": "token",
+        "content": " 장"
+      },
+      {
+        "type": "token",
+        "content": "부"
+      },
+      {
+        "type": "token",
+        "content": " 전체"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 계산"
+      },
+      {
+        "type": "token",
+        "content": " 기준"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " `"
+      },
+      {
+        "type": "token",
+        "content": "paid"
+      },
+      {
+        "type": "token",
+        "content": "_at"
+      },
+      {
+        "type": "token",
+        "content": "`"
+      },
+      {
+        "type": "token",
+        "content": " 날짜"
+      },
+      {
+        "type": "token",
+        "content": "별"
+      },
+      {
+        "type": "token",
+        "content": " `"
+      },
+      {
+        "type": "token",
+        "content": "amount"
+      },
+      {
+        "type": "token",
+        "content": "`"
+      },
+      {
+        "type": "token",
+        "content": " 합"
+      },
+      {
+        "type": "token",
+        "content": "계"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 단"
+      },
+      {
+        "type": "token",
+        "content": "위"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 원"
+      },
+      {
+        "type": "token",
+        "content": "(K"
+      },
+      {
+        "type": "token",
+        "content": "RW"
+      },
+      {
+        "type": "token",
+        "content": ")\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 차"
+      },
+      {
+        "type": "token",
+        "content": "트"
+      },
+      {
+        "type": "token",
+        "content": " 형태"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 선"
+      },
+      {
+        "type": "token",
+        "content": "그래"
+      },
+      {
+        "type": "token",
+        "content": "프"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 기간"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 전체"
+      },
+      {
+        "type": "token",
+        "content": " 기간"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 새"
+      },
+      {
+        "type": "token",
+        "content": " 거래"
+      },
+      {
+        "type": "token",
+        "content": " 반"
+      },
+      {
+        "type": "token",
+        "content": "영"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " 가능합니다"
+      },
+      {
+        "type": "token",
+        "content": "."
+      },
+      {
+        "type": "token",
+        "content": " 이"
+      },
+      {
+        "type": "token",
+        "content": " 미"
+      },
+      {
+        "type": "token",
+        "content": "리"
+      },
+      {
+        "type": "token",
+        "content": "보기"
+      },
+      {
+        "type": "token",
+        "content": " 정의"
+      },
+      {
+        "type": "token",
+        "content": " 그대로"
+      },
+      {
+        "type": "token",
+        "content": " 저장"
+      },
+      {
+        "type": "token",
+        "content": "하면"
+      },
+      {
+        "type": "token",
+        "content": ","
+      },
+      {
+        "type": "token",
+        "content": " 나"
+      },
+      {
+        "type": "token",
+        "content": "중"
+      },
+      {
+        "type": "token",
+        "content": "에"
+      },
+      {
+        "type": "token",
+        "content": " 새"
+      },
+      {
+        "type": "token",
+        "content": " 거래"
+      },
+      {
+        "type": "token",
+        "content": "를"
+      },
+      {
+        "type": "token",
+        "content": " 추가"
+      },
+      {
+        "type": "token",
+        "content": "한"
+      },
+      {
+        "type": "token",
+        "content": " 뒤"
+      },
+      {
+        "type": "token",
+        "content": " 다시"
+      },
+      {
+        "type": "token",
+        "content": " 계산"
+      },
+      {
+        "type": "token",
+        "content": "할"
+      },
+      {
+        "type": "token",
+        "content": " 수"
+      },
+      {
+        "type": "token",
+        "content": " 있는"
+      },
+      {
+        "type": "token",
+        "content": " 지"
+      },
+      {
+        "type": "token",
+        "content": "표"
+      },
+      {
+        "type": "token",
+        "content": "로"
+      },
+      {
+        "type": "token",
+        "content": " 사용"
+      },
+      {
+        "type": "token",
+        "content": "됩니다"
+      },
+      {
+        "type": "token",
+        "content": ".\n\n"
+      },
+      {
+        "type": "token",
+        "content": "현재"
+      },
+      {
+        "type": "token",
+        "content": " 미"
+      },
+      {
+        "type": "token",
+        "content": "리"
+      },
+      {
+        "type": "token",
+        "content": "보기"
+      },
+      {
+        "type": "token",
+        "content": " 결과"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " "
+      },
+      {
+        "type": "token",
+        "content": "202"
+      },
+      {
+        "type": "token",
+        "content": "6"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": "09"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": "10"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " "
+      },
+      {
+        "type": "token",
+        "content": "120"
+      },
+      {
+        "type": "token",
+        "content": ","
+      },
+      {
+        "type": "token",
+        "content": "000"
+      },
+      {
+        "type": "token",
+        "content": "원"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " "
+      },
+      {
+        "type": "token",
+        "content": "202"
+      },
+      {
+        "type": "token",
+        "content": "6"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": "09"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": "11"
+      },
+      {
+        "type": "token",
+        "content": ":"
+      },
+      {
+        "type": "token",
+        "content": " "
+      },
+      {
+        "type": "token",
+        "content": "170"
+      },
+      {
+        "type": "token",
+        "content": ","
+      },
+      {
+        "type": "token",
+        "content": "000"
+      },
+      {
+        "type": "token",
+        "content": "원"
+      },
+      {
+        "type": "token",
+        "content": "\n\n"
+      },
+      {
+        "type": "token",
+        "content": "해"
+      },
+      {
+        "type": "token",
+        "content": "석"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 현재"
+      },
+      {
+        "type": "token",
+        "content": " 집"
+      },
+      {
+        "type": "token",
+        "content": "계"
+      },
+      {
+        "type": "token",
+        "content": "된"
+      },
+      {
+        "type": "token",
+        "content": " 날짜"
+      },
+      {
+        "type": "token",
+        "content": " 그룹"
+      },
+      {
+        "type": "token",
+        "content": "은"
+      },
+      {
+        "type": "token",
+        "content": " "
+      },
+      {
+        "type": "token",
+        "content": "2"
+      },
+      {
+        "type": "token",
+        "content": "개"
+      },
+      {
+        "type": "token",
+        "content": "입니다"
+      },
+      {
+        "type": "token",
+        "content": ".\n"
+      },
+      {
+        "type": "token",
+        "content": "-"
+      },
+      {
+        "type": "token",
+        "content": " 이"
+      },
+      {
+        "type": "token",
+        "content": " 미"
+      },
+      {
+        "type": "token",
+        "content": "리"
+      },
+      {
+        "type": "token",
+        "content": "보기"
+      },
+      {
+        "type": "token",
+        "content": "는"
+      },
+      {
+        "type": "token",
+        "content": " 연결"
+      },
+      {
+        "type": "token",
+        "content": "된"
+      },
+      {
+        "type": "token",
+        "content": " 누"
+      },
+      {
+        "type": "token",
+        "content": "적"
+      },
+      {
+        "type": "token",
+        "content": " 장"
+      },
+      {
+        "type": "token",
+        "content": "부"
+      },
+      {
+        "type": "token",
+        "content": " 전체"
+      },
+      {
+        "type": "token",
+        "content": "를"
+      },
+      {
+        "type": "token",
+        "content": " 기준"
+      },
+      {
+        "type": "token",
+        "content": "으로"
+      },
+      {
+        "type": "token",
+        "content": " 계산"
+      },
+      {
+        "type": "token",
+        "content": "했고"
+      },
+      {
+        "type": "token",
+        "content": ","
+      },
+      {
+        "type": "token",
+        "content": " 저장"
+      },
+      {
+        "type": "token",
+        "content": "은"
+      },
+      {
+        "type": "token",
+        "content": " 아직"
+      },
+      {
+        "type": "token",
+        "content": " 하지"
+      },
+      {
+        "type": "token",
+        "content": " 않았"
+      },
+      {
+        "type": "token",
+        "content": "습니다"
+      },
+      {
+        "type": "token",
+        "content": ".\n\n"
+      },
+      {
+        "type": "token",
+        "content": "원"
+      },
+      {
+        "type": "token",
+        "content": "하"
+      },
+      {
+        "type": "token",
+        "content": "시면"
+      },
+      {
+        "type": "token",
+        "content": " 다음"
+      },
+      {
+        "type": "token",
+        "content": " 단계"
+      },
+      {
+        "type": "token",
+        "content": "로"
+      },
+      {
+        "type": "token",
+        "content": " 바로"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "1"
+      },
+      {
+        "type": "token",
+        "content": ")"
+      },
+      {
+        "type": "token",
+        "content": " 이"
+      },
+      {
+        "type": "token",
+        "content": " 정의"
+      },
+      {
+        "type": "token",
+        "content": " 그대로"
+      },
+      {
+        "type": "token",
+        "content": " 대"
+      },
+      {
+        "type": "token",
+        "content": "시"
+      },
+      {
+        "type": "token",
+        "content": "보"
+      },
+      {
+        "type": "token",
+        "content": "드"
+      },
+      {
+        "type": "token",
+        "content": " 지"
+      },
+      {
+        "type": "token",
+        "content": "표"
+      },
+      {
+        "type": "token",
+        "content": "로"
+      },
+      {
+        "type": "token",
+        "content": " 저장"
+      },
+      {
+        "type": "token",
+        "content": "하거나"
+      },
+      {
+        "type": "token",
+        "content": "\n"
+      },
+      {
+        "type": "token",
+        "content": "2"
+      },
+      {
+        "type": "token",
+        "content": ")"
+      },
+      {
+        "type": "token",
+        "content": " 같은"
+      },
+      {
+        "type": "token",
+        "content": " 결과"
+      },
+      {
+        "type": "token",
+        "content": "를"
+      },
+      {
+        "type": "token",
+        "content": " 일반"
+      },
+      {
+        "type": "token",
+        "content": " 차"
+      },
+      {
+        "type": "token",
+        "content": "트"
+      },
+      {
+        "type": "token",
+        "content": "로"
+      },
+      {
+        "type": "token",
+        "content": "도"
+      },
+      {
+        "type": "token",
+        "content": " 다시"
+      },
+      {
+        "type": "token",
+        "content": " 보여"
+      },
+      {
+        "type": "token",
+        "content": "드"
+      },
+      {
+        "type": "token",
+        "content": "릴"
+      },
+      {
+        "type": "token",
+        "content": " 수"
+      },
+      {
+        "type": "token",
+        "content": " 있습니다"
+      },
+      {
+        "type": "token",
+        "content": ".\n\n"
+      },
+      {
+        "type": "token",
+        "content": "---"
+      },
+      {
+        "type": "token",
+        "content": "S"
+      },
+      {
+        "type": "token",
+        "content": "UG"
+      },
+      {
+        "type": "token",
+        "content": "GEST"
+      },
+      {
+        "type": "token",
+        "content": "IONS"
+      },
+      {
+        "type": "token",
+        "content": "---\n"
+      },
+      {
+        "type": "token",
+        "content": "대"
+      },
+      {
+        "type": "token",
+        "content": "시"
+      },
+      {
+        "type": "token",
+        "content": "보"
+      },
+      {
+        "type": "token",
+        "content": "드"
+      },
+      {
+        "type": "token",
+        "content": "에"
+      },
+      {
+        "type": "token",
+        "content": " 저장"
+      },
+      {
+        "type": "token",
+        "content": "해"
+      },
+      {
+        "type": "token",
+        "content": "줘"
+      },
+      {
+        "type": "token",
+        "content": "|"
+      },
+      {
+        "type": "token",
+        "content": "막"
+      },
+      {
+        "type": "token",
+        "content": "대"
+      },
+      {
+        "type": "token",
+        "content": "그래"
+      },
+      {
+        "type": "token",
+        "content": "프로"
+      },
+      {
+        "type": "token",
+        "content": " 보여"
+      },
+      {
+        "type": "token",
+        "content": "줘"
+      },
+      {
+        "type": "token",
+        "content": "|"
+      },
+      {
+        "type": "token",
+        "content": "기간"
+      },
+      {
+        "type": "token",
+        "content": "별"
+      },
+      {
+        "type": "token",
+        "content": " 건"
+      },
+      {
+        "type": "token",
+        "content": "수"
+      },
+      {
+        "type": "token",
+        "content": "도"
+      },
+      {
+        "type": "token",
+        "content": " 보여"
+      },
+      {
+        "type": "token",
+        "content": "줘"
+      },
+      {
+        "type": "answer",
+        "content": "미리보기로 만들었습니다. 아직 저장하지 않았습니다.\n\n- 지표명: 공개데모_매출 일별 매출 합계\n- 사용 장부: 공개데모_매출.csv → 연결된 누적 장부 전체\n- 계산 기준: `paid_at` 날짜별 `amount` 합계\n- 단위: 원(KRW)\n- 차트 형태: 선그래프\n- 기간: 전체 기간\n- 새 거래 반영: 가능합니다. 이 미리보기 정의 그대로 저장하면, 나중에 새 거래를 추가한 뒤 다시 계산할 수 있는 지표로 사용됩니다.\n\n현재 미리보기 결과\n- 2026-09-10: 120,000원\n- 2026-09-11: 170,000원\n\n해석\n- 현재 집계된 날짜 그룹은 2개입니다.\n- 이 미리보기는 연결된 누적 장부 전체를 기준으로 계산했고, 저장은 아직 하지 않았습니다.\n\n원하시면 다음 단계로 바로\n1) 이 정의 그대로 대시보드 지표로 저장하거나\n2) 같은 결과를 일반 차트로도 다시 보여드릴 수 있습니다.\n\n---SUGGESTIONS---\n대시보드에 저장해줘|막대그래프로 보여줘|기간별 건수도 보여줘"
+      }
+    ],
+    "charts": [
+      {
+        "data": [
+          {
+            "value": "120000",
+            "dimension": "2026-09-10"
+          },
+          {
+            "value": "170000",
+            "dimension": "2026-09-11"
+          }
+        ],
+        "unit": "KRW",
+        "label": "공개데모_매출.csv · 396350c8 · sum",
+        "saved": false,
+        "title": "공개데모_매출 일별 매출 합계",
+        "x_key": "dimension",
+        "y_key": "value",
+        "execution": {
+          "sql": "SELECT date_trunc(%s, \"paid_at\")::date AS dimension, SUM(\"amount\") AS value, COUNT(*) FILTER (WHERE \"amount\" IS NULL) AS missing_values FROM \"ut_8f1649cd_680bef12\" GROUP BY 1 ORDER BY 1 NULLS LAST LIMIT %s",
+          "dialect": "PostgreSQL",
+          "timezone": "Asia/Seoul",
+          "parameters": [
+            "day",
+            1001
+          ],
+          "parameterized": true
+        },
+        "chart_type": "line",
+        "scope_label": "누적 장부 전체",
+        "period_label": "전체 기간",
+        "refresh_note": "새로고침할 때 연결 장부의 최신 거래를 반영합니다.",
+        "calculated_at": "2026-09-11T05:27:13.200524+00:00",
+        "refresh_error": null,
+        "suggested_title": "공개데모_매출.csv · 396350c8 · 합계 · 일별",
+        "analysis_sources": [
+          {
+            "scope": "linked_ledger",
+            "table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+            "table_name": "공개데모_매출.csv · 396350c8",
+            "scope_label": "누적 장부 전체",
+            "refresh_note": "새로고침할 때 연결 장부의 최신 거래를 반영합니다."
+          }
+        ],
+        "calculation_label": "합계 (amount)",
+        "metric_definition": {
+          "unit": "KRW",
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": "paid_at",
+          "table_id": "680bef12-dab0-45fd-b0f7-49a189187b75",
+          "operation": "sum",
+          "chart_type": "line",
+          "date_grain": "day",
+          "time_range": "all",
+          "date_column": "paid_at"
+        },
+        "source_table_name": "공개데모_매출.csv · 396350c8",
+        "source_updated_at": "2026-09-11T05:27:04.545661"
+      }
+    ],
+    "table_data": null,
+    "created_at": "2026-09-11T05:27:17.398328"
+  }
+}

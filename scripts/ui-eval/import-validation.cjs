@@ -13,6 +13,8 @@ async function main() {
       const p = new URL(route.request().url()).pathname;
       let body = {}, status = 200;
       if (p === "/api/auth/refresh") body = { access_token: "ui-fixture", refresh_token: "ui-fixture" };
+      else if (p === "/api/uploads/capabilities") body = { direct_upload: false, max_size_bytes: 20 * 1024 * 1024 };
+      else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p === "/api/auth/me") body = { email: "ui@example.test" };
       else if (p === "/api/projects") body = { projects: [{ id: "store-a", name: "강남점", description: "" }] };
       else if (p.endsWith("/cash-entries")) body = { entries: [], total: 0 };

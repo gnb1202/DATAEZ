@@ -1,5 +1,7 @@
 "use client";
 
+import { uploadSourceForm } from "@/app/lib/direct-upload";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -143,8 +145,7 @@ export function LedgerImportPanel({ onTablesChange, tables, onOpenDashboard }: {
   const upload = () => run(async () => {
     if (!file || !sourceId) return;
     if (!requestKey.current) requestKey.current = crypto.randomUUID();
-    const data = new FormData();
-    data.set("file", file); data.set("source_id", sourceId); data.set("request_key", requestKey.current);
+    const data = await uploadSourceForm(apiFetch, file, projectId!); data.set("source_id", sourceId); data.set("request_key", requestKey.current);
     const uploaded = await json(`${base}/imports`, { method: "POST", body: data });
     if (!alive.current) return;
     setBatch(uploaded); setPage(0);

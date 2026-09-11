@@ -1,0 +1,27 @@
+{
+  "deployment": "https://dataez-geujmxikb-gnb1202-navercoms-projects.vercel.app",
+  "checks": [
+    "stored_source_import_replays_same_table_and_append_preserves_semantics",
+    "cross_store_and_ambiguous_uploads_rejected",
+    "mapping_inspect_validate_and_payment_batch_accept_only_file_id",
+    "document_registration_reuses_owned_original",
+    "real_streamed_llm_runs_in_bounded_child_and_persists_usage",
+    "deployed_shared_ai_budget_and_rls_verified"
+  ],
+  "real_llm_calls": true,
+  "ai_usage": {
+    "calls": 1,
+    "prompt_tokens": 6063,
+    "completion_tokens": 112,
+    "total_tokens": 6175,
+    "cost_usd": 0.008699,
+    "by_role": {
+      "worker": {
+        "calls": 1,
+        "tokens": 6175,
+        "cost_usd": 0.008699
+      }
+    }
+  },
+  "synthetic_data_removed": true
+}

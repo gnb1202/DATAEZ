@@ -18,6 +18,8 @@ async function main() {
       let body = {}, status = 200;
       if (request.method() === "OPTIONS") body = {};
       else if (p === "/api/auth/refresh") body = { access_token: "ui-fixture", refresh_token: "ui-fixture" };
+      else if (p === "/api/uploads/capabilities") body = { direct_upload: false, max_size_bytes: 20 * 1024 * 1024 };
+      else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p === "/api/auth/me") body = { email: "ui@example.test" };
       else if (p === "/api/conversations") body = { conversations: [] };
       else if (p === "/api/projects") body = { projects: stores };
@@ -109,6 +111,7 @@ async function main() {
     await fs.mkdir(path.join(__dirname, "artifacts"), { recursive: true });
     await page.screenshot({ path: path.join(__dirname, "artifacts/ledger-imports.png"), fullPage: true });
     await page.getByRole("combobox", { name: "현재 작업 가게" }).selectOption("store-b");
+    await page.getByRole("button", { name: "데이터 관리", exact: true }).click();
     await panel.getByText("제공자·계정별 출처를 먼저 등록한 뒤 파일을 연결해주세요.", { exact: true }).waitFor();
     assert.equal(await panel.getByLabel("반영할 출처").count(), 0);
     assert.equal(await panel.getByText("이미 반영한 파일입니다. 이번 추가는 0건입니다.", { exact: true }).count(), 0);

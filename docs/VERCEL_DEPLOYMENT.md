@@ -2,9 +2,7 @@
 
 2026-09-11 · 공개 주소: **https://dataez.vercel.app**
 
-프론트엔드가 Vercel Hobby에 배포됐다. 백엔드와 Supabase 연결은 아직 진행 전이므로
-현재 공개 페이지는 서비스 준비 안내와 비활성 로그인·회원가입을 표시한다.
-AI 분석·파일 업로드·저장된 대시보드를 공개 환경에서 검증한 상태는 아니다.
+프론트와 API의 Production 연결 및 실제 공개 데모 검증을 완료했다. 현재 로그인·회원가입·업로드·AI 분석·저장 지표를 사용할 수 있다. [최신 공개 배포 기록](PUBLIC_DEMO_ACCEPTANCE.md)을 우선한다. 아래 초기 배포 기록은 당시 상태를 보존한다.
 
 ## 프로젝트 설정
 
@@ -34,7 +32,11 @@ GitHub 연결 후 `4029310` 푸시가 실제 production 배포를 생성했음�
 - DB 연결 문자열, 모델 API 키, Storage 서버 자격 증명은 Vercel 웹에 등록하지 않았다.
 - CLI 링크 과정에서 생성된 `.vercel/`와 `.env.local`은 Git에서 제외한다.
 
-AWS API에 HTTPS 주소가 생기면 Vercel의 production 환경에 `NEXT_PUBLIC_API_URL`을
+2026-09-11 후속 비용 결정으로 AWS/Lightsail은 보류하고 [Vercel API 적합성](VERCEL_API_FEASIBILITY.md)을 검증했다.
+별도 임시 프로젝트의 의존성·파싱·스트리밍 검증 이후, `dataez-api` 보호된 Preview에 전체 API를 배포하고
+Supabase DB·Storage 연결을 검증했다. [배포·검증 기록](SUPABASE_SETUP.md#vercel-함수-배포-및-연결-검증)을 참고한다.
+
+검증을 마친 API에 HTTPS 주소가 생기면 Vercel의 production 환경에 `NEXT_PUBLIC_API_URL`을
 등록하고 다시 배포한다. API의 `ALLOWED_ORIGINS`에는 공개 프론트 origin을 허용한다.
 미리보기 주소는 필요한 주소만 별도로 허용한다. 이후 로그인·업로드·SSE 분석·저장·재접속을
 실제 Supabase DB/Storage와 함께 검증한다.

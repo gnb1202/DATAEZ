@@ -1,0 +1,25 @@
+{
+  "scope": "local PostgreSQL, real API; not remote Supabase/pooler/Storage/LLM validation",
+  "explicit_initialization_runs": 2,
+  "initial": {
+    "fresh_process_reconnect": false,
+    "checks": [
+      "database_ready",
+      "two_accounts_login_and_refresh",
+      "cross_account_project_isolation",
+      "concurrent_reads_with_two_connection_pool",
+      "no_automatic_prepared_statements"
+    ]
+  },
+  "new_process": {
+    "fresh_process_reconnect": true,
+    "checks": [
+      "database_ready",
+      "two_accounts_login_and_refresh",
+      "cross_account_project_isolation",
+      "concurrent_reads_with_two_connection_pool",
+      "no_automatic_prepared_statements"
+    ]
+  },
+  "temporary_database_removed": true
+}

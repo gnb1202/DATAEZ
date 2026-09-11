@@ -1,0 +1,9 @@
+{
+  "api": "https://dataez-api.vercel.app",
+  "ui": "https://dataez.vercel.app",
+  "checks": [
+    "Public health; account/internal authentication and allowed/disallowed CORS origins"
+  ],
+  "browser_exit_code": 0,
+  "synthetic_data_removed": true
+}

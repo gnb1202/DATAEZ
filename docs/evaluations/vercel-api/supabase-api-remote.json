@@ -1,0 +1,18 @@
+{
+  "project_ref": "whbygnzoaehvlddltwlb",
+  "scope": "real FastAPI + remote transaction pooler and Storage; no LLM or public Vercel API",
+  "checks": [
+    "database_ready",
+    "two_accounts_signup_login_refresh",
+    "cross_account_store_isolation",
+    "korean_csv_upload_preview_exact_download",
+    "cross_account_file_and_cross_store_binding_denied",
+    "dynamic_import_sql_total_and_rls",
+    "staged_upload_replace_read_delete",
+    "private_object_public_download_denied",
+    "concurrent_reads_pool_max_two",
+    "reconnected_api_download",
+    "pooler_tls_no_prepared_statements"
+  ],
+  "synthetic_data_removed": true
+}

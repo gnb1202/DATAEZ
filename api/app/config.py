@@ -1,4 +1,6 @@
-from pydantic import model_validator
+from typing import Literal
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings
 
 # Placeholder secrets that must never reach a real deployment. Kept as an
@@ -13,6 +15,8 @@ PLACEHOLDER_SECRETS = {
 
 class Settings(BaseSettings):
     app_env: str = "development"
+    runtime_mode: Literal["persistent", "serverless"] = "persistent"
+    startup_migrations_enabled: bool = True
     database_url: str = "postgresql://dataez:dataez@db:5432/dataez"
     storage_backend: str = "local"
     local_storage_path: str = "./data/uploads"
@@ -22,6 +26,9 @@ class Settings(BaseSettings):
     s3_endpoint_url: str = ""
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
+    supabase_url: str = ""
+    supabase_secret_key: str = ""
+    supabase_storage_bucket: str = "dataez-files"
     max_upload_size_mb: int = 20
     openai_api_key: str = ""
     # Model tiering follows task difficulty. The worker runs a multi-step loop
@@ -54,9 +61,15 @@ class Settings(BaseSettings):
     db_pool_min_size: int = 2
     db_pool_max_size: int = 10
     db_pool_timeout: int = 30
+    db_connect_timeout: int = 10
+    db_pool_max_idle: int = 600
+    db_prepared_statements: bool = True
     # Agent limits
     agent_max_iterations: int = 25
     agent_max_token_budget: int = 100_000
+    agent_timeout_seconds: int = Field(default=200, ge=10, le=240)
+    ai_user_requests_per_day: int = Field(default=30, ge=1, le=10000)
+    ai_total_requests_per_day: int = Field(default=100, ge=1, le=100000)
     # SQL execution limits
     max_select_rows: int = 10_000
     query_timeout_ms: int = 30_000
@@ -64,6 +77,48 @@ class Settings(BaseSettings):
     conversation_ttl_days: int = 90
     metric_scheduler_enabled: bool = True
     import_cleanup_enabled: bool = True
+    # Internal scheduled runner, separate from user JWTs and disabled by default.
+    maintenance_enabled: bool = False
+    maintenance_secret: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def runtime_defaults(cls, values):
+        values = dict(values)
+        if values.get("runtime_mode") == "serverless":
+            for key, value in {
+                "startup_migrations_enabled": False,
+                "metric_scheduler_enabled": False,
+                "import_cleanup_enabled": False,
+                "index_worker_enabled": False,
+                "db_pool_min_size": 0,
+                "db_pool_max_size": 2,
+                "db_pool_timeout": 5,
+                "db_pool_max_idle": 60,
+                "db_prepared_statements": False,
+                "agent_max_iterations": 8,
+                "agent_max_token_budget": 24000,
+            }.items():
+                values.setdefault(key, value)
+        return values
+
+    @model_validator(mode="after")
+    def validate_runtime(self):
+        if self.maintenance_enabled and (len(self.maintenance_secret) < 32 or not self.maintenance_secret.isascii()):
+            raise ValueError("Maintenance runner requires an ASCII secret of at least 32 characters")
+        if not 0 <= self.db_pool_min_size <= self.db_pool_max_size or self.db_pool_max_size < 1:
+            raise ValueError("DB pool sizes must satisfy 0 <= min <= max and max >= 1")
+        if min(self.db_pool_timeout, self.db_connect_timeout, self.db_pool_max_idle) <= 0:
+            raise ValueError("DB timeouts must be positive")
+        if self.runtime_mode == "serverless":
+            if any((self.startup_migrations_enabled, self.metric_scheduler_enabled,
+                    self.import_cleanup_enabled, self.index_worker_enabled)):
+                raise ValueError("Serverless runtime requires migrations and persistent workers to be disabled")
+            if self.storage_backend not in ("s3", "supabase"):
+                raise ValueError("Serverless runtime requires durable S3 or Supabase storage")
+            if self.db_prepared_statements:
+                raise ValueError("Serverless transaction pooling requires prepared statements to be disabled")
+        return self
 
     @property
     def is_production(self) -> bool:
@@ -95,14 +150,24 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_storage_config(self) -> "Settings":
-        if self.storage_backend not in ("s3", "local"):
+        if self.storage_backend not in ("s3", "supabase", "local"):
             raise ValueError(
-                f"STORAGE_BACKEND must be 's3' or 'local', got {self.storage_backend!r}"
+                "STORAGE_BACKEND must be 's3', 'supabase' or 'local'"
             )
         if self.storage_backend == "s3" and not self.s3_bucket:
             raise ValueError(
                 "S3_BUCKET must be set when STORAGE_BACKEND=s3"
             )
+        if self.storage_backend == "supabase":
+            from urllib.parse import urlsplit
+            url = urlsplit(self.supabase_url)
+            if (url.scheme != "https" or not url.hostname or url.username or url.password
+                    or url.query or url.fragment or url.path not in ("", "/")):
+                raise ValueError("SUPABASE_URL must be an HTTPS project origin")
+            if not self.supabase_secret_key or not self.supabase_storage_bucket:
+                raise ValueError("Supabase storage requires a server secret key and bucket")
+            if not self.supabase_secret_key.isascii():
+                raise ValueError("Supabase server key must be unmasked")
         return self
 
     @model_validator(mode="after")
@@ -114,6 +179,7 @@ class Settings(BaseSettings):
     model_config = {
         "env_prefix": "",
         "case_sensitive": False,
+        "hide_input_in_errors": True,
     }
 
 

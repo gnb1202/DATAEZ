@@ -299,6 +299,8 @@ def run_agent(
             "model": settings.openai_model,
             "messages": messages,
         }
+        if settings.runtime_mode == "serverless":
+            call_kwargs["max_completion_tokens"] = 4096
         if active_tools:
             call_kwargs["tools"] = active_tools
             call_kwargs["tool_choice"] = tc
@@ -504,6 +506,8 @@ async def run_agent_streaming(
             "model": settings.openai_model,
             "messages": messages,
         }
+        if settings.runtime_mode == "serverless":
+            call_kwargs["max_completion_tokens"] = 4096
         if active_tools:
             call_kwargs["tools"] = active_tools
             call_kwargs["tool_choice"] = tc

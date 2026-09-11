@@ -126,7 +126,7 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
       pendingDraft.current = { text, file: file || null, libraryFiles };
       streamStarted.current = true;
       setComposer({ text: "", file: null, libraryFiles });
-      const result = await stream.sendMessage(id, text, file, libraryFiles);
+      const result = await stream.sendMessage(id, text, file, libraryFiles, projectId ?? undefined);
       if (!active()) return;
       if (result) {
         setMessages((prev) => [...prev, result]);

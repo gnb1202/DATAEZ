@@ -1,0 +1,11 @@
+{
+  "api_mocks": true,
+  "workspace_checks": 14,
+  "import_validation": "passed",
+  "ledger_imports": "passed",
+  "changes": [
+    "sample-workspace and upload capabilities fixtures",
+    "reopen data management after store switch"
+  ],
+  "light_tooltip": "passed; no app change required"
+}

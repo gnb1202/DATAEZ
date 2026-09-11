@@ -1,9 +1,9 @@
 import asyncio
 import json
 import logging
-from contextlib import asynccontextmanager
+from contextlib import aclosing, asynccontextmanager
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from .logging_config import setup_logging
 
@@ -19,6 +19,7 @@ from fastapi.encoders import jsonable_encoder
 from decimal import Decimal
 from .import_validation import ImportValidationError
 from .agent import AgentResult, _parse_suggestions, run_agent, run_agent_streaming
+from .agent_process import run_bounded_agent, stream_bounded_agent
 
 # Emitted while the agent is busy (typically inside a long tool call) so an
 # in-progress turn stays distinguishable from a dead connection. Must stay
@@ -72,7 +73,9 @@ from .db import (
     update_table_meta,
     update_widgets_layout,
 )
-from .rate_limiter import rate_limiter
+from .rate_limiter import rate_limiter, check_ai_budget
+from .request_limit_schema import ensure_request_limits
+from .upload_sources import read_source
 from .schemas import (
     AppendResponse,
     AuthTokenResponse,
@@ -104,6 +107,8 @@ from .schemas import (
     WidgetResponse,
 )
 from .library_schema import ensure_library
+from .upload_schema import ensure_upload_sessions
+from .maintenance_schema import ensure_maintenance
 from .widget_saves import ensure_widget_saves
 from .library_routes import router as library_router
 from .file_library import resolve_references, reference_step
@@ -152,9 +157,8 @@ def _get_owned_conversation(
     return conv
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Startup/shutdown handlers (replaces deprecated @app.on_event)."""
+def initialize_database():
+    """Idempotent schema upgrades, also invoked explicitly before serverless deployment."""
     run_startup_migrations()
     ensure_conversation_tables()
     ensure_dashboard_widgets_table()
@@ -167,11 +171,21 @@ async def lifespan(app: FastAPI):
     ensure_rag_tables()
     ensure_performance_indexes()
     ensure_library()
+    ensure_upload_sessions()
+    ensure_maintenance()
+    ensure_request_limits()
     ensure_widget_saves()
     # Periodic cleanup on restart
     cleanup_old_conversations()
     cleanup_expired_refresh_tokens()
     purge_soft_deleted()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Persistent deployments initialize here; serverless deployments migrate separately."""
+    if settings.startup_migrations_enabled:
+        initialize_database()
 
     stop_scheduler = asyncio.Event()
     scheduler = asyncio.create_task(run_metric_scheduler(stop_scheduler)) if settings.metric_scheduler_enabled else None
@@ -219,6 +233,10 @@ app.include_router(dashboard_metrics_router)
 app.include_router(metric_revisions_router)
 app.include_router(cash_router)
 app.include_router(library_router)
+from .direct_uploads import router as direct_upload_router
+app.include_router(direct_upload_router)
+from .maintenance import router as maintenance_router
+app.include_router(maintenance_router)
 app.include_router(ledger_router)
 app.include_router(index_router)
 
@@ -485,7 +503,8 @@ async def api_export_table(
 @app.post("/api/projects/{project_id}/tables/import", tags=["tables"], summary="CSV/XLSX 가져오기")
 async def api_import_table(
     project_id: str,
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(default=None),
+    stored_file_id: UUID | None = Form(default=None),
     request: Request = None,
     user: dict[str, str] = Depends(get_current_user),
     table_name: str = Form(default=""),
@@ -495,17 +514,11 @@ async def api_import_table(
     _get_owned_project(project_id, user)
 
     allowed_types = (".csv", ".xlsx", ".xls")
-    filename = (file.filename or "").strip()
-    if not filename.lower().endswith(allowed_types):
-        raise UnsupportedFileType(filename)
-
-    max_upload_size = settings.max_upload_size_mb * 1024 * 1024
-    content = await file.read(max_upload_size + 1)
-    if len(content) > max_upload_size:
-        raise FileTooLarge(settings.max_upload_size_mb)
+    filename, content = await read_source(user["id"], project_id, file, stored_file_id, storage, allowed_types)
 
     display_name = table_name.strip() if table_name.strip() else filename.rsplit(".", 1)[0]
-    meta = await asyncio.to_thread(create_imported_table, user["id"], project_id, display_name, content, filename, storage)
+    meta = await asyncio.to_thread(create_imported_table, user["id"], project_id, display_name, content, filename, storage,
+                                  **({'source_file_id': str(stored_file_id)} if stored_file_id else {}))
     table_id = str(meta["id"])
     # A committed import must not look failed because indexing is unavailable.
     try:
@@ -519,7 +532,8 @@ async def api_import_table(
 @app.post("/api/projects/{project_id}/documents", tags=["documents"], summary="문서 업로드 (RAG용 PDF/MD/TXT)")
 async def api_upload_document(
     project_id: str,
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(default=None),
+    stored_file_id: UUID | None = Form(default=None),
     user: dict[str, str] = Depends(get_current_user),
     _project: dict[str, Any] = Depends(_get_owned_project),
 ) -> dict[str, Any]:
@@ -531,16 +545,10 @@ async def api_upload_document(
     rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
 
     allowed_types = (".pdf", ".md", ".txt")
-    filename = (file.filename or "").strip()
-    if not filename.lower().endswith(allowed_types):
-        raise UnsupportedFileType(filename)
+    filename, content = await read_source(user["id"], project_id, file, stored_file_id, storage, allowed_types)
 
-    content = await file.read(settings.max_upload_size_mb * 1024 * 1024 + 1)
-    max_upload_size = settings.max_upload_size_mb * 1024 * 1024
-    if len(content) > max_upload_size:
-        raise FileTooLarge(settings.max_upload_size_mb)
-
-    result = await asyncio.to_thread(register_document, user['id'], project_id, filename, content, storage)
+    result = await asyncio.to_thread(register_document, user['id'], project_id, filename, content, storage,
+                                    **({'source_file_id': str(stored_file_id)} if stored_file_id else {}))
     try:
         record_audit(user['id'], 'import', 'document', result['file_id'], {'filename': filename, 'project_id': project_id})
     except Exception:
@@ -592,21 +600,15 @@ def api_delete_document(
 async def api_append_table(
     table_id: str,
     request: Request,
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(default=None),
+    stored_file_id: UUID | None = Form(default=None),
     user: dict[str, str] = Depends(get_current_user),
     meta: dict[str, Any] = Depends(_get_owned_table),
 ) -> dict[str, Any]:
     """Append CSV data to an existing table."""
     rate_limiter.check(f"upload:{user['id']}", settings.upload_rate_limit_per_minute, 60)
     allowed_types = (".csv", ".xlsx", ".xls")
-    filename = (file.filename or "").strip()
-    if not filename.lower().endswith(allowed_types):
-        raise UnsupportedFileType(filename)
-
-    max_upload_size = settings.max_upload_size_mb * 1024 * 1024
-    content = await file.read(max_upload_size + 1)
-    if len(content) > max_upload_size:
-        raise FileTooLarge(settings.max_upload_size_mb)
+    filename, content = await read_source(user["id"], str(meta["project_id"]), file, stored_file_id, storage, allowed_types)
     return await asyncio.to_thread(append_imported_table, user["id"], str(meta["project_id"]), table_id, content, filename)
 
 
@@ -795,7 +797,7 @@ async def _read_attached_files(files: list[UploadFile]) -> list[dict[str, Any]]:
             continue
         if not filename.lower().endswith(ALLOWED_EXTENSIONS):
             raise HTTPException(status_code=400, detail=f"지원하지 않는 파일 형식입니다: {filename}")
-        content = await f.read()
+        content = await f.read(max_size + 1)
         if len(content) > max_size:
             raise HTTPException(status_code=400, detail=f"파일이 너무 큽니다 ({filename}). 최대 {settings.max_upload_size_mb}MB")
         attached.append({"filename": filename, "content": content})
@@ -806,24 +808,40 @@ async def _read_attached_files(files: list[UploadFile]) -> list[dict[str, Any]]:
 async def send_message(
     conversation_id: str,
     request: Request,
-    message: str = Form(...),
+    message: str = Form(..., min_length=1, max_length=8000),
     files: list[UploadFile] = File(default=[]),
-    library_selections: str = Form(default="[]"),
+    stored_file_ids: str = Form(default="[]", max_length=500),
+    library_selections: str = Form(default="[]", max_length=20000),
     library_scope_confirmed: bool = Form(default=False),
     user: dict[str, str] = Depends(get_current_user),
     conv: dict[str, Any] = Depends(_get_owned_conversation),
 ) -> dict[str, Any]:
     client_ip = request.client.host if request.client else "unknown"
-    rate_limiter.check(f"query:{user['id']}:{client_ip}", settings.query_rate_limit_per_minute, 60)
+    rate_limiter.check(f"query:{user['id']}", settings.query_rate_limit_per_minute, 60)
 
     try:
         selections = json.loads(library_selections)
     except (ValueError, TypeError):
         raise HTTPException(422, "파일 선택 정보를 읽을 수 없습니다.")
     library_refs = await asyncio.to_thread(resolve_references, user["id"], str(conv.get("project_id") or ""), selections, confirmed=library_scope_confirmed)
-    if library_refs and files:
+    try:
+        source_ids = json.loads(stored_file_ids)
+    except (ValueError, TypeError):
+        raise HTTPException(422, "첨부 파일 ID를 확인해주세요.")
+    if not isinstance(source_ids, list) or len(source_ids) > 3 or len(files) > 3:
+        raise HTTPException(422, "첨부 파일은 최대 3개까지 선택해주세요.")
+    if files and source_ids:
+        raise HTTPException(422, "첨부 방식은 하나만 선택해주세요.")
+    if library_refs and (files or source_ids):
         raise HTTPException(422, "새 파일을 먼저 보관함에 보관한 뒤 기존 파일과 함께 선택해주세요.")
     attached_files = await _read_attached_files(files)
+    for source_id in source_ids:
+        filename, content = await read_source(user["id"], str(conv.get("project_id") or ""), None, source_id, storage)
+        attached_files.append({"filename": filename, "content": content, "source_file_id": str(source_id)})
+    if sum(len(item["content"]) for item in attached_files) > settings.max_upload_size_mb * 1024 * 1024:
+        raise FileTooLarge(settings.max_upload_size_mb)
+
+    check_ai_budget(user["id"])
 
     # Save user message
     user_msg_id = str(uuid4())
@@ -855,8 +873,12 @@ async def send_message(
     ]
 
     # Run agent (offload sync call to thread to avoid blocking event loop)
-    agent_result = await asyncio.to_thread(
-        run_agent,
+    async def execute_agent(**kwargs):
+        if settings.runtime_mode == "serverless":
+            return await run_bounded_agent(**kwargs)
+        return await asyncio.to_thread(run_agent, **kwargs)
+
+    agent_result = await execute_agent(
         user_id=user["id"],
         project_id=project_id,
         project_name=project["name"],
@@ -915,24 +937,38 @@ async def send_message(
 async def send_message_streaming(
     conversation_id: str,
     request: Request,
-    message: str = Form(...),
+    message: str = Form(..., min_length=1, max_length=8000),
     files: list[UploadFile] = File(default=[]),
-    library_selections: str = Form(default="[]"),
+    stored_file_ids: str = Form(default="[]", max_length=500),
+    library_selections: str = Form(default="[]", max_length=20000),
     library_scope_confirmed: bool = Form(default=False),
     user: dict[str, str] = Depends(get_current_user),
     conv: dict[str, Any] = Depends(_get_owned_conversation),
 ) -> StreamingResponse:
     client_ip = request.client.host if request.client else "unknown"
-    rate_limiter.check(f"query:{user['id']}:{client_ip}", settings.query_rate_limit_per_minute, 60)
+    rate_limiter.check(f"query:{user['id']}", settings.query_rate_limit_per_minute, 60)
 
     try:
         selections = json.loads(library_selections)
     except (ValueError, TypeError):
         raise HTTPException(422, "파일 선택 정보를 읽을 수 없습니다.")
     library_refs = await asyncio.to_thread(resolve_references, user["id"], str(conv.get("project_id") or ""), selections, confirmed=library_scope_confirmed)
-    if library_refs and files:
+    try:
+        source_ids = json.loads(stored_file_ids)
+    except (ValueError, TypeError):
+        raise HTTPException(422, "첨부 파일 ID를 확인해주세요.")
+    if not isinstance(source_ids, list) or len(source_ids) > 3 or len(files) > 3:
+        raise HTTPException(422, "첨부 파일은 최대 3개까지 선택해주세요.")
+    if files and source_ids:
+        raise HTTPException(422, "첨부 방식은 하나만 선택해주세요.")
+    if library_refs and (files or source_ids):
         raise HTTPException(422, "새 파일을 먼저 보관함에 보관한 뒤 기존 파일과 함께 선택해주세요.")
     attached_files = await _read_attached_files(files)
+    for source_id in source_ids:
+        filename, content = await read_source(user["id"], str(conv.get("project_id") or ""), None, source_id, storage)
+        attached_files.append({"filename": filename, "content": content, "source_file_id": str(source_id)})
+    if sum(len(item["content"]) for item in attached_files) > settings.max_upload_size_mb * 1024 * 1024:
+        raise FileTooLarge(settings.max_upload_size_mb)
 
     # Resolve project context
     project_id = str(conv["project_id"]) if conv.get("project_id") else None
@@ -945,6 +981,7 @@ async def send_message_streaming(
 
     tables_info = list_table_metas(project_id, user["id"])
 
+    check_ai_budget(user["id"])
     user_msg_id = str(uuid4())
     save_message(
         message_id=user_msg_id,
@@ -1006,6 +1043,10 @@ async def send_message_streaming(
                 yield item
         finally:
             producer.cancel()
+            try:
+                await producer
+            except asyncio.CancelledError:
+                pass
 
     async def _stream_agent_events():
         steps = []
@@ -1017,7 +1058,8 @@ async def send_message_streaming(
         mutated_table_ids: list[str] = []
         usage: dict[str, Any] = {}
 
-        async for step in run_agent_streaming(
+        runner = stream_bounded_agent if settings.runtime_mode == "serverless" else run_agent_streaming
+        async with aclosing(runner(
             user_id=user["id"],
             project_id=project_id,
             project_name=project["name"],
@@ -1026,60 +1068,67 @@ async def send_message_streaming(
             question=message,
             attached_files=attached_files or None,
             **({"library_refs": library_refs} if library_refs else {}),
-        ):
-            if step.type == "meta":
-                # Mutation flags plus this turn's LLM usage.
-                try:
-                    meta_data = json.loads(step.content)
-                    if meta_data.get("mutations_performed"):
+        )) as agent_steps:
+            async for step in agent_steps:
+                if step.type == "meta":
+                    # Mutation flags plus this turn's LLM usage.
+                    try:
+                        meta_data = json.loads(step.content)
+                        if meta_data.get("mutations_performed"):
+                            mutations_performed = True
+                        if meta_data.get("schema_changed"):
+                            schema_changed = True
+                        if meta_data.get("mutated_table_ids"):
+                            mutated_table_ids = meta_data["mutated_table_ids"]
+                        if meta_data.get("usage"):
+                            usage = meta_data["usage"]
+                    except Exception:
+                        logger.warning("Failed to parse agent meta frame", exc_info=True)
+                    continue
+
+                steps.append(step)
+
+                if step.type == "tool_call":
+                    if step.tool_name in ("generate_chart", "preview_metric") and "chart_type" in step.tool_output:
+                        charts.append(step.tool_output)
+                    if step.tool_name in ("query_data", "cross_query") and "data" in step.tool_output:
+                        table_data = step.tool_output["data"]
+                    # Track mutations
+                    if step.tool_name in ("insert_rows", "update_rows", "delete_rows", "import_file"):
                         mutations_performed = True
-                    if meta_data.get("schema_changed"):
+                    if step.tool_name in ("create_table", "alter_table"):
                         schema_changed = True
-                    if meta_data.get("mutated_table_ids"):
-                        mutated_table_ids = meta_data["mutated_table_ids"]
-                    if meta_data.get("usage"):
-                        usage = meta_data["usage"]
-                except Exception:
-                    logger.warning("Failed to parse agent meta frame", exc_info=True)
-                continue
+                    event = {
+                        "type": "step",
+                        "data": {
+                            "tool_name": step.tool_name,
+                            "tool_input": step.tool_input,
+                            "tool_output": step.tool_output,
+                        },
+                    }
+                    yield f"data: {json.dumps(event, ensure_ascii=False, default=str)}\n\n"
 
-            steps.append(step)
+                elif step.type == "token":
+                    # Incremental answer text. This is what makes time-to-first-
+                    # byte independent of total model latency.
+                    event = {"type": "token", "data": {"content": step.content}}
+                    yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
 
-            if step.type == "tool_call":
-                if step.tool_name in ("generate_chart", "preview_metric") and "chart_type" in step.tool_output:
-                    charts.append(step.tool_output)
-                if step.tool_name in ("query_data", "cross_query") and "data" in step.tool_output:
-                    table_data = step.tool_output["data"]
-                # Track mutations
-                if step.tool_name in ("insert_rows", "update_rows", "delete_rows", "import_file"):
-                    mutations_performed = True
-                if step.tool_name in ("create_table", "alter_table"):
-                    schema_changed = True
-                event = {
-                    "type": "step",
-                    "data": {
-                        "tool_name": step.tool_name,
-                        "tool_input": step.tool_input,
-                        "tool_output": step.tool_output,
-                    },
-                }
-                yield f"data: {json.dumps(event, ensure_ascii=False, default=str)}\n\n"
+                elif step.type == "error":
+                    # Persist interrupted work before the browser handles the error.
+                    partial = AgentResult(answer=step.content, steps=steps, charts=charts, table_data=table_data, usage=usage).to_dict()
+                    if library_refs: partial["steps"].insert(0, reference_step(library_refs))
+                    save_message(message_id=str(uuid4()), conversation_id=conversation_id, role="assistant",
+                                 content=step.content, steps=partial["steps"], charts=charts, table_data=table_data, usage=usage)
+                    touch_conversation(conversation_id)
+                    event = {"type": "error", "data": {"message": step.content}}
+                    yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                    return
 
-            elif step.type == "token":
-                # Incremental answer text. This is what makes time-to-first-
-                # byte independent of total model latency.
-                event = {"type": "token", "data": {"content": step.content}}
-                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
-
-            elif step.type == "error":
-                event = {"type": "error", "data": {"message": step.content}}
-                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
-                return
-
-            elif step.type == "answer":
-                answer = step.content
-                event = {"type": "answer", "data": {"content": answer}}
-                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                elif step.type == "answer":
+                    answer = step.content
+                    event = {"type": "answer", "data": {"content": answer}}
+                    yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
 
         # Update row_count for mutated tables
         if mutations_performed and mutated_table_ids:

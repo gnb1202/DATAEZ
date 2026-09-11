@@ -1,5 +1,7 @@
 "use client";
 
+import { uploadSourceForm } from "@/app/lib/direct-upload";
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/app/contexts/dashboard-context";
@@ -62,7 +64,10 @@ export function SearchIndexPanel() {
     event.preventDefault();
     const file = fileInput.current?.files?.[0];
     if (!file) return;
-    const body = new FormData(); body.append("file", file);
+    setBusy("upload"); setNotice("");
+    let body: FormData;
+    try { body = await uploadSourceForm(apiFetch, file, projectId!); }
+    catch (err) { setNotice(err instanceof Error ? err.message : "업로드에 실패했습니다."); setBusy(""); return; }
     if (await action("upload", `/api/projects/${projectId}/documents`, { method: "POST", body }, "문서를 저장했습니다. 검색 준비는 자동으로 진행됩니다.")) {
       if (fileInput.current) fileInput.current.value = "";
       setPage(0);

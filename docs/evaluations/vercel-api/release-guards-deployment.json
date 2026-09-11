@@ -1,0 +1,29 @@
+{
+  "api": {
+    "id": "dpl_5B7QQ91rgqhe4nLxJRazu9iA4Lqs",
+    "url": "https://dataez-geujmxikb-gnb1202-navercoms-projects.vercel.app",
+    "target": "preview",
+    "state": "READY",
+    "region": "icn1",
+    "runtime": "python3.12",
+    "timeout": 300
+  },
+  "web": {
+    "id": "dpl_woxNVou5CqFsRbzxRDagABJL7Yjj",
+    "url": "https://dataez-ij1lu5xpn-gnb1202-navercoms-projects.vercel.app",
+    "state": "READY",
+    "api_connected": false
+  },
+  "supabase": {
+    "tables": 28,
+    "without_rls": 0,
+    "objects": 0,
+    "upload_sessions": 0,
+    "synthetic_users": 0,
+    "cron_active": 4
+  },
+  "api_stage_files": 90,
+  "public_frontend_changed": false,
+  "api_sources_match_stage": true,
+  "ai_requests_during_phase": 2
+}

@@ -1,0 +1,22 @@
+{
+  "project": "dataez-api",
+  "project_id": "prj_YV4Vf5std97PnGaKwyWzr4LHG940",
+  "deployment_id": "dpl_2mB11RCLqPqEm27HUXj8wBDou2Li",
+  "url": "https://dataez-6wfjxpyv0-gnb1202-navercoms-projects.vercel.app",
+  "state": "READY",
+  "target": "preview",
+  "unauthenticated_status": 302,
+  "reviewed_source_files": 81,
+  "runtime": [
+    {
+      "runtime": "python3.12",
+      "regions": [
+        "icn1"
+      ],
+      "memory_mb": 2048,
+      "timeout_seconds": 300
+    }
+  ],
+  "web_api_url_changed": false,
+  "first_automatic_production_deployment_removed": true
+}

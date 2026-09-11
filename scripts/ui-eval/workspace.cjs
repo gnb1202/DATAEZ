@@ -32,6 +32,7 @@ async function main() {
       const headers = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*" };
       if (method === "OPTIONS") body = {};
       else if (p === "/api/auth/refresh") body = { access_token: "workspace-fixture", refresh_token: "workspace-fixture" };
+      else if (p === "/api/uploads/capabilities") body = { direct_upload: false, max_size_bytes: 20 * 1024 * 1024 };
       else if (p === "/api/auth/me") body = { email: "owner@example.test" };
       else if (p === "/api/projects") body = { projects: stores };
       else if (p === "/api/library/files/sample-workspace") body = { project: null };

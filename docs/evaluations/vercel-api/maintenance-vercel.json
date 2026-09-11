@@ -1,0 +1,49 @@
+{
+  "deployment": "https://dataez-7hjqd1q8c-gnb1202-navercoms-projects.vercel.app",
+  "scheduled": false,
+  "checks": [
+    "internal_runner_rejects_missing_and_wrong_secret",
+    "all_three_child_processes_complete_in_deployed_python_runtime",
+    "real_document_and_schema_vectors_committed",
+    "scheduled_metric_100_to_300_and_next_refresh_advanced",
+    "expired_upload_removed_live_upload_preserved",
+    "library_reports_document_ready"
+  ],
+  "real_embeddings": true,
+  "chat_agent_called": false,
+  "maintenance_status": {
+    "tasks": [
+      {
+        "kind": "cleanup",
+        "status": "succeeded",
+        "processed": 1,
+        "attempts": 1,
+        "failures": 0,
+        "last_started_at": "2026-09-11T04:29:56.998856+00:00",
+        "last_finished_at": "2026-09-11T04:29:58.971189+00:00",
+        "lease_until": null
+      },
+      {
+        "kind": "index",
+        "status": "succeeded",
+        "processed": 2,
+        "attempts": 2,
+        "failures": 1,
+        "last_started_at": "2026-09-11T04:29:42.627817+00:00",
+        "last_finished_at": "2026-09-11T04:29:55.425527+00:00",
+        "lease_until": null
+      },
+      {
+        "kind": "metrics",
+        "status": "succeeded",
+        "processed": 1,
+        "attempts": 1,
+        "failures": 0,
+        "last_started_at": "2026-09-11T04:29:55.488967+00:00",
+        "last_finished_at": "2026-09-11T04:29:56.940250+00:00",
+        "lease_until": null
+      }
+    ]
+  },
+  "synthetic_data_removed": true
+}

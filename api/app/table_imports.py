@@ -7,7 +7,13 @@ from .db import _connect, get_user_table_name
 from .exceptions import ResourceNotFound
 from .ledger_guards import assert_unmanaged_table
 
-def create_imported_table(user_id, project_id, name, content, filename, storage):
+def create_imported_table(user_id, project_id, name, content, filename, storage, *, source_file_id=None):
+    if source_file_id:
+        from .file_library import prepare_file
+        from .db import get_table_meta
+        record = prepare_file(user_id, source_file_id, project_id, storage, table_name=name)
+        binding = next(b for b in record['bindings'] if b['kind'] == 'ledger' and b['project_id'] == project_id)
+        return get_table_meta(binding['table_id'], user_id)
     prepared = prepare_import(content, filename)
     table_id, file_id = str(uuid4()), str(uuid4())
     # Parse before writing files. Failed DB writes may leave an unreferenced

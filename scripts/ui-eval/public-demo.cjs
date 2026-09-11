@@ -1,0 +1,104 @@
+// Real public frontend, API, Supabase and LLM. Input arrives over stdin; no mocks.
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+const { openChat } = require('./workspace-helpers.cjs');
+
+async function main() {
+  const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));
+  const out = path.resolve('docs/evaluations/public-demo');
+  await fs.mkdir(out, { recursive:true });
+  const report = { passed:false, api_mocks:false, checks:[], errors:[] };
+  const browser = await chromium.launch({channel:'msedge',headless:true});
+  const page = await browser.newPage({viewport:{width:1600,height:1100},reducedMotion:'reduce'});
+  page.setDefaultTimeout(25000);
+  page.on('pageerror', error => report.errors.push(error.message));
+  const pass = text => {report.checks.push(text);console.log('PASS '+text);};
+  const main = page.locator('#workspace-main');
+  const response = (suffix,method='POST',timeout=30000) => {
+    const waiting = page.waitForResponse(r => r.url().endsWith(suffix)&&r.request().method()===method,{timeout});
+    waiting.catch(()=>{});return waiting;
+  };
+  const json = async pending => {const r=await pending;assert.ok(r.ok(),`HTTP ${r.status()}`);return r.json();};
+  const request = async (route,options={}) => {
+    const r=await fetch(input.api+route,{...options,headers:{Authorization:'Bearer '+input.token,...options.headers}});
+    assert.ok(r.ok,`HTTP ${r.status} ${route}`);return r.json();
+  };
+  try {
+    await page.goto('https://dataez.vercel.app/');
+    await page.getByLabel('이메일',{exact:true}).fill(input.email);
+    await page.getByLabel('비밀번호',{exact:true}).fill(input.password);
+    await page.locator('form button[type=submit]').click();
+    await page.waitForURL('**/dashboard');
+    await page.getByRole('combobox',{name:'현재 작업 가게'}).selectOption(input.project);
+    pass('Public login and authenticated store workspace');
+    await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
+    await page.getByRole('button',{name:'파일 보관함',exact:true}).click();
+    const uploaded=response('/complete');
+    const filename='공개데모_매출.csv';
+    await page.getByLabel('보관할 파일',{exact:true}).setInputFiles({name:filename,mimeType:'text/csv',buffer:Buffer.from('paid_at,amount,method\n2026-09-10,120000,카드\n2026-09-11,180000,현금\n2026-09-11,-10000,카드\n')});
+    const file=await json(uploaded);
+    const row=main.getByRole('article',{name:filename,exact:true});
+    await row.getByRole('button',{name:'미리보기',exact:true}).click();
+    await main.getByText('120000',{exact:true}).waitFor();
+    const prepared=response('/api/library/files/'+file.file_id+'/prepare');
+    await main.getByRole('button',{name:'검사한 파일을 분석에 연결',exact:true}).click();
+    const ready=await json(prepared),table=ready.bindings[0].table_id;
+    await row.getByText('분석 가능',{exact:true}).waitFor();
+    await row.getByRole('combobox',{name:filename+' 분석 범위',exact:true}).selectOption('linked_ledger');
+    await row.getByRole('checkbox',{name:filename+' 분석에 선택',exact:true}).check();
+    await main.getByRole('checkbox',{name:/파일별 분석 범위와 가게/}).check();
+    await main.getByRole('button',{name:'선택한 파일을 채팅에 추가',exact:true}).click();
+    pass('Browser signed upload, original preview, ledger preparation and explicit file scope');
+    await openChat(page);
+    await page.getByRole('textbox',{name:'분석 요청',exact:true}).fill('선택한 누적 장부에서 paid_at 날짜별 amount 합계를 원 단위 선그래프로 만들어줘. 새 거래를 추가한 뒤 다시 계산할 수 있는 지표로 만들어주고, 아직 저장하지는 마.');
+    const streamed=response('/messages/stream','POST',240000);
+    await page.getByRole('button',{name:'분석 요청 보내기',exact:true}).click();
+    const stream=await streamed;assert.equal(stream.status(),200);
+    await page.waitForFunction(()=>!document.querySelector('[aria-label="분석 요청"]')?.disabled,null,{timeout:240000});
+    const conversation=new URL(stream.url()).pathname.split('/')[3];
+    const history=(await request('/api/conversations/'+conversation+'/messages')).messages;
+    const result=history.at(-1);assert.equal(result.role,'assistant');
+    report.result=result;
+    const chart=result.charts?.[0];assert.ok(chart?.metric_definition,'Expected a recalculable chart');
+    const values=c=>c.data.map(r=>String(r[c.y_key])).sort();
+    assert.deepEqual(values(chart),['120000','170000']);
+    await page.locator('#workspace-chat').getByRole('button',{name:/결과 보기/}).last().click();
+    await main.locator('[data-chart-ready="true"] svg').first().waitFor();
+    await page.screenshot({path:path.join(out,'analysis.png'),fullPage:true});
+    pass('Real natural-language SQL aggregation and chart: daily amounts 120000 / 170000');
+    await main.getByRole('button',{name:'대시보드에 저장',exact:true}).click();
+    await main.getByLabel('저장 표시 단위',{exact:true}).selectOption('KRW');
+    await main.getByLabel('저장 갱신 주기',{exact:true}).selectOption('3600');
+    await main.getByRole('button',{name:'설정으로 미리보기',exact:true}).click();
+    await main.getByLabel('저장 전 미리보기').waitFor();
+    const saved=response('/api/projects/'+input.project+'/metrics');
+    await main.getByRole('button',{name:'이 설정으로 저장',exact:true}).click();
+    const widget=await json(saved);
+    await main.getByRole('button',{name:'대시보드에서 보기',exact:true}).click();
+    const card=main.locator('#dashboard-widget-'+widget.id);await card.waitFor();
+    const append=new FormData();append.append('file',new Blob(['paid_at,amount,method\n2026-09-11,50000,카드\n']),'append.csv');
+    await request(`/api/projects/${input.project}/tables/${table}/append`,{method:'POST',body:append});
+    const refreshed=response('/metrics/'+widget.id+'/refresh');
+    await card.getByRole('button',{name:chart.title+' 재계산',exact:true}).click();
+    const recalculated=await json(refreshed);assert.deepEqual(values(recalculated.widget_data),['120000','220000']);
+    await page.reload();
+    await page.getByRole('button',{name:'대시보드',exact:true}).click();
+    await main.locator('#dashboard-widget-'+widget.id).waitFor();
+    const widgets=(await request('/api/dashboard/widgets?project_id='+input.project)).widgets;
+    assert.equal(widgets.length,1);assert.equal(widgets[0].refresh_interval_seconds,3600);
+    assert.deepEqual(values(widgets[0].widget_data),['120000','220000']);
+    await page.screenshot({path:path.join(out,'dashboard-dark.png'),fullPage:true});
+    await page.getByRole('combobox',{name:'화면 테마'}).selectOption('light');
+    await page.waitForFunction(()=>document.documentElement.classList.contains('light'));
+    await page.screenshot({path:path.join(out,'dashboard-light.png'),fullPage:true});
+    pass('Dashboard save, hourly schedule, appended transaction recalculation and reload persistence');
+    assert.deepEqual(report.errors,[]);report.passed=true;
+  } finally {
+    if(!report.passed)await page.screenshot({path:path.join(out,'failure.png'),fullPage:true}).catch(()=>{});
+    await fs.writeFile(path.join(out,'browser.json'),JSON.stringify(report,null,2));
+    await browser.close();
+  }
+}
+main().catch(e=>{console.error(e.message);process.exitCode=1;});

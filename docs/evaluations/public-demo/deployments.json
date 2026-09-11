@@ -1,0 +1,20 @@
+{
+  "api": {
+    "id": "dpl_BybKUqtiLSfE8ECmUWQNnWXo1nQ6",
+    "name": "dataez-api",
+    "url": "dataez-bvbuu9psr-gnb1202-navercoms-projects.vercel.app",
+    "target": "production",
+    "readyState": "READY"
+  },
+  "web": {
+    "id": "dpl_5gmbjZqxi1jUYQxEMyQRfkJzrLtL",
+    "name": "dataez",
+    "url": "dataez-e8z3b5jg4-gnb1202-navercoms-projects.vercel.app",
+    "target": "production",
+    "readyState": "READY"
+  },
+  "public_urls": {
+    "web": "https://dataez.vercel.app",
+    "api": "https://dataez-api.vercel.app"
+  }
+}

@@ -100,6 +100,15 @@ def download(file_id: UUID,user=Depends(get_current_user)):
         'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'})
 
 
+@router.post('/{file_id}/download-url')
+def download_url(file_id: UUID, response: Response, user=Depends(get_current_user)):
+    row = library.get_record(user['id'], str(file_id))
+    response.headers['Cache-Control'] = 'private, no-store'
+    if settings.storage_backend != 'supabase':
+        return {'url': None}
+    return {'url': StorageService()._supabase.create_download_url(row['storage_key']), 'expires_in': 60}
+
+
 class PrepareRequest(BaseModel):
     project_id: UUID
 
