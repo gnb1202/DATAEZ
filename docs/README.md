@@ -8,6 +8,7 @@
 |---|---|
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
 | 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md) |
+| 포트폴리오 최종 QA·전달 패키지 | [FINAL_QA](portfolio-demo/FINAL_QA.md), [실제/모의 검사 결과](portfolio-demo/phase-5-qa.json) |
 | 제품·기술·반복 영상과 검수 | [영상 제작·로컬 재생 안내](portfolio-demo/VIDEO_RELEASE.md) |
 | 현재 배포 구성 | [아키텍처와 실행 프로필](ARCHITECTURE.md), [구조도 HTML](portfolio-demo/architecture.html) |
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |

@@ -6,6 +6,8 @@
 
 [서비스 체험](https://dataez.vercel.app) · [포트폴리오 사례](docs/portfolio-demo/CASE_STUDY.md) · [영상·자막 안내](docs/portfolio-demo/VIDEO_RELEASE.md) · [전체 문서](docs/README.md)
 
+[최종 QA](docs/portfolio-demo/FINAL_QA.md): 새 계정의 첫 사용·실제 분석·접근 격리·오류 복구·화면·로컬 영상 전달을 확인했습니다. 합의한 검사 범위에서 미해결 P0/P1은 없습니다.
+
 ![실제 DATA:EZ 대시보드 — 원본과 누적 장부의 일별 순결제액](docs/portfolio-demo/assets/phase-2-dashboard-dark.png)
 
 실제 공개 웹·API·DB·LLM으로 검증한 화면입니다. 합성 매출 파일의 원본 합계는 **690,200원**, 거래 30,000원 추가 후 누적 장부 합계는 **720,200원**입니다. 합계는 집계표로 검증했으며, 원본 파일은 그대로 유지됩니다. [실행 기록과 라이트 화면](docs/portfolio-demo/ACCEPTANCE.md)

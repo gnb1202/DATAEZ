@@ -17,7 +17,7 @@ async function main() {
     const hash = crypto.createHash('sha256').update(bytes).digest('hex');
     const file = { file_id:'file-1', filename:'매출-원본.txt', size_bytes:bytes.length,
       created_at:new Date().toISOString(), status:'stored', kind:'document', project_id:'store-a', project_name:'성수점', bindings:[] };
-    let files = [], putCount=0, reservations=0, failCompletion=false;
+    let files = [], putCount=0, reservations=0, failCompletion=false, abortTransfer=false, missingTransfer=false;
     const errors=[];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://storage.example.test/**', async route => {
@@ -26,6 +26,7 @@ async function main() {
       if (req.method()==='PUT') {
         putCount++;
         assert.equal(req.postDataBuffer().length, bytes.length);
+        if(abortTransfer){await route.abort('failed');return;}
         await route.fulfill({status:200,contentType:'application/json',body:'{}'});
       } else await route.fulfill({status:200,contentType:'application/octet-stream',body:bytes});
     });
@@ -52,7 +53,8 @@ async function main() {
         assert.ok(req.postDataBuffer().length<1000);
         status=201; body={session_id:'session-1',upload_url:'https://storage.example.test/upload?token=fixture'};
       } else if(p==='/api/uploads/session-1/complete') {
-        if(failCompletion) {status=422;body={detail:'전송된 파일의 크기 또는 해시가 일치하지 않습니다.'};}
+        if(missingTransfer) {status=409;body={detail:'업로드한 파일을 확인할 수 없습니다.'};}
+        else if(failCompletion) {status=422;body={detail:'전송된 파일의 크기 또는 해시가 일치하지 않습니다.'};}
         else {files=[file]; body={...file,replayed:false};}
       } else if(p==='/api/library/files/file-1/download-url') body={url:'https://storage.example.test/download?token=fixture'};
       else { errors.push(method+' '+p);status=404; }
@@ -81,6 +83,16 @@ async function main() {
     await page.getByRole('alert').getByText('전송된 파일의 크기 또는 해시가 일치하지 않습니다.',{exact:true}).waitFor();
     assert.equal(await page.getByText('전송된 파일을 검증하고 있습니다…',{exact:true}).count(),0);
     checks.push('verification failure is visible and clears progress status');
+    failCompletion=false;abortTransfer=true;missingTransfer=true;
+    await input.setInputFiles({name:file.filename,mimeType:'text/plain',buffer:bytes});
+    await page.getByRole('alert').getByText('업로드한 파일을 확인할 수 없습니다.',{exact:true}).waitFor();
+    assert.equal(files.length,1);
+    checks.push('Failed Storage transfer plus missing completion is visible; no extra file is registered');
+    missingTransfer=false;
+    await input.setInputFiles({name:file.filename,mimeType:'text/plain',buffer:bytes});
+    await page.getByText('원본을 보관했습니다. 미리보기에서 검사 후 분석에 연결하세요.',{exact:true}).waitFor();
+    assert.equal(files.length,1);
+    checks.push('Lost Storage response is resolved through authenticated completion, not assumed failed');
     const before=reservations;
     await input.setInputFiles({name:'too-big.txt',mimeType:'text/plain',buffer:Buffer.alloc(20*1024*1024+1)});
     await page.getByRole('alert').getByText(/20MB 이하/).waitFor();

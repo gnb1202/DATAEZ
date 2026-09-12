@@ -1,6 +1,16 @@
 # 공개 배포 환경의 포트폴리오 시연 준비
 
-2026-09-11 · Phase 0 완료. 이 문서는 Vercel + Supabase 공개 서비스 기준이다. Docker 로컬 실행은 별도 [기존 안내](../DEMO_RUNBOOK.md)를 사용한다.
+2026-09-12 · Phase 5 최종 QA 완료. 이 문서는 Vercel + Supabase 공개 서비스 기준이다. Docker 로컬 실행은 별도 [기존 안내](../DEMO_RUNBOOK.md)를 사용한다.
+
+## 현재 상태와 사용할 명령
+
+- [최종 QA 결과](FINAL_QA.md): 새 계정의 첫 사용·실제 분석·권한·오류 복구·화면·영상 전달 검증 완료.
+- 기존 촬영 `recording` 가게는 **9행·위젯 2개**로 완료된 상태이며 보존한다. `prepare.py check`는 **촬영 전 8행·위젯 0개** 검사이므로 완료 가게에서 실패하는 것이 정상이다.
+- 새 리허설은 `python scripts/portfolio-demo/rehearse.py --new-take`, 새 촬영은 `python scripts/portfolio-demo/rehearse.py --record --new-take`를 사용한다. 기존 take에 추가 거래를 다시 보내지 않는다.
+- 최종 QA 계정은 `.local-test/portfolio-demo/final-qa/`에 별도로 보관했다. 기존 촬영 계정이나 가게를 대체하지 않는다.
+- 영상 전달은 로컬 `output/portfolio-demo-delivery.zip`을 사용한다. 공개 호스팅은 아직 하지 않았다.
+
+아래의 초기 준비 상태·첫 촬영 가게 이름·‘이번 단계에서는 실행하지 않았다’는 설명은 **Phase 0 당시 기록**이다. 현재 실행 여부와 결과는 위 최종 QA와 아래 Phase 2/3 기록을 따른다.
 
 2026-09-12: [Phase 1 촬영표](STORYBOARD.md)와 [내레이션·자막](NARRATION.md)을 작성했다. 질문과 시간표의 원본은 [scenario.json](scenario.json)이다. 실제 질문 실행은 Phase 2 리허설부터 진행한다.
 

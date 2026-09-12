@@ -10,6 +10,7 @@ async function main() {
   const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));
   const scenario = JSON.parse(await fs.readFile('docs/portfolio-demo/scenario.json', 'utf8'));
   const take = input.recording, project = take.project_id;
+  if(input.final_qa)await assert.rejects(fs.access(path.join(input.out,'rehearsal.json')),{code:'ENOENT'},'Final QA take already attempted; inspect state instead of replaying');
   const report = { passed:false, api_mocks:false, synthetic:true, started_at:new Date().toISOString(),
     source_commit:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
     site:input.site, project_id:project, file_id:take.file_id, table_id:take.table_id,
@@ -86,7 +87,7 @@ async function main() {
       await page.getByRole('button',{name:'새 분석',exact:true}).click();
       await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
       await page.getByRole('button',{name:'파일 보관함',exact:true}).click();
-      const filename='샘플_카페_매출.csv';
+      const filename=take.filename || '샘플_카페_매출.csv';
       const row=main.getByRole('article',{name:filename,exact:true});
       await row.waitFor(); await mark(prompt.id+'_library',3);
       if(input.record){await row.getByRole('button',{name:'미리보기',exact:true}).click();await main.getByLabel('파일 미리보기').scrollIntoViewIfNeeded();await mark(prompt.id+'_file_preview',4);await main.getByRole('button',{name:'미리보기 닫기',exact:true}).click();}
@@ -152,7 +153,7 @@ async function main() {
       report.stage=prompt.id+'_saved'; await checkpoint();
       await resultCard.getByRole('button',{name:'대시보드에서 보기',exact:true}).click();
       await main.locator('#dashboard-widget-'+widget.id).waitFor();
-      if(input.record && prompt.id==='Q1'){
+      if((input.record || input.final_qa) && prompt.id==='Q1'){
         await page.locator('#workspace-chat-toggle').click(); await main.evaluate(el=>el.scrollTo(0,0));
         const w=main.locator('#dashboard-widget-'+widget.id);
         await mark('Q1_dashboard',4);
@@ -199,7 +200,7 @@ async function main() {
     if(await page.locator('#workspace-chat-toggle').getAttribute('aria-expanded')==='true') await page.locator('#workspace-chat-toggle').click();
     await main.evaluate(el=>el.scrollTo(0,0));
     const first=main.locator('#dashboard-widget-'+report.queries[0].widget_id);
-    if(input.record){const h=await first.locator('.react-resizable-handle-se').boundingBox(),b=await first.boundingBox();const resized=response('/api/dashboard/widgets/layout','PUT');await page.mouse.move(h.x+h.width/2,h.y+h.height/2);await page.mouse.down();await page.mouse.move(h.x+h.width/2-(b.width+16)/2,h.y+h.height/2,{steps:60});await page.mouse.up();await json(resized);}
+    if(input.record || input.final_qa){const h=await first.locator('.react-resizable-handle-se').boundingBox(),b=await first.boundingBox();const resized=response('/api/dashboard/widgets/layout','PUT');await page.mouse.move(h.x+h.width/2,h.y+h.height/2);await page.mouse.down();await page.mouse.move(h.x+h.width/2-(b.width+16)/2,h.y+h.height/2,{steps:60});await page.mouse.up();await json(resized);}
     await mark('pair_layout');
     const handle=first.locator('.widget-drag-handle');
     await handle.scrollIntoViewIfNeeded();
@@ -224,8 +225,8 @@ async function main() {
     await screenshot('dashboard-light');
     if(input.record)await page.getByRole('combobox',{name:'화면 테마'}).selectOption('dark');
     await mark('store_switch');await selector.selectOption(input.showcase.project_id);
-    await main.locator('[id^="dashboard-widget-"]').first().waitFor();
-    await page.waitForFunction(()=>document.querySelectorAll('[id^="dashboard-widget-"]').length===3);
+    if(!input.final_qa)await main.locator('[id^="dashboard-widget-"]').first().waitFor();
+    await page.waitForFunction(n=>document.querySelectorAll('[id^="dashboard-widget-"]').length===n,input.final_qa?0:3);
     await mark('showcase',5);await selector.selectOption(project);
     await first.waitFor();await mark('returned',5); assert.equal(await main.locator('[id^="dashboard-widget-"]').count(),2);
     await pass('Real drag layout persisted across reload/store switching; both charts visible at 1920×1080, dark/light captured');

@@ -6,6 +6,8 @@
 
 로컬 미리보기: [영상 3종 재생·다운로드](http://127.0.0.1:3134/). 서버를 종료했다면 저장소 루트에서 실행한다.
 
+Phase 5에서 `output/portfolio-demo-delivery.zip` 전달 패키지를 만들고 새 임시 폴더에서 전체 재생했다. [최종 QA와 압축 해제 후 재생 안내](FINAL_QA.md#영상-전달-패키지)를 참고한다. 이 ZIP 역시 로컬 파일이며 Git 복제에 포함되지 않는다.
+
 ```powershell
 python -m http.server 3134 --bind 127.0.0.1 --directory output/portfolio-demo
 ```
@@ -57,4 +59,4 @@ node scripts/portfolio-demo/video-playback.cjs
 
 캐시는 입력 파일 해시·시간 범위·화면 확대 조건을 대조한다. `--reuse-parts`는 **같은 원본·편집 범위**에서 자막·일부 새 컷을 조정할 때만 사용한다. 새 촬영본은 기본 렌더로 모든 컷을 다시 만든다. 실패한 촬영에는 append를 자동 재전송하지 않고 새 take를 사용한다. 미완료 촬영은 렌더 도구가 거절한다.
 
-Phase 4에서 [사례 문서](CASE_STUDY.md)와 [프로젝트 README](../../README.md)에 영상·스크린샷·구조도·검증 근거를 연결했다. 다음은 Phase 5 최종 QA이며 영상 공개 호스팅은 아직 남아 있다. 실제 PG 연동, 고객 사용성, 대규모 부하는 별도 과제다.
+Phase 4에서 [사례 문서](CASE_STUDY.md)와 [프로젝트 README](../../README.md)에 근거를 연결했고, Phase 5 [최종 QA](FINAL_QA.md)를 완료했다. 영상 공개 호스팅은 아직 남아 있다. 실제 PG 연동, 고객 사용성, 대규모 부하는 별도 과제다.

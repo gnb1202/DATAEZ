@@ -69,3 +69,4 @@ output/imagegen/*.png
 
 # Regenerable portfolio video masters and render intermediates.
 output/portfolio-demo/
+output/portfolio-demo-delivery.zip

@@ -34,6 +34,7 @@ async function main(){
     if(m==='OPTIONS'){}
     else if(p==='/api/auth/refresh')body={access_token:'ui-fixture',refresh_token:'ui-fixture'};
     else if(p==='/api/auth/me')body={email:'fixture@example.test'};
+    else if(p==='/api/uploads/capabilities')body={direct_upload:false,max_size_bytes:20*1024*1024};
     else if(p==='/api/projects')body={projects:stores};
     else if(p==='/api/library/files/sample-workspace')body={project:null};
     else if(p==='/api/library/files')body={files:[file],total:1};
@@ -48,6 +49,7 @@ async function main(){
     }else if(p.endsWith('/messages/stream')){
       sent++;const id=p.split('/')[3];bodies.push(req.postData());
       if(mode==='hold')await new Promise(done=>release=done);
+      if(mode==='429'||mode==='503'){await route.fulfill({status:Number(mode),headers,contentType:'application/json',body:JSON.stringify({detail:'격리된 오류 복구 검사'})});return;}
       history[id]=[answer('reply-'+sent)];
       const frame=mode==='error'?{type:'error',data:{message:'응답 연결이 끊겼습니다.'}}:{type:'done',data:answer('reply-'+sent)};
       await route.fulfill({contentType:'text/event-stream',headers,body:`data: ${JSON.stringify(frame)}\n\n`}).catch(()=>{});return;
@@ -75,10 +77,15 @@ async function main(){
   const send=()=>page.getByRole('button',{name:'분석 요청 보내기',exact:true});
   const chat=()=>page.locator('#workspace-chat');
   const shot=name=>page.screenshot({path:path.join(out,name+'.png'),animations:'disabled'});
+  async function keyActivate(locator){
+    for(let i=0;i<100;i++){if(await locator.evaluate(n=>n===document.activeElement)){await page.keyboard.press('Enter');return;}await page.keyboard.press('Tab');}
+    throw new Error('Keyboard action unreachable');
+  }
   async function sendAndFinish(){const response=page.waitForResponse(r=>r.url().endsWith('/messages/stream'));await send().click();await response;await page.waitForFunction(()=>!document.querySelector('[aria-label="분석 요청"]')?.disabled);}
   try{
     await page.goto(base);await page.locator('#dashboard-widget-existing svg').first().waitFor();
-    check('Saved dashboard exposes sample/file start without expanding nested guides',await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).isVisible());await shot('dashboard-entry');
+    await page.getByText('시작 안내와 샘플 체험',{exact:true}).click();
+    check('Saved dashboard keeps sample/file start in its expandable guide',await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).isVisible());await shot('dashboard-entry');
     await page.getByRole('button',{name:'새 분석',exact:true}).click();
     const before=sent;await chat().getByRole('button',{name:/어떤 장부들이 있어|이 가게에서 분석할 수 있는 자료/}).click();
     await page.waitForFunction(()=>!document.querySelector('[aria-label="분석 요청"]')?.disabled);
@@ -111,6 +118,10 @@ async function main(){
     check('Adding a library file does not submit a question',sent===selectedAt);
     await input().fill(question);await sendAndFinish();
     check('Failed response retains question and selected original-file scope',await input().inputValue()===question&&await chat().getByLabel('선택한 보관 파일').getByText(/파일 원본만/).isVisible());
+    for(const failureStatus of ['429','503']){
+      mode=failureStatus;await input().fill(question);await sendAndFinish();
+      check('HTTP '+failureStatus+' retains draft and original source',await input().inputValue()===question&&await chat().getByLabel('선택한 보관 파일').getByText(/파일 원본만/).isVisible());
+    }
     if(!audit){
       mode='hold';await page.getByRole('button',{name:'새 분석',exact:true}).click();await input().fill('중단해도 유지할 초안');
       const pending=page.waitForRequest(r=>r.url().endsWith('/messages/stream'));await send().click();await pending;
@@ -122,11 +133,25 @@ async function main(){
       await page.getByRole('combobox',{name:'현재 작업 가게'}).selectOption('store-a');mode='ok';
       await page.getByRole('button',{name:'새 분석',exact:true}).click();await input().fill('일별 결제액을 원화 그래프로 보여줘');await sendAndFinish();
       await chat().getByRole('button',{name:/일별 결제액.*결과 보기/}).click();
-      const main=page.locator('#workspace-main');await main.getByRole('button',{name:'대시보드에 저장',exact:true}).click();
-      await main.getByLabel('저장 지표 이름',{exact:true}).fill('내 첫 지표');
-      await main.getByRole('button',{name:'설정으로 미리보기',exact:true}).click();await main.getByLabel('저장 전 미리보기').waitFor();
-      saveFails=true;await main.getByRole('button',{name:'이 설정으로 저장',exact:true}).click();
-      await main.getByRole('button',{name:'같은 설정으로 다시 시도',exact:true}).click();await main.getByText('저장 완료',{exact:true}).waitFor();
+      const main=page.locator('#workspace-main');await keyActivate(main.getByRole('button',{name:'대시보드에 저장',exact:true}));
+      const nameField=main.getByLabel('저장 지표 이름',{exact:true});
+      for(let i=0;i<100;i++){if(await nameField.evaluate(n=>n===document.activeElement))break;await page.keyboard.press('Tab');}
+      assert.ok(await nameField.evaluate(n=>n===document.activeElement),'Save name reachable by keyboard');
+      await page.keyboard.press('Control+A');await page.keyboard.type('내 첫 지표');
+      if(await page.locator('#workspace-chat-toggle').getAttribute('aria-expanded')==='true')await page.locator('#workspace-chat-toggle').click();
+      for(const theme of ['dark','light'])for(const [width,height] of [[1440,900],[768,1024],[390,844]]){
+        await page.setViewportSize({width,height});await page.getByRole('combobox',{name:'화면 테마'}).selectOption(theme);
+        await main.getByLabel('지표 저장 설정',{exact:true}).scrollIntoViewIfNeeded();
+        check(`Save settings ${theme} ${width}px fits workspace`,await main.evaluate(n=>n.scrollWidth<=n.clientWidth+1));
+        const saveBox=await main.getByLabel('지표 저장 설정',{exact:true}).boundingBox();
+        assert.ok(saveBox.x>=0&&saveBox.x+saveBox.width<=width+1);
+        await shot(`save-${theme}-${width}`);
+      }
+      await page.setViewportSize({width:1440,height:1000});
+      await keyActivate(main.getByRole('button',{name:'설정으로 미리보기',exact:true}));await main.getByLabel('저장 전 미리보기').waitFor();
+      saveFails=true;await keyActivate(main.getByRole('button',{name:'이 설정으로 저장',exact:true}));
+      await keyActivate(main.getByRole('button',{name:'같은 설정으로 다시 시도',exact:true}));await main.getByText('저장 완료',{exact:true}).waitFor();
+      check('Keyboard can open save settings, preview, save and retry',true);
       const saves=bodies.filter(b=>typeof b==='object'&&b.save_key);assert.equal(saves.length,2);assert.deepEqual(saves.at(-1),saves.at(-2));
       check('Lost save response retries the identical settings and produces one new widget',widgets['store-a'].filter(w=>w.title==='내 첫 지표').length===1);
     }

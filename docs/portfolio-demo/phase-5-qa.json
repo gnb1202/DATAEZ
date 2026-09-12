@@ -1,0 +1,2390 @@
+{
+  "status": "passed",
+  "date": "2026-09-12T12:26:02.832447+00:00",
+  "baseline_commit": "b23c68f687fdc79001502e01e41635b533f9db00",
+  "scope": "Portfolio final QA; real public onboarding/analysis/access, isolated failure fixtures, emulated responsive UI and local media delivery",
+  "deployments": {
+    "web": {
+      "id": "dpl_GpxpT1cDx1xASXeA5rBhJ9Gad5r5",
+      "url": "dataez-h8ivmwqvl-gnb1202-navercoms-projects.vercel.app",
+      "readyState": "READY",
+      "target": "production",
+      "createdAt": 1789214248663,
+      "gitSource": null
+    },
+    "api": {
+      "id": "dpl_7HKGyntZsDwhBX9cLwcS2UMdZSTF",
+      "url": "dataez-cc01w99lg-gnb1202-navercoms-projects.vercel.app",
+      "readyState": "READY",
+      "target": "production",
+      "createdAt": 1789201783261,
+      "gitSource": null
+    }
+  },
+  "deployment_commit_note": "Vercel inspect provides no gitSource; do not infer an exact deployed source SHA from the local baseline.",
+  "application_code_changed": false,
+  "separate_application_deployment_performed": false,
+  "video_public_hosting": false,
+  "first_use": {
+    "passed": true,
+    "api_mocks": false,
+    "synthetic": true,
+    "checks": [
+      "UI signup and empty workspace without pre-seeded data",
+      "UI creates two stores, signed upload, preview and ledger preparation; original scope is default; download bytes exact",
+      "Independent initial ledger: 8 rows / 690200"
+    ],
+    "page_errors": 0
+  },
+  "analysis": {
+    "passed": true,
+    "api_mocks": false,
+    "synthetic": true,
+    "started_at": "2026-09-12T12:08:00.125Z",
+    "source_commit": "b23c68f687fdc79001502e01e41635b533f9db00",
+    "site": "https://dataez.vercel.app",
+    "project_id": "517ed848-9274-4ec2-b0f4-8346efd6bb25",
+    "file_id": "1bf3fce5-c93d-4a0e-b2bd-5fba8a1ef481",
+    "table_id": "7b20a7f7-25aa-4812-9436-0e36f2faa34a",
+    "stage": "complete",
+    "queries": [
+      {
+        "id": "Q1",
+        "scope": "original_file",
+        "conversation_id": "9e1f048d-08e0-4223-962e-5603dc0c2641",
+        "elapsed_seconds": 13.14,
+        "chart_count": 1,
+        "selected_chart_index": 0,
+        "message_id": "42e70aee-678f-4630-a799-54ffc64b460f",
+        "daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900"
+        },
+        "tool_names": [
+          "library_references",
+          "preview_metric"
+        ],
+        "token_usage": null,
+        "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+        "scope_label": "파일 원본만",
+        "metric_definition": {
+          "unit": "KRW",
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": "paid_at",
+          "table_id": "9ae2166e-98ce-4a2b-9d84-44afa69d3643",
+          "operation": "sum",
+          "chart_type": "line",
+          "date_grain": "day",
+          "time_range": "all",
+          "date_column": "paid_at"
+        },
+        "widget_id": "18c6f0e6-c266-4f2a-956a-2b8453cbc976",
+        "after_daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900"
+        }
+      },
+      {
+        "id": "Q2",
+        "scope": "linked_ledger",
+        "conversation_id": "b4cef3d0-ef11-4f32-9dbd-b72669ceea42",
+        "elapsed_seconds": 9.6,
+        "chart_count": 1,
+        "selected_chart_index": 0,
+        "message_id": "c4656095-8193-47b6-91b3-9fa9706bfd15",
+        "daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900"
+        },
+        "tool_names": [
+          "library_references",
+          "preview_metric"
+        ],
+        "token_usage": null,
+        "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+        "scope_label": "누적 장부 전체",
+        "metric_definition": {
+          "unit": "KRW",
+          "column": "amount",
+          "filters": [],
+          "version": 1,
+          "group_by": "paid_at",
+          "table_id": "7b20a7f7-25aa-4812-9436-0e36f2faa34a",
+          "operation": "sum",
+          "chart_type": "line",
+          "date_grain": "day",
+          "time_range": "all",
+          "date_column": "paid_at"
+        },
+        "widget_id": "ce030ab7-aafb-42d6-8fb8-6ea713644e98",
+        "after_daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900",
+          "2026-09-05": "30000"
+        }
+      }
+    ],
+    "checks": [
+      "Q1: real LLM → exact daily values → manual preview/save (13.14s)",
+      "Q2: real LLM → exact daily values → manual preview/save (9.6s)",
+      "Append exactly once: ledger 9 rows / 720200; original remains 690200 after both refreshes",
+      "Real drag layout persisted across reload/store switching; both charts visible at 1920×1080, dark/light captured"
+    ],
+    "page_error_count": 0,
+    "recording": false,
+    "marks": [],
+    "append_sha256": "631d4e01a954b644bb629545580eaca9e80029b1db058621d5131a5f593d7093",
+    "ledger_rows": 9,
+    "original_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+    "layouts": [
+      {
+        "id": "18c6f0e6-c266-4f2a-956a-2b8453cbc976",
+        "layout": {
+          "h": 7,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": "ce030ab7-aafb-42d6-8fb8-6ea713644e98",
+        "layout": {
+          "h": 7,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ],
+    "viewport": [
+      {
+        "top": 262,
+        "bottom": 778,
+        "width": 788
+      },
+      {
+        "top": 262,
+        "bottom": 778,
+        "width": 788
+      }
+    ],
+    "finished_at": "2026-09-12T12:08:34.459Z"
+  },
+  "access": {
+    "passed": true,
+    "api_mocks": false,
+    "scope": "Owned-resource positive controls, anonymous and synthetic account B read/download denial; not a penetration test",
+    "checks": [
+      {
+        "actor": "anonymous",
+        "method": "GET",
+        "resource": "/api/library/files/<file>",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "GET",
+        "resource": "/api/library/files/<file>",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "anonymous",
+        "method": "GET",
+        "resource": "/api/library/files/<file>/preview",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "GET",
+        "resource": "/api/library/files/<file>/preview",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "anonymous",
+        "method": "GET",
+        "resource": "/api/library/files/<file>/download",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "GET",
+        "resource": "/api/library/files/<file>/download",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "anonymous",
+        "method": "POST",
+        "resource": "/api/library/files/<file>/download-url",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "POST",
+        "resource": "/api/library/files/<file>/download-url",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "anonymous",
+        "method": "GET",
+        "resource": "/api/projects/<store>/tables/<table>/data",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "GET",
+        "resource": "/api/projects/<store>/tables/<table>/data",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "anonymous",
+        "method": "GET",
+        "resource": "/api/projects/<store>/metrics",
+        "status": 403,
+        "data_or_url_exposed": false
+      },
+      {
+        "actor": "foreign_account",
+        "method": "GET",
+        "resource": "/api/projects/<store>/metrics",
+        "status": 404,
+        "data_or_url_exposed": false
+      },
+      {
+        "resource": "/health",
+        "status": 200
+      },
+      {
+        "resource": "/ready",
+        "status": 200
+      },
+      {
+        "resource": "/api/internal/maintenance/status",
+        "status": 401
+      }
+    ],
+    "after_responsive_audit": {
+      "widget_count": 2,
+      "layouts_match_rehearsal": true,
+      "all_period_KRW_manual_settings_preserved": true
+    }
+  },
+  "auth_failure_fixtures": {
+    "passed": true,
+    "api_mocks": true,
+    "checks": [
+      {
+        "mode": "expired_refresh",
+        "refreshes": 1,
+        "protectedCalls": 0,
+        "login_restored": true,
+        "stored_session_cleared": true
+      },
+      {
+        "mode": "expired_access_and_refresh",
+        "refreshes": 2,
+        "protectedCalls": 1,
+        "login_restored": true,
+        "stored_session_cleared": true
+      }
+    ]
+  },
+  "recovery_fixtures": {
+    "passed": true,
+    "checked_at": "2026-09-12T12:25:53.165Z",
+    "api_mocks": true,
+    "live_llm": false,
+    "checks": [
+      {
+        "name": "Saved dashboard keeps sample/file start in its expandable guide",
+        "passed": true
+      },
+      {
+        "name": "Question suggestion fills an editable draft without sending a request",
+        "passed": true
+      },
+      {
+        "name": "Failed response keeps the complete question and original device attachment",
+        "passed": true
+      },
+      {
+        "name": "History lookup failure preserves draft/file and offers another read without resending",
+        "passed": true
+      },
+      {
+        "name": "An incomplete history is not presented as a completed request and retains the draft",
+        "passed": true
+      },
+      {
+        "name": "Recovery reads saved messages without another model request and retains draft",
+        "passed": true
+      },
+      {
+        "name": "New file selection defaults to original rows and explains additional transactions",
+        "passed": true
+      },
+      {
+        "name": "Cumulative scope explains that refresh includes additional transactions",
+        "passed": true
+      },
+      {
+        "name": "Adding a library file does not submit a question",
+        "passed": true
+      },
+      {
+        "name": "Failed response retains question and selected original-file scope",
+        "passed": true
+      },
+      {
+        "name": "HTTP 429 retains draft and original source",
+        "passed": true
+      },
+      {
+        "name": "HTTP 503 retains draft and original source",
+        "passed": true
+      },
+      {
+        "name": "Stopping response keeps the unsent recovery draft without automatically retrying",
+        "passed": true
+      },
+      {
+        "name": "Switching stores clears the prior store draft and recovery actions",
+        "passed": true
+      },
+      {
+        "name": "Save settings dark 1440px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Save settings dark 768px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Save settings dark 390px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Save settings light 1440px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Save settings light 768px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Save settings light 390px fits workspace",
+        "passed": true
+      },
+      {
+        "name": "Keyboard can open save settings, preview, save and retry",
+        "passed": true
+      },
+      {
+        "name": "Lost save response retries the identical settings and produces one new widget",
+        "passed": true
+      },
+      {
+        "name": "390px chat has no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "390px question and send action are visible",
+        "passed": true
+      },
+      {
+        "name": "390px failed request keeps a long draft and reachable recovery/send controls",
+        "passed": true
+      },
+      {
+        "name": "390px keyboard focus remains inside open chat dialog",
+        "passed": true
+      },
+      {
+        "name": "390px Escape restores keyboard focus to chat toggle",
+        "passed": true
+      },
+      {
+        "name": "320px chat has no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "320px question and send action are visible",
+        "passed": true
+      },
+      {
+        "name": "320px failed request keeps a long draft and reachable recovery/send controls",
+        "passed": true
+      },
+      {
+        "name": "320px keyboard focus remains inside open chat dialog",
+        "passed": true
+      },
+      {
+        "name": "320px Escape restores keyboard focus to chat toggle",
+        "passed": true
+      },
+      {
+        "name": "Browser reports no runtime or unhandled fixture errors",
+        "passed": true
+      }
+    ],
+    "errors": [],
+    "source_sha256": {
+      "web/app/hooks/use-workspace-analysis.ts": "32a088e8ab31792c2fac894f5666c92bbc45fffb52cf40912fd6b14f613660c1",
+      "web/app/components/chat-panel.tsx": "3771faa7ba8a6cb85b2641c61b94afd1a819d38b3149d61e3dbfc0142a674380",
+      "web/components/dashboard/chat-dock.tsx": "38bd271473d95527a8067d0e45596ac3b88a5f2daa43c3224f2d38364df8a856",
+      "web/components/dashboard/getting-started.tsx": "55a7086a63e90d7da713bb1b80dafc61306d22236a5267d1f164a237234a71b7",
+      "web/components/dashboard/sample-workspace-actions.tsx": "06f74e57447a6f95828e7f2ef8860aa9200d0d3f6405a0b78ea02f5469869415",
+      "web/components/dashboard/sections/dashboard-section.tsx": "1c19a444ad8843e0d71b8ff4b0c2a498a923249fc77cc01c495d832e63f6bf16",
+      "web/components/dashboard/file-library.tsx": "3bda2fe5af838811d96b233cc339719729213a4061f125fb3808f0f4c3f261df"
+    }
+  },
+  "upload_failure_fixtures": {
+    "passed": true,
+    "api_mocks": true,
+    "checks": [
+      "6MiB browser upload uses small JSON reservations and credential-free Storage PUT",
+      "signed download preserves Korean filename and bytes",
+      "verification failure is visible and clears progress status",
+      "Failed Storage transfer plus missing completion is visible; no extra file is registered",
+      "Lost Storage response is resolved through authenticated completion, not assumed failed",
+      "oversized file is rejected before reservation or upload"
+    ]
+  },
+  "responsive": {
+    "passed": true,
+    "api_mocks": false,
+    "browser": "Microsoft Edge (Chromium)",
+    "mobile": "viewport emulation, not physical Safari",
+    "checks": [
+      "login-dark-1440",
+      "login-dark-768",
+      "login-dark-390",
+      "login-light-1440",
+      "login-light-768",
+      "login-light-390",
+      "Keyboard-only login after fresh context",
+      "dashboard-dark-1440",
+      "sql-dark-1440",
+      "chat-dark-1440",
+      "files-dark-1440",
+      "dashboard-dark-768",
+      "sql-dark-768",
+      "chat-dark-768",
+      "files-dark-768",
+      "dashboard-dark-390",
+      "sql-dark-390",
+      "chat-dark-390",
+      "files-dark-390",
+      "dashboard-light-1440",
+      "sql-light-1440",
+      "chat-light-1440",
+      "files-light-1440",
+      "dashboard-light-768",
+      "sql-light-768",
+      "chat-light-768",
+      "files-light-768",
+      "dashboard-light-390",
+      "sql-light-390",
+      "chat-light-390",
+      "files-light-390",
+      "dashboard-200-percent-equivalent"
+    ],
+    "page_errors": 0,
+    "zoom": {
+      "method": "CDP CSS viewport/DPR equivalent of 1440x900 at 200%; not native browser zoom",
+      "verified": true
+    }
+  },
+  "api_targeted_tests": {
+    "passed": 24,
+    "skipped": 17,
+    "seconds": 10.88,
+    "scope": [
+      "test_auth.py",
+      "test_direct_uploads.py",
+      "test_file_scopes.py",
+      "test_serverless_limits.py"
+    ],
+    "skips": "DB-dependent tests not executed in this local invocation"
+  },
+  "baseline_ci": {
+    "commit": "b23c68f687fdc79001502e01e41635b533f9db00",
+    "tests": "https://github.com/gnb1202/DATAEZ/actions/runs/34692373340",
+    "docker": "https://github.com/gnb1202/DATAEZ/actions/runs/34692373363",
+    "conclusion": "success"
+  },
+  "package": {
+    "passed": true,
+    "zip_bytes": 16954801,
+    "zip_sha256": "00d96d71402af73706a7b6a942462660965532a716322102f73b9e21419ee6d9",
+    "files": {
+      "index.html": {
+        "bytes": 4139,
+        "sha256": "ffc3565a2e566ca537efa67db7214cfe799f5492bec00d85d86e8cb326810fc8"
+      },
+      "product.mp4": {
+        "bytes": 4327676,
+        "sha256": "a8c370e8016489f03dd45f78cdb145f68e4f399fda3e39f89d424e2c92427f58"
+      },
+      "technical.mp4": {
+        "bytes": 11059904,
+        "sha256": "0b12f18facf5b9d1159bfe05049091d0cfbf3b8a485aa0b667d1bb5dd4383552"
+      },
+      "loop.mp4": {
+        "bytes": 670978,
+        "sha256": "435fcabbb62e79976a340eb53a19ab5cd7fd4fc6bfe6160a34b3a949fd7c025c"
+      },
+      "loop.webm": {
+        "bytes": 525038,
+        "sha256": "4ea028ccb2d820517046d5f7ee8392c0bed0dcb6e2171dba2f142197e4ba77a1"
+      },
+      "product.ko.srt": {
+        "bytes": 1601,
+        "sha256": "3ba1d0433e018ec46f2d24452987500d53a0bff986f98c57a3134519c9abe8a3"
+      },
+      "technical.ko.srt": {
+        "bytes": 4179,
+        "sha256": "85c58a7ae608e4de885467021ef45f2fa6e18561ab956fa1afc9ec034196bdba"
+      },
+      "loop.ko.srt": {
+        "bytes": 221,
+        "sha256": "6c8cb42333023c0bf685ccf9a30fd2c2251877dbc062834503f4b9f4bc0186e6"
+      },
+      "fonts/spoqa.ttf": {
+        "bytes": 338824,
+        "sha256": "6e5904421ed02beead77d8dedc2684ebd7d8a9cd6a625b65901a4fc0d25385f5"
+      },
+      "assets/product-poster.png": {
+        "bytes": 270685,
+        "sha256": "44de9517f46570fc1857f013fb360eafb5f062ce6b1878a3cfb86158c8b1f86a"
+      },
+      "assets/technical-poster.png": {
+        "bytes": 176837,
+        "sha256": "b3c7a36a8d03f5249d26533ba970795c7fdbfa79b1f1316ea5652015a4d3c165"
+      },
+      "assets/loop-poster.png": {
+        "bytes": 471461,
+        "sha256": "f260fe5d286d51e8c3501013737ce85b8af0a3e70bf6d97aeeb0a9cb437aa632"
+      },
+      "font-licenses/manifest.json": {
+        "bytes": 4486,
+        "sha256": "082b7947e280fc98f7395552ddfaa6e8a6bec59f890aa0fe144129875dd68d3b"
+      },
+      "font-licenses/noto-OFL.txt": {
+        "bytes": 4481,
+        "sha256": "e35ffdebb2225b49814c31889cbb3ce69cb3509e6a9f431edaba5e1a6de8cd15"
+      },
+      "font-licenses/spoqa-LICENSE.txt": {
+        "bytes": 4482,
+        "sha256": "6ccabed8d1ed19589798639fbe877432f01c249985f5ba6cc5df346fbb43a96a"
+      },
+      "font-licenses/spoqa-OFL.txt": {
+        "bytes": 4393,
+        "sha256": "88f117575237307bdd86a17ef15e21790fc9a662fe4dfb103ca1ca077f0d9982"
+      },
+      "README.txt": {
+        "bytes": 738,
+        "sha256": "1c59c1f571df72ad7c765e546285dca971788eef694875e34588c0039ac5be58"
+      }
+    },
+    "allowlist_only": true,
+    "zip": "output/portfolio-demo-delivery.zip",
+    "relocated_temp_folder_verified": true
+  },
+  "relocated_playback": {
+    "passed": true,
+    "rate": 1,
+    "results": [
+      {
+        "name": "product",
+        "ended": true,
+        "duration": 110,
+        "current_time": 110,
+        "wall_seconds": 110.10379999998212,
+        "width": 1920,
+        "height": 1080,
+        "stalls": 0,
+        "total_frames": 3300,
+        "dropped_frames": 4,
+        "samples": [
+          {
+            "time": 0.904545,
+            "ready": 4
+          },
+          {
+            "time": 1.909119,
+            "ready": 4
+          },
+          {
+            "time": 2.907224,
+            "ready": 4
+          },
+          {
+            "time": 3.910925,
+            "ready": 4
+          },
+          {
+            "time": 4.907283,
+            "ready": 4
+          },
+          {
+            "time": 5.904223,
+            "ready": 4
+          },
+          {
+            "time": 6.914966,
+            "ready": 4
+          },
+          {
+            "time": 7.910246,
+            "ready": 4
+          },
+          {
+            "time": 8.915228,
+            "ready": 4
+          },
+          {
+            "time": 9.913359,
+            "ready": 4
+          },
+          {
+            "time": 10.901877,
+            "ready": 4
+          },
+          {
+            "time": 11.907603,
+            "ready": 4
+          },
+          {
+            "time": 12.90709,
+            "ready": 4
+          },
+          {
+            "time": 13.905959,
+            "ready": 4
+          },
+          {
+            "time": 14.909372,
+            "ready": 4
+          },
+          {
+            "time": 15.907149,
+            "ready": 4
+          },
+          {
+            "time": 16.915026,
+            "ready": 4
+          },
+          {
+            "time": 17.915836,
+            "ready": 4
+          },
+          {
+            "time": 18.90337,
+            "ready": 4
+          },
+          {
+            "time": 19.90859,
+            "ready": 4
+          },
+          {
+            "time": 20.910979,
+            "ready": 4
+          },
+          {
+            "time": 21.902971,
+            "ready": 4
+          },
+          {
+            "time": 22.906636,
+            "ready": 4
+          },
+          {
+            "time": 23.90827,
+            "ready": 4
+          },
+          {
+            "time": 24.909684,
+            "ready": 4
+          },
+          {
+            "time": 25.906041,
+            "ready": 4
+          },
+          {
+            "time": 26.911191,
+            "ready": 4
+          },
+          {
+            "time": 27.911373,
+            "ready": 4
+          },
+          {
+            "time": 28.901439,
+            "ready": 4
+          },
+          {
+            "time": 29.915659,
+            "ready": 4
+          },
+          {
+            "time": 30.901098,
+            "ready": 4
+          },
+          {
+            "time": 31.905697,
+            "ready": 4
+          },
+          {
+            "time": 32.915833,
+            "ready": 4
+          },
+          {
+            "time": 33.91283,
+            "ready": 4
+          },
+          {
+            "time": 34.914453,
+            "ready": 4
+          },
+          {
+            "time": 35.901104,
+            "ready": 4
+          },
+          {
+            "time": 36.90775,
+            "ready": 4
+          },
+          {
+            "time": 37.90972,
+            "ready": 4
+          },
+          {
+            "time": 38.910135,
+            "ready": 4
+          },
+          {
+            "time": 39.906466,
+            "ready": 4
+          },
+          {
+            "time": 40.915717,
+            "ready": 4
+          },
+          {
+            "time": 41.907456,
+            "ready": 4
+          },
+          {
+            "time": 42.909283,
+            "ready": 4
+          },
+          {
+            "time": 43.91438,
+            "ready": 4
+          },
+          {
+            "time": 44.902674,
+            "ready": 4
+          },
+          {
+            "time": 45.909414,
+            "ready": 4
+          },
+          {
+            "time": 46.908074,
+            "ready": 4
+          },
+          {
+            "time": 47.908401,
+            "ready": 4
+          },
+          {
+            "time": 48.912187,
+            "ready": 4
+          },
+          {
+            "time": 49.914163,
+            "ready": 4
+          },
+          {
+            "time": 50.902429,
+            "ready": 4
+          },
+          {
+            "time": 51.902466,
+            "ready": 4
+          },
+          {
+            "time": 52.913904,
+            "ready": 4
+          },
+          {
+            "time": 53.914842,
+            "ready": 4
+          },
+          {
+            "time": 54.915954,
+            "ready": 4
+          },
+          {
+            "time": 55.914525,
+            "ready": 4
+          },
+          {
+            "time": 56.903028,
+            "ready": 4
+          },
+          {
+            "time": 57.916145,
+            "ready": 4
+          },
+          {
+            "time": 58.915949,
+            "ready": 4
+          },
+          {
+            "time": 59.904902,
+            "ready": 4
+          },
+          {
+            "time": 60.906716,
+            "ready": 4
+          },
+          {
+            "time": 61.901462,
+            "ready": 4
+          },
+          {
+            "time": 62.91395,
+            "ready": 4
+          },
+          {
+            "time": 63.904106,
+            "ready": 4
+          },
+          {
+            "time": 64.909509,
+            "ready": 4
+          },
+          {
+            "time": 65.912743,
+            "ready": 4
+          },
+          {
+            "time": 66.916206,
+            "ready": 4
+          },
+          {
+            "time": 67.913678,
+            "ready": 4
+          },
+          {
+            "time": 68.901522,
+            "ready": 4
+          },
+          {
+            "time": 69.901006,
+            "ready": 4
+          },
+          {
+            "time": 70.916358,
+            "ready": 4
+          },
+          {
+            "time": 71.902127,
+            "ready": 4
+          },
+          {
+            "time": 72.90517,
+            "ready": 4
+          },
+          {
+            "time": 73.911946,
+            "ready": 4
+          },
+          {
+            "time": 74.911837,
+            "ready": 4
+          },
+          {
+            "time": 75.910316,
+            "ready": 4
+          },
+          {
+            "time": 76.910767,
+            "ready": 4
+          },
+          {
+            "time": 77.911269,
+            "ready": 4
+          },
+          {
+            "time": 78.914021,
+            "ready": 4
+          },
+          {
+            "time": 79.904158,
+            "ready": 4
+          },
+          {
+            "time": 80.911807,
+            "ready": 4
+          },
+          {
+            "time": 81.91295,
+            "ready": 4
+          },
+          {
+            "time": 82.913063,
+            "ready": 4
+          },
+          {
+            "time": 83.904799,
+            "ready": 4
+          },
+          {
+            "time": 84.911179,
+            "ready": 4
+          },
+          {
+            "time": 85.913183,
+            "ready": 4
+          },
+          {
+            "time": 86.906575,
+            "ready": 4
+          },
+          {
+            "time": 87.906692,
+            "ready": 4
+          },
+          {
+            "time": 88.91053,
+            "ready": 4
+          },
+          {
+            "time": 89.915485,
+            "ready": 4
+          },
+          {
+            "time": 90.902673,
+            "ready": 4
+          },
+          {
+            "time": 91.906165,
+            "ready": 4
+          },
+          {
+            "time": 92.908594,
+            "ready": 4
+          },
+          {
+            "time": 93.910972,
+            "ready": 4
+          },
+          {
+            "time": 94.906453,
+            "ready": 4
+          },
+          {
+            "time": 95.902021,
+            "ready": 4
+          },
+          {
+            "time": 96.913579,
+            "ready": 4
+          },
+          {
+            "time": 97.901073,
+            "ready": 4
+          },
+          {
+            "time": 98.914767,
+            "ready": 4
+          },
+          {
+            "time": 99.913408,
+            "ready": 4
+          },
+          {
+            "time": 100.908434,
+            "ready": 4
+          },
+          {
+            "time": 101.908114,
+            "ready": 4
+          },
+          {
+            "time": 102.914553,
+            "ready": 4
+          },
+          {
+            "time": 103.912627,
+            "ready": 4
+          },
+          {
+            "time": 104.90255,
+            "ready": 4
+          },
+          {
+            "time": 105.907873,
+            "ready": 4
+          },
+          {
+            "time": 106.905209,
+            "ready": 4
+          },
+          {
+            "time": 107.915474,
+            "ready": 4
+          },
+          {
+            "time": 108.91364,
+            "ready": 4
+          },
+          {
+            "time": 109.905467,
+            "ready": 4
+          }
+        ]
+      },
+      {
+        "name": "technical",
+        "ended": true,
+        "duration": 300,
+        "current_time": 300,
+        "wall_seconds": 300.032,
+        "width": 1920,
+        "height": 1080,
+        "stalls": 0,
+        "total_frames": 9000,
+        "dropped_frames": 0,
+        "samples": [
+          {
+            "time": 1.001126,
+            "ready": 4
+          },
+          {
+            "time": 2.006427,
+            "ready": 4
+          },
+          {
+            "time": 3.006106,
+            "ready": 4
+          },
+          {
+            "time": 4.009139,
+            "ready": 4
+          },
+          {
+            "time": 5.005622,
+            "ready": 4
+          },
+          {
+            "time": 6.002962,
+            "ready": 4
+          },
+          {
+            "time": 7.013491,
+            "ready": 4
+          },
+          {
+            "time": 8.008117,
+            "ready": 4
+          },
+          {
+            "time": 9.01349,
+            "ready": 4
+          },
+          {
+            "time": 10.01222,
+            "ready": 4
+          },
+          {
+            "time": 11.001156,
+            "ready": 4
+          },
+          {
+            "time": 12.005706,
+            "ready": 4
+          },
+          {
+            "time": 13.004083,
+            "ready": 4
+          },
+          {
+            "time": 14.003317,
+            "ready": 4
+          },
+          {
+            "time": 15.008118,
+            "ready": 4
+          },
+          {
+            "time": 16.006743,
+            "ready": 4
+          },
+          {
+            "time": 17.01375,
+            "ready": 4
+          },
+          {
+            "time": 18.014832,
+            "ready": 4
+          },
+          {
+            "time": 19.002916,
+            "ready": 4
+          },
+          {
+            "time": 20.006685,
+            "ready": 4
+          },
+          {
+            "time": 21.008642,
+            "ready": 4
+          },
+          {
+            "time": 22.015824,
+            "ready": 4
+          },
+          {
+            "time": 23.00499,
+            "ready": 4
+          },
+          {
+            "time": 24.00781,
+            "ready": 4
+          },
+          {
+            "time": 25.007938,
+            "ready": 4
+          },
+          {
+            "time": 26.003987,
+            "ready": 4
+          },
+          {
+            "time": 27.009705,
+            "ready": 4
+          },
+          {
+            "time": 28.008494,
+            "ready": 4
+          },
+          {
+            "time": 29.016548,
+            "ready": 4
+          },
+          {
+            "time": 30.013041,
+            "ready": 4
+          },
+          {
+            "time": 31.0149,
+            "ready": 4
+          },
+          {
+            "time": 32.002619,
+            "ready": 4
+          },
+          {
+            "time": 33.014056,
+            "ready": 4
+          },
+          {
+            "time": 34.010299,
+            "ready": 4
+          },
+          {
+            "time": 35.01317,
+            "ready": 4
+          },
+          {
+            "time": 36.013693,
+            "ready": 4
+          },
+          {
+            "time": 37.005201,
+            "ready": 4
+          },
+          {
+            "time": 38.006877,
+            "ready": 4
+          },
+          {
+            "time": 39.006983,
+            "ready": 4
+          },
+          {
+            "time": 40.004358,
+            "ready": 4
+          },
+          {
+            "time": 41.014374,
+            "ready": 4
+          },
+          {
+            "time": 42.005035,
+            "ready": 4
+          },
+          {
+            "time": 43.009025,
+            "ready": 4
+          },
+          {
+            "time": 44.013369,
+            "ready": 4
+          },
+          {
+            "time": 45.016038,
+            "ready": 4
+          },
+          {
+            "time": 46.005673,
+            "ready": 4
+          },
+          {
+            "time": 47.007282,
+            "ready": 4
+          },
+          {
+            "time": 48.007201,
+            "ready": 4
+          },
+          {
+            "time": 49.009929,
+            "ready": 4
+          },
+          {
+            "time": 50.011517,
+            "ready": 4
+          },
+          {
+            "time": 51.014985,
+            "ready": 4
+          },
+          {
+            "time": 52.000604,
+            "ready": 4
+          },
+          {
+            "time": 53.012048,
+            "ready": 4
+          },
+          {
+            "time": 54.012761,
+            "ready": 4
+          },
+          {
+            "time": 55.014176,
+            "ready": 4
+          },
+          {
+            "time": 56.011315,
+            "ready": 4
+          },
+          {
+            "time": 57.001714,
+            "ready": 4
+          },
+          {
+            "time": 58.01458,
+            "ready": 4
+          },
+          {
+            "time": 59.014204,
+            "ready": 4
+          },
+          {
+            "time": 60.002713,
+            "ready": 4
+          },
+          {
+            "time": 61.004191,
+            "ready": 4
+          },
+          {
+            "time": 62.014455,
+            "ready": 4
+          },
+          {
+            "time": 63.01115,
+            "ready": 4
+          },
+          {
+            "time": 64.001016,
+            "ready": 4
+          },
+          {
+            "time": 65.008191,
+            "ready": 4
+          },
+          {
+            "time": 66.010529,
+            "ready": 4
+          },
+          {
+            "time": 67.01437,
+            "ready": 4
+          },
+          {
+            "time": 68.011733,
+            "ready": 4
+          },
+          {
+            "time": 69.015416,
+            "ready": 4
+          },
+          {
+            "time": 70.000587,
+            "ready": 4
+          },
+          {
+            "time": 71.013583,
+            "ready": 4
+          },
+          {
+            "time": 72.001104,
+            "ready": 4
+          },
+          {
+            "time": 73.005215,
+            "ready": 4
+          },
+          {
+            "time": 74.008429,
+            "ready": 4
+          },
+          {
+            "time": 75.010678,
+            "ready": 4
+          },
+          {
+            "time": 76.007385,
+            "ready": 4
+          },
+          {
+            "time": 77.009368,
+            "ready": 4
+          },
+          {
+            "time": 78.006753,
+            "ready": 4
+          },
+          {
+            "time": 79.0116,
+            "ready": 4
+          },
+          {
+            "time": 80.002637,
+            "ready": 4
+          },
+          {
+            "time": 81.010205,
+            "ready": 4
+          },
+          {
+            "time": 82.010387,
+            "ready": 4
+          },
+          {
+            "time": 83.012326,
+            "ready": 4
+          },
+          {
+            "time": 84.003428,
+            "ready": 4
+          },
+          {
+            "time": 85.010521,
+            "ready": 4
+          },
+          {
+            "time": 86.01054,
+            "ready": 4
+          },
+          {
+            "time": 87.004422,
+            "ready": 4
+          },
+          {
+            "time": 88.005215,
+            "ready": 4
+          },
+          {
+            "time": 89.008831,
+            "ready": 4
+          },
+          {
+            "time": 90.013518,
+            "ready": 4
+          },
+          {
+            "time": 91.001384,
+            "ready": 4
+          },
+          {
+            "time": 92.006072,
+            "ready": 4
+          },
+          {
+            "time": 93.006485,
+            "ready": 4
+          },
+          {
+            "time": 94.010258,
+            "ready": 4
+          },
+          {
+            "time": 95.003991,
+            "ready": 4
+          },
+          {
+            "time": 96.000208,
+            "ready": 4
+          },
+          {
+            "time": 97.011558,
+            "ready": 4
+          },
+          {
+            "time": 98.014593,
+            "ready": 4
+          },
+          {
+            "time": 99.013261,
+            "ready": 4
+          },
+          {
+            "time": 100.011863,
+            "ready": 4
+          },
+          {
+            "time": 101.006046,
+            "ready": 4
+          },
+          {
+            "time": 102.007268,
+            "ready": 4
+          },
+          {
+            "time": 103.012263,
+            "ready": 4
+          },
+          {
+            "time": 104.010795,
+            "ready": 4
+          },
+          {
+            "time": 105.015113,
+            "ready": 4
+          },
+          {
+            "time": 106.004327,
+            "ready": 4
+          },
+          {
+            "time": 107.001541,
+            "ready": 4
+          },
+          {
+            "time": 108.01249,
+            "ready": 4
+          },
+          {
+            "time": 109.012675,
+            "ready": 4
+          },
+          {
+            "time": 110.002446,
+            "ready": 4
+          },
+          {
+            "time": 111.008101,
+            "ready": 4
+          },
+          {
+            "time": 112.014396,
+            "ready": 4
+          },
+          {
+            "time": 113.008236,
+            "ready": 4
+          },
+          {
+            "time": 114.015459,
+            "ready": 4
+          },
+          {
+            "time": 115.009118,
+            "ready": 4
+          },
+          {
+            "time": 116.005118,
+            "ready": 4
+          },
+          {
+            "time": 117.002631,
+            "ready": 4
+          },
+          {
+            "time": 118.005236,
+            "ready": 4
+          },
+          {
+            "time": 119.005356,
+            "ready": 4
+          },
+          {
+            "time": 120.000262,
+            "ready": 4
+          },
+          {
+            "time": 121.002279,
+            "ready": 4
+          },
+          {
+            "time": 122.005305,
+            "ready": 4
+          },
+          {
+            "time": 123.010105,
+            "ready": 4
+          },
+          {
+            "time": 124.003853,
+            "ready": 4
+          },
+          {
+            "time": 125.007109,
+            "ready": 4
+          },
+          {
+            "time": 126.013935,
+            "ready": 4
+          },
+          {
+            "time": 127.000522,
+            "ready": 4
+          },
+          {
+            "time": 128.010979,
+            "ready": 4
+          },
+          {
+            "time": 129.001733,
+            "ready": 4
+          },
+          {
+            "time": 130.00224,
+            "ready": 4
+          },
+          {
+            "time": 131.008099,
+            "ready": 4
+          },
+          {
+            "time": 132.011757,
+            "ready": 4
+          },
+          {
+            "time": 133.002357,
+            "ready": 4
+          },
+          {
+            "time": 134.002464,
+            "ready": 4
+          },
+          {
+            "time": 135.007941,
+            "ready": 4
+          },
+          {
+            "time": 136.00552,
+            "ready": 4
+          },
+          {
+            "time": 137.000471,
+            "ready": 4
+          },
+          {
+            "time": 138.013381,
+            "ready": 4
+          },
+          {
+            "time": 139.002501,
+            "ready": 4
+          },
+          {
+            "time": 140.006909,
+            "ready": 4
+          },
+          {
+            "time": 141.012038,
+            "ready": 4
+          },
+          {
+            "time": 142.0033,
+            "ready": 4
+          },
+          {
+            "time": 143.007428,
+            "ready": 4
+          },
+          {
+            "time": 144.012412,
+            "ready": 4
+          },
+          {
+            "time": 145.015916,
+            "ready": 4
+          },
+          {
+            "time": 146.008733,
+            "ready": 4
+          },
+          {
+            "time": 147.011079,
+            "ready": 4
+          },
+          {
+            "time": 148.008542,
+            "ready": 4
+          },
+          {
+            "time": 149.010831,
+            "ready": 4
+          },
+          {
+            "time": 150.015173,
+            "ready": 4
+          },
+          {
+            "time": 151.00543,
+            "ready": 4
+          },
+          {
+            "time": 152.010574,
+            "ready": 4
+          },
+          {
+            "time": 153.008608,
+            "ready": 4
+          },
+          {
+            "time": 154.008089,
+            "ready": 4
+          },
+          {
+            "time": 155.012025,
+            "ready": 4
+          },
+          {
+            "time": 156.011916,
+            "ready": 4
+          },
+          {
+            "time": 157.004119,
+            "ready": 4
+          },
+          {
+            "time": 158.008705,
+            "ready": 4
+          },
+          {
+            "time": 159.007365,
+            "ready": 4
+          },
+          {
+            "time": 160.008792,
+            "ready": 4
+          },
+          {
+            "time": 160.999901,
+            "ready": 4
+          },
+          {
+            "time": 162.008202,
+            "ready": 4
+          },
+          {
+            "time": 163.014033,
+            "ready": 4
+          },
+          {
+            "time": 164.003006,
+            "ready": 4
+          },
+          {
+            "time": 165.001909,
+            "ready": 4
+          },
+          {
+            "time": 165.999877,
+            "ready": 4
+          },
+          {
+            "time": 167.01107,
+            "ready": 4
+          },
+          {
+            "time": 168.004878,
+            "ready": 4
+          },
+          {
+            "time": 169.013628,
+            "ready": 4
+          },
+          {
+            "time": 170.003968,
+            "ready": 4
+          },
+          {
+            "time": 171.009217,
+            "ready": 4
+          },
+          {
+            "time": 172.002698,
+            "ready": 4
+          },
+          {
+            "time": 173.014259,
+            "ready": 4
+          },
+          {
+            "time": 174.004663,
+            "ready": 4
+          },
+          {
+            "time": 175.011129,
+            "ready": 4
+          },
+          {
+            "time": 176.012187,
+            "ready": 4
+          },
+          {
+            "time": 177.0097,
+            "ready": 4
+          },
+          {
+            "time": 178.010195,
+            "ready": 4
+          },
+          {
+            "time": 179.001246,
+            "ready": 4
+          },
+          {
+            "time": 180.002578,
+            "ready": 4
+          },
+          {
+            "time": 181.004179,
+            "ready": 4
+          },
+          {
+            "time": 182.009256,
+            "ready": 4
+          },
+          {
+            "time": 183.014516,
+            "ready": 4
+          },
+          {
+            "time": 184.00011,
+            "ready": 4
+          },
+          {
+            "time": 185.003424,
+            "ready": 4
+          },
+          {
+            "time": 186.011776,
+            "ready": 4
+          },
+          {
+            "time": 187.007098,
+            "ready": 4
+          },
+          {
+            "time": 188.009281,
+            "ready": 4
+          },
+          {
+            "time": 189.012197,
+            "ready": 4
+          },
+          {
+            "time": 190.004588,
+            "ready": 4
+          },
+          {
+            "time": 191.015618,
+            "ready": 4
+          },
+          {
+            "time": 192.000664,
+            "ready": 4
+          },
+          {
+            "time": 193.011975,
+            "ready": 4
+          },
+          {
+            "time": 194.008847,
+            "ready": 4
+          },
+          {
+            "time": 195.008961,
+            "ready": 4
+          },
+          {
+            "time": 196.002629,
+            "ready": 4
+          },
+          {
+            "time": 197.012221,
+            "ready": 4
+          },
+          {
+            "time": 198.011025,
+            "ready": 4
+          },
+          {
+            "time": 199.010765,
+            "ready": 4
+          },
+          {
+            "time": 200.014007,
+            "ready": 4
+          },
+          {
+            "time": 201.005981,
+            "ready": 4
+          },
+          {
+            "time": 202.007563,
+            "ready": 4
+          },
+          {
+            "time": 203.008147,
+            "ready": 4
+          },
+          {
+            "time": 204.012106,
+            "ready": 4
+          },
+          {
+            "time": 205.001975,
+            "ready": 4
+          },
+          {
+            "time": 206.014745,
+            "ready": 4
+          },
+          {
+            "time": 207.014964,
+            "ready": 4
+          },
+          {
+            "time": 208.010832,
+            "ready": 4
+          },
+          {
+            "time": 209.011858,
+            "ready": 4
+          },
+          {
+            "time": 210.006955,
+            "ready": 4
+          },
+          {
+            "time": 211.011473,
+            "ready": 4
+          },
+          {
+            "time": 212.016424,
+            "ready": 4
+          },
+          {
+            "time": 213.004074,
+            "ready": 4
+          },
+          {
+            "time": 214.005942,
+            "ready": 4
+          },
+          {
+            "time": 215.015363,
+            "ready": 4
+          },
+          {
+            "time": 216.013259,
+            "ready": 4
+          },
+          {
+            "time": 217.013236,
+            "ready": 4
+          },
+          {
+            "time": 218.010099,
+            "ready": 4
+          },
+          {
+            "time": 219.012396,
+            "ready": 4
+          },
+          {
+            "time": 220.000445,
+            "ready": 4
+          },
+          {
+            "time": 221.003407,
+            "ready": 4
+          },
+          {
+            "time": 222.007446,
+            "ready": 4
+          },
+          {
+            "time": 223.009878,
+            "ready": 4
+          },
+          {
+            "time": 224.002288,
+            "ready": 4
+          },
+          {
+            "time": 225.001359,
+            "ready": 4
+          },
+          {
+            "time": 226.012054,
+            "ready": 4
+          },
+          {
+            "time": 227.008383,
+            "ready": 4
+          },
+          {
+            "time": 228.009878,
+            "ready": 4
+          },
+          {
+            "time": 229.01298,
+            "ready": 4
+          },
+          {
+            "time": 230.013593,
+            "ready": 4
+          },
+          {
+            "time": 231.006733,
+            "ready": 4
+          },
+          {
+            "time": 232.013313,
+            "ready": 4
+          },
+          {
+            "time": 233.011141,
+            "ready": 4
+          },
+          {
+            "time": 234.007453,
+            "ready": 4
+          },
+          {
+            "time": 235.004213,
+            "ready": 4
+          },
+          {
+            "time": 236.005269,
+            "ready": 4
+          },
+          {
+            "time": 237.006248,
+            "ready": 4
+          },
+          {
+            "time": 238.007926,
+            "ready": 4
+          },
+          {
+            "time": 239.012945,
+            "ready": 4
+          },
+          {
+            "time": 240.003728,
+            "ready": 4
+          },
+          {
+            "time": 241.006936,
+            "ready": 4
+          },
+          {
+            "time": 242.009079,
+            "ready": 4
+          },
+          {
+            "time": 243.004944,
+            "ready": 4
+          },
+          {
+            "time": 244.004558,
+            "ready": 4
+          },
+          {
+            "time": 245.006653,
+            "ready": 4
+          },
+          {
+            "time": 246.003096,
+            "ready": 4
+          },
+          {
+            "time": 247.001672,
+            "ready": 4
+          },
+          {
+            "time": 248.004155,
+            "ready": 4
+          },
+          {
+            "time": 249.002808,
+            "ready": 4
+          },
+          {
+            "time": 250.006351,
+            "ready": 4
+          },
+          {
+            "time": 251.000336,
+            "ready": 4
+          },
+          {
+            "time": 252.004498,
+            "ready": 4
+          },
+          {
+            "time": 253.001661,
+            "ready": 4
+          },
+          {
+            "time": 254.002519,
+            "ready": 4
+          },
+          {
+            "time": 255.000583,
+            "ready": 4
+          },
+          {
+            "time": 256.011327,
+            "ready": 4
+          },
+          {
+            "time": 257.007383,
+            "ready": 4
+          },
+          {
+            "time": 258.007248,
+            "ready": 4
+          },
+          {
+            "time": 259.005799,
+            "ready": 4
+          },
+          {
+            "time": 260.007656,
+            "ready": 4
+          },
+          {
+            "time": 261.013698,
+            "ready": 4
+          },
+          {
+            "time": 262.01311,
+            "ready": 4
+          },
+          {
+            "time": 263.000316,
+            "ready": 4
+          },
+          {
+            "time": 264.012083,
+            "ready": 4
+          },
+          {
+            "time": 265.014512,
+            "ready": 4
+          },
+          {
+            "time": 266.007779,
+            "ready": 4
+          },
+          {
+            "time": 267.008097,
+            "ready": 4
+          },
+          {
+            "time": 268.006075,
+            "ready": 4
+          },
+          {
+            "time": 269.002215,
+            "ready": 4
+          },
+          {
+            "time": 270.013284,
+            "ready": 4
+          },
+          {
+            "time": 271.014082,
+            "ready": 4
+          },
+          {
+            "time": 272.00321,
+            "ready": 4
+          },
+          {
+            "time": 273.003674,
+            "ready": 4
+          },
+          {
+            "time": 274.006971,
+            "ready": 4
+          },
+          {
+            "time": 275.014234,
+            "ready": 4
+          },
+          {
+            "time": 276.010476,
+            "ready": 4
+          },
+          {
+            "time": 277.01113,
+            "ready": 4
+          },
+          {
+            "time": 278.005202,
+            "ready": 4
+          },
+          {
+            "time": 279.003168,
+            "ready": 4
+          },
+          {
+            "time": 280.008115,
+            "ready": 4
+          },
+          {
+            "time": 281.010778,
+            "ready": 4
+          },
+          {
+            "time": 282.000823,
+            "ready": 4
+          },
+          {
+            "time": 283.001659,
+            "ready": 4
+          },
+          {
+            "time": 284.001587,
+            "ready": 4
+          },
+          {
+            "time": 285.001702,
+            "ready": 4
+          },
+          {
+            "time": 286.010966,
+            "ready": 4
+          },
+          {
+            "time": 287.003848,
+            "ready": 4
+          },
+          {
+            "time": 288.001222,
+            "ready": 4
+          },
+          {
+            "time": 289.014774,
+            "ready": 4
+          },
+          {
+            "time": 290.000888,
+            "ready": 4
+          },
+          {
+            "time": 291.003352,
+            "ready": 4
+          },
+          {
+            "time": 292.012435,
+            "ready": 4
+          },
+          {
+            "time": 293.014434,
+            "ready": 4
+          },
+          {
+            "time": 294.011988,
+            "ready": 4
+          },
+          {
+            "time": 295.008295,
+            "ready": 4
+          },
+          {
+            "time": 296.00804,
+            "ready": 4
+          },
+          {
+            "time": 297.004169,
+            "ready": 4
+          },
+          {
+            "time": 298.006568,
+            "ready": 4
+          },
+          {
+            "time": 299.004572,
+            "ready": 4
+          },
+          {
+            "time": 300,
+            "ready": 4
+          }
+        ]
+      },
+      {
+        "name": "loop",
+        "ended": true,
+        "duration": 12,
+        "current_time": 12,
+        "wall_seconds": 12.04909999999404,
+        "width": 1920,
+        "height": 1080,
+        "stalls": 0,
+        "total_frames": 360,
+        "dropped_frames": 0,
+        "samples": [
+          {
+            "time": 0.988011,
+            "ready": 4
+          },
+          {
+            "time": 1.987338,
+            "ready": 4
+          },
+          {
+            "time": 3.001642,
+            "ready": 4
+          },
+          {
+            "time": 3.989266,
+            "ready": 4
+          },
+          {
+            "time": 5.001158,
+            "ready": 4
+          },
+          {
+            "time": 5.997697,
+            "ready": 4
+          },
+          {
+            "time": 6.993917,
+            "ready": 4
+          },
+          {
+            "time": 7.988612,
+            "ready": 4
+          },
+          {
+            "time": 8.993738,
+            "ready": 4
+          },
+          {
+            "time": 9.99224,
+            "ready": 4
+          },
+          {
+            "time": 10.996392,
+            "ready": 4
+          },
+          {
+            "time": 12,
+            "ready": 4
+          }
+        ]
+      }
+    ]
+  },
+  "video_bytes_match_phase_3": true,
+  "privacy": {
+    "text_files_scanned": 564,
+    "known_private_value_matches": 0,
+    "credential_pattern_matches": 0,
+    "media": "New representative screenshots visually reviewed; prior video privacy/frame review inherited only after matching all four hashes. Not a full-history secret audit or penetration test."
+  },
+  "docs": {
+    "local_links_checked": 219,
+    "missing_paths_or_anchors": []
+  },
+  "findings": [
+    {
+      "kind": "test_harness",
+      "severity": "P2",
+      "status": "fixed",
+      "detail": "Legacy usability test assumed expanded guide and lacked upload capabilities fixture; aligned with current app contract."
+    },
+    {
+      "kind": "test_harness",
+      "severity": "P2",
+      "status": "fixed",
+      "detail": "Wait for focus restoration and ready dashboard before responsive capture; scroll save settings into view."
+    }
+  ],
+  "open_p0": 0,
+  "open_p1": 0,
+  "limits": [
+    "No physical mobile/Safari run",
+    "200% equivalent CSS viewport/DPR checked; native headless Edge zoom shortcuts ignored",
+    "No PG integration, load test, customer study or comprehensive security audit",
+    "Video public hosting deferred"
+  ],
+  "evidence_images": [
+    "phase-5-first-use.png",
+    "phase-5-dashboard.png",
+    "phase-5-mobile-table.png",
+    "phase-5-mobile-save.png",
+    "phase-5-zoom-equivalent.png"
+  ]
+}
