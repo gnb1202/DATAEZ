@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checked_at": "2026-09-12",
+  "scope": "document consistency, not live LLM acceptance",
+  "checks": [
+    "product_timeline: contiguous 110s; scene references present",
+    "technical_timeline: contiguous 300s; scene references present",
+    "loop_timeline: contiguous 12s; scene references present",
+    "Scenario expected values match independent fixture and original/additional CSV arithmetic",
+    "Referenced implementation files exist",
+    "Two explicit source scopes; manual refresh; preview before user save"
+  ]
+}

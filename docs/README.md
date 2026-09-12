@@ -8,6 +8,9 @@
 |---|---|
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
+| 포트폴리오 영상·시연 자료 제작 | [제작 Phase·산출물·완료 기준](PORTFOLIO_DEMO_PLAN.md) |
+| 공개 환경 촬영 준비·현재 완료 근거 | [포트폴리오 시연 안내](portfolio-demo/RUNBOOK.md), [Phase별 확인 결과](portfolio-demo/ACCEPTANCE.md) |
+| 제품·기술 영상의 대본과 질문 | [촬영표](portfolio-demo/STORYBOARD.md), [내레이션·자막](portfolio-demo/NARRATION.md), [질문·타임라인](portfolio-demo/scenario.json) |
 | 다음 Phase와 완료 조건 | [지속형 데모·사용성·새 파일/질문 평가 계획](NEXT_PHASE_DEMO_AND_QUALITY.md) |
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
 | 첫 공개 배포·HTTPS·비용과 상태 | [배포 방향 변경과 검증 상태](PUBLIC_DEPLOYMENT.md) |

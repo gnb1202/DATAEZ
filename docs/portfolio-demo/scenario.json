@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "status": "rehearsed_twice_ready_to_capture",
+  "date": "2026-09-12",
+  "synthetic": true,
+  "expected_fixture": "samples/demo/expected.json",
+  "original_fixture": "samples/demo/portfolio-original.csv",
+  "append_fixture": "samples/demo/additional-transaction.csv",
+  "source_commit_reviewed": "e24be0ae44bd2ec80f18117e0ee3b654e4bd0df9",
+  "capture": {
+    "width": 1920,
+    "height": 1080,
+    "fps_target": 30,
+    "theme": "dark",
+    "audio": "optional_narration",
+    "language": "ko"
+  },
+  "state_sequence": [
+    "fresh_recording",
+    "original_chart_saved",
+    "ledger_chart_saved",
+    "one_transaction_appended",
+    "both_charts_refreshed"
+  ],
+  "prompts": [
+    {
+      "id": "Q1",
+      "scope": "original_file",
+      "text": "선택한 파일 원본의 전체 기간에서 paid_at 날짜별 amount 합계를 원 단위 선그래프로 만들어줘. 음수 취소 금액도 포함하고, 같은 출처와 계산 기준으로 다시 계산할 수 있는 지표로 미리보기해줘. 아직 대시보드에는 저장하지 마.",
+      "saved_title": "원본 · 일별 순결제액",
+      "chart_type": "line",
+      "unit": "KRW",
+      "time_range": "all",
+      "refresh_interval_seconds": 0,
+      "must_have_metric_definition": true
+    },
+    {
+      "id": "Q2",
+      "scope": "linked_ledger",
+      "text": "선택한 누적 장부 전체에서 paid_at 날짜별 amount 합계를 원 단위 선그래프로 만들어줘. 전체 기간과 음수 취소 금액을 포함하고, 새 거래를 추가한 뒤 같은 기준으로 다시 계산할 수 있는 지표로 미리보기해줘. 아직 대시보드에는 저장하지 마.",
+      "saved_title": "누적 장부 · 일별 순결제액",
+      "chart_type": "line",
+      "unit": "KRW",
+      "time_range": "all",
+      "refresh_interval_seconds": 0,
+      "must_have_metric_definition": true
+    }
+  ],
+  "expected": {
+    "before": {
+      "rows": 8,
+      "total": "690200",
+      "daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900"
+      }
+    },
+    "after": {
+      "original_rows": 8,
+      "original_total": "690200",
+      "ledger_rows": 9,
+      "ledger_total": "720200",
+      "ledger_daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900",
+        "2026-09-05": "30000"
+      }
+    }
+  },
+  "product_timeline": [
+    {
+      "id": "P01",
+      "start": 0,
+      "end": 8,
+      "title": "우리 가게 매출, 한눈에",
+      "source": "P06 completion shot"
+    },
+    {
+      "id": "P02",
+      "start": 8,
+      "end": 22,
+      "title": "보관 파일과 원본 범위 확인"
+    },
+    {
+      "id": "P03",
+      "start": 22,
+      "end": 40,
+      "title": "자연어 질문 Q1 전송"
+    },
+    {
+      "id": "P04",
+      "start": 40,
+      "end": 59,
+      "title": "그래프와 집계 근거 확인"
+    },
+    {
+      "id": "P05",
+      "start": 59,
+      "end": 79,
+      "title": "설정 미리보기 후 저장"
+    },
+    {
+      "id": "P06",
+      "start": 79,
+      "end": 99,
+      "title": "배치와 재접속 확인"
+    },
+    {
+      "id": "P07",
+      "start": 99,
+      "end": 110,
+      "title": "직접 체험 안내"
+    }
+  ],
+  "technical_timeline": [
+    {
+      "id": "T01",
+      "start": 0,
+      "end": 25,
+      "title": "문제와 실제 구현 범위"
+    },
+    {
+      "id": "T02",
+      "start": 25,
+      "end": 65,
+      "title": "파일 선택과 검색·집계의 역할"
+    },
+    {
+      "id": "T03",
+      "start": 65,
+      "end": 110,
+      "title": "구조화된 정의와 서버 SQL"
+    },
+    {
+      "id": "T04",
+      "start": 110,
+      "end": 155,
+      "title": "같은 파일의 누적 장부 지표 Q2"
+    },
+    {
+      "id": "T05",
+      "start": 155,
+      "end": 215,
+      "title": "추가 거래와 범위별 재계산"
+    },
+    {
+      "id": "T06",
+      "start": 215,
+      "end": 245,
+      "title": "지표·배치 저장과 가게 전환"
+    },
+    {
+      "id": "T07",
+      "start": 245,
+      "end": 280,
+      "title": "서버리스 운영의 선택"
+    },
+    {
+      "id": "T08",
+      "start": 280,
+      "end": 300,
+      "title": "검증과 남은 한계"
+    }
+  ],
+  "loop_timeline": [
+    {
+      "id": "L01",
+      "start": 0,
+      "end": 4,
+      "source": "P03",
+      "caption": "궁금한 매출을 물어보세요"
+    },
+    {
+      "id": "L02",
+      "start": 4,
+      "end": 8,
+      "source": "P04",
+      "caption": "숫자와 계산 근거를 확인하고"
+    },
+    {
+      "id": "L03",
+      "start": 8,
+      "end": 12,
+      "source": "P06",
+      "caption": "내 대시보드에 저장하세요"
+    }
+  ],
+  "capture_rules": {
+    "live_chat_queries_per_take_target": 2,
+    "append_max_per_take": 1,
+    "require_actual_successful_response": true,
+    "label_shortened_waits": true,
+    "persist_take_ids_before_appending": true,
+    "timings_are_edit_targets_not_latency_measurements": true
+  },
+  "rehearsal_evidence": "phase-2-rehearsal.json"
+}

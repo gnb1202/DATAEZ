@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "api_mocks": false,
+  "checks": [
+    "Public credential login; three explicitly predefined example widgets",
+    "Fresh recording store has original file and no dashboard widgets",
+    "Reload restores authenticated access; prior sample dashboard retained after new sample"
+  ],
+  "page_error_count": 0
+}

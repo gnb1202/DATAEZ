@@ -1,0 +1,343 @@
+{
+  "status": "passed",
+  "api_mocks": false,
+  "consecutive_successes": 2,
+  "source_commit": "e24be0ae44bd2ec80f18117e0ee3b654e4bd0df9",
+  "synthetic": true,
+  "attempt_count": 5,
+  "real_queries_total": 8,
+  "prior_attempts": [
+    {
+      "project_id": "71cd9032-5601-45cc-aa0c-64e090b5536e",
+      "passed": false,
+      "stage": "Q1_streaming",
+      "failure_name": "Error"
+    },
+    {
+      "project_id": "fb80e314-ef9b-4c01-bfce-0ae6623cf4a3",
+      "passed": true,
+      "stage": "complete",
+      "failure_name": null
+    },
+    {
+      "project_id": "7b35c788-77aa-4179-9057-22f8a385e551",
+      "passed": false,
+      "stage": "Q1_streaming",
+      "failure_name": "AssertionError"
+    }
+  ],
+  "takes": [
+    {
+      "passed": true,
+      "api_mocks": false,
+      "synthetic": true,
+      "started_at": "2026-09-12T08:31:20.682Z",
+      "source_commit": "e24be0ae44bd2ec80f18117e0ee3b654e4bd0df9",
+      "site": "https://dataez.vercel.app",
+      "project_id": "50064a74-fa69-4e12-95e4-d0c96f9cbf18",
+      "file_id": "e37841e0-057b-4e42-a52d-5131f59ba47d",
+      "table_id": "c36e3b74-288b-4621-80ac-4b82f7d00458",
+      "stage": "complete",
+      "queries": [
+        {
+          "id": "Q1",
+          "scope": "original_file",
+          "conversation_id": "ab1d01d4-e99c-4a49-a596-3f8ace625145",
+          "elapsed_seconds": 9.43,
+          "chart_count": 1,
+          "selected_chart_index": 0,
+          "message_id": "d41bf0ad-0a6f-40dc-a23f-2be823526455",
+          "daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          },
+          "tool_names": [
+            "library_references",
+            "preview_metric"
+          ],
+          "token_usage": null,
+          "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+          "scope_label": "파일 원본만",
+          "metric_definition": {
+            "unit": "KRW",
+            "column": "amount",
+            "filters": [],
+            "version": 1,
+            "group_by": "paid_at",
+            "table_id": "feb82b09-6208-4e53-9323-9bb14897e8e2",
+            "operation": "sum",
+            "chart_type": "line",
+            "date_grain": "day",
+            "time_range": "all",
+            "date_column": "paid_at"
+          },
+          "widget_id": "9acf37af-ade1-4aff-ac00-54deb880e8a5",
+          "after_daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          }
+        },
+        {
+          "id": "Q2",
+          "scope": "linked_ledger",
+          "conversation_id": "92838abf-8429-4b98-8e2d-53cbfd5e1f92",
+          "elapsed_seconds": 8.66,
+          "chart_count": 1,
+          "selected_chart_index": 0,
+          "message_id": "eb33291a-fe6e-4be9-8ba5-138310a32060",
+          "daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          },
+          "tool_names": [
+            "library_references",
+            "preview_metric"
+          ],
+          "token_usage": null,
+          "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+          "scope_label": "누적 장부 전체",
+          "metric_definition": {
+            "unit": "KRW",
+            "column": "amount",
+            "filters": [],
+            "version": 1,
+            "group_by": "paid_at",
+            "table_id": "c36e3b74-288b-4621-80ac-4b82f7d00458",
+            "operation": "sum",
+            "chart_type": "line",
+            "date_grain": "day",
+            "time_range": "all",
+            "date_column": "paid_at"
+          },
+          "widget_id": "88a5579a-8343-4c35-b20c-329491612a67",
+          "after_daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900",
+            "2026-09-05": "30000"
+          }
+        }
+      ],
+      "checks": [
+        "Q1: real LLM → exact daily values → manual preview/save (9.43s)",
+        "Q2: real LLM → exact daily values → manual preview/save (8.66s)",
+        "Append exactly once: ledger 9 rows / 720200; original remains 690200 after both refreshes",
+        "Real drag layout persisted across reload/store switching; both charts visible at 1920×1080, dark/light captured"
+      ],
+      "page_error_count": 0,
+      "append_sha256": "631d4e01a954b644bb629545580eaca9e80029b1db058621d5131a5f593d7093",
+      "ledger_rows": 9,
+      "original_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+      "layouts": [
+        {
+          "id": "9acf37af-ade1-4aff-ac00-54deb880e8a5",
+          "layout": {
+            "h": 7,
+            "w": 6,
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "88a5579a-8343-4c35-b20c-329491612a67",
+          "layout": {
+            "h": 7,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "viewport": [
+        {
+          "top": 262,
+          "bottom": 778,
+          "width": 788
+        },
+        {
+          "top": 262,
+          "bottom": 778,
+          "width": 788
+        }
+      ],
+      "finished_at": "2026-09-12T08:31:50.067Z"
+    },
+    {
+      "passed": true,
+      "api_mocks": false,
+      "synthetic": true,
+      "started_at": "2026-09-12T08:32:31.321Z",
+      "source_commit": "e24be0ae44bd2ec80f18117e0ee3b654e4bd0df9",
+      "site": "https://dataez.vercel.app",
+      "project_id": "784f6e58-a780-487d-a223-234800a69be8",
+      "file_id": "52dfc448-8775-4c6e-8a60-fb2ed2bf530c",
+      "table_id": "de289fab-6633-4136-afac-13c51523909d",
+      "stage": "complete",
+      "queries": [
+        {
+          "id": "Q1",
+          "scope": "original_file",
+          "conversation_id": "c038bf2a-a74a-4374-8253-aa3a9483d89a",
+          "elapsed_seconds": 9.36,
+          "chart_count": 1,
+          "selected_chart_index": 0,
+          "message_id": "3b9dccb2-bc2c-43de-a753-2aaa40fb8796",
+          "daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          },
+          "tool_names": [
+            "library_references",
+            "preview_metric"
+          ],
+          "token_usage": null,
+          "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+          "scope_label": "파일 원본만",
+          "metric_definition": {
+            "unit": "KRW",
+            "column": "amount",
+            "filters": [],
+            "version": 1,
+            "group_by": "paid_at",
+            "table_id": "31c276f9-9dbf-40ff-ae69-91872b115459",
+            "operation": "sum",
+            "chart_type": "line",
+            "date_grain": "day",
+            "time_range": "all",
+            "date_column": "paid_at"
+          },
+          "widget_id": "700de043-8a04-4a87-89f3-b0bf5eb8d92c",
+          "after_daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          }
+        },
+        {
+          "id": "Q2",
+          "scope": "linked_ledger",
+          "conversation_id": "6630d621-6f20-48d6-a3ea-034f40d67832",
+          "elapsed_seconds": 9.07,
+          "chart_count": 1,
+          "selected_chart_index": 0,
+          "message_id": "69674e48-7f6c-48af-906a-1883946d2813",
+          "daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900"
+          },
+          "tool_names": [
+            "library_references",
+            "preview_metric"
+          ],
+          "token_usage": null,
+          "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+          "scope_label": "누적 장부 전체",
+          "metric_definition": {
+            "unit": "KRW",
+            "column": "amount",
+            "filters": [],
+            "version": 1,
+            "group_by": "paid_at",
+            "table_id": "de289fab-6633-4136-afac-13c51523909d",
+            "operation": "sum",
+            "chart_type": "line",
+            "date_grain": "day",
+            "time_range": "all",
+            "date_column": "paid_at"
+          },
+          "widget_id": "8200c592-e6eb-46f9-8201-dc40f310a3fe",
+          "after_daily": {
+            "2026-09-01": "164500",
+            "2026-09-02": "190000",
+            "2026-09-03": "139800",
+            "2026-09-04": "195900",
+            "2026-09-05": "30000"
+          }
+        }
+      ],
+      "checks": [
+        "Q1: real LLM → exact daily values → manual preview/save (9.36s)",
+        "Q2: real LLM → exact daily values → manual preview/save (9.07s)",
+        "Append exactly once: ledger 9 rows / 720200; original remains 690200 after both refreshes",
+        "Real drag layout persisted across reload/store switching; both charts visible at 1920×1080, dark/light captured"
+      ],
+      "page_error_count": 0,
+      "append_sha256": "631d4e01a954b644bb629545580eaca9e80029b1db058621d5131a5f593d7093",
+      "ledger_rows": 9,
+      "original_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+      "layouts": [
+        {
+          "id": "700de043-8a04-4a87-89f3-b0bf5eb8d92c",
+          "layout": {
+            "h": 7,
+            "w": 6,
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "8200c592-e6eb-46f9-8201-dc40f310a3fe",
+          "layout": {
+            "h": 7,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "viewport": [
+        {
+          "top": 262,
+          "bottom": 778,
+          "width": 788
+        },
+        {
+          "top": 262,
+          "bottom": 778,
+          "width": 788
+        }
+      ],
+      "finished_at": "2026-09-12T08:32:57.587Z"
+    }
+  ],
+  "assets": {
+    "dashboard-dark": {
+      "path": "assets/phase-2-dashboard-dark.png",
+      "sha256": "d1c27f0bc5efbb953938a8e1ac14ad9c472da8fc2ec5a0e902a83c79d5049990"
+    },
+    "dashboard-light": {
+      "path": "assets/phase-2-dashboard-light.png",
+      "sha256": "b219f08ff3ce31b6b64000b16013ff1e17b8b29b1b6d7095fb8a5ae3aca263fc"
+    },
+    "Q1-library": {
+      "path": "assets/phase-2-Q1-library.png",
+      "sha256": "304a7abf160ac71734e93336e79e8d4451c6e59c624e78624cdb0c65fcd4f484"
+    },
+    "Q1-analysis": {
+      "path": "assets/phase-2-Q1-analysis.png",
+      "sha256": "899e37b2626b545e1f30156a76a0e6452b3dbc1b5651a9a20021365d48c6a4c5"
+    },
+    "Q1-sql": {
+      "path": "assets/phase-2-Q1-sql.png",
+      "sha256": "09e826a7e3c0260fd6aed5b3fc8d3f869e1dc1dee90d2dabe92e7bede2a45b9c"
+    },
+    "Q2-sql": {
+      "path": "assets/phase-2-Q2-sql.png",
+      "sha256": "187455457b3cdd9f2b60900754775a2ee63c75ed6b34f1cdd4441d9ba54e1f26"
+    }
+  },
+  "privacy": "Private account label masked during screenshot capture; results and charts unchanged.",
+  "token_usage": "Persisted message API did not expose token usage; null is unavailable, not zero."
+}

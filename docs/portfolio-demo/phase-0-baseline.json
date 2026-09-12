@@ -1,0 +1,82 @@
+{
+  "verified_at": "2026-09-11T09:14:42.484412+00:00",
+  "site": "https://dataez.vercel.app",
+  "api": "https://dataez-api.vercel.app",
+  "source_commit": "19c5b61a21d9c4c1178ff2aae94dc60b2a858af7",
+  "synthetic": true,
+  "chat_llm_calls": 0,
+  "indexing_note": "Sample preparation may enqueue embeddings; no chat analysis was requested.",
+  "checks": [
+    "Public API health and database ready",
+    "showcase: original and ledger match independent expected values; widget baseline correct",
+    "recording: original and ledger match independent expected values; widget baseline correct",
+    "Additional transaction fixture independently totals 720200; NOT appended to recording baseline"
+  ],
+  "workspaces": {
+    "showcase": {
+      "project_id": "081fa02d-260b-4b38-9a75-2b491dd980b9",
+      "name": "샘플 가게 · 모퉁이 카페",
+      "file_id": "83eeec9c-4a00-40c4-9e30-9ae9edd2e9b7",
+      "table_id": "8640b8f5-31ba-4647-a3cc-8bf4546139a1",
+      "original": {
+        "rows": 8,
+        "total": "690200",
+        "daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900"
+        },
+        "method": {
+          "card": "582700",
+          "cash": "107500"
+        }
+      },
+      "ledger_rows": 8,
+      "widget_count": 3,
+      "file_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+      "widget_titles": [
+        "샘플 예시 · 전체 결제액",
+        "샘플 예시 · 일별 결제액",
+        "샘플 예시 · 결제수단별 비교"
+      ],
+      "search_index_statuses": [
+        "cancelled",
+        "succeeded"
+      ]
+    },
+    "recording": {
+      "project_id": "71cd9032-5601-45cc-aa0c-64e090b5536e",
+      "name": "샘플 가게 · 모퉁이 카페 · 09/11 18:12",
+      "file_id": "37a03ac3-d94a-411c-a9b9-433c5acd2153",
+      "table_id": "9985bce4-37e4-466f-9939-663d066dff53",
+      "original": {
+        "rows": 8,
+        "total": "690200",
+        "daily": {
+          "2026-09-01": "164500",
+          "2026-09-02": "190000",
+          "2026-09-03": "139800",
+          "2026-09-04": "195900"
+        },
+        "method": {
+          "card": "582700",
+          "cash": "107500"
+        }
+      },
+      "ledger_rows": 8,
+      "widget_count": 0,
+      "file_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+      "widget_titles": [],
+      "search_index_statuses": [
+        "succeeded"
+      ]
+    }
+  },
+  "account_project_count": 2,
+  "restart": {
+    "strategy": "create a new sample, retain previous workspaces",
+    "recorded_takes": 1,
+    "same_request_replay_verified": true
+  }
+}
