@@ -302,11 +302,6 @@ function StoreDashboardSection({
     <div className="space-y-6">
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {metricCards}
-      {guide}
-      <details className="rounded-lg border border-border bg-card px-4 py-3">
-        <summary className="cursor-pointer text-sm font-medium">직접 지표 만들기</summary>
-        <div className="mt-4 space-y-4"><MetricCreateForm onCreated={fetchWidgets} /><StoreMetricForm onCreated={fetchWidgets} /></div>
-      </details>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -409,6 +404,14 @@ function StoreDashboardSection({
           </ResponsiveGridLayout>
         )}
       </div>
+      <details className="rounded-lg border border-border bg-card px-4 py-3">
+        <summary className="cursor-pointer text-sm font-medium">시작 안내와 샘플 체험</summary>
+        <div className="mt-4">{guide}</div>
+      </details>
+      <details className="rounded-lg border border-border bg-card px-4 py-3">
+        <summary className="cursor-pointer text-sm font-medium">직접 지표 만들기</summary>
+        <div className="mt-4 space-y-4"><MetricCreateForm onCreated={fetchWidgets} /><StoreMetricForm onCreated={fetchWidgets} /></div>
+      </details>
     </div>
   );
 }
