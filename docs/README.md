@@ -1,12 +1,15 @@
 # DATA:EZ 문서
 
-2026-09-11 기준. 제품 방향은 [PRD](PRD.md), 최신 사용자 동작은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 우선한다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경이 반영된 문서를 함께 연결한다.
+2026-09-12 기준. 처음 방문했다면 [포트폴리오 사례](portfolio-demo/CASE_STUDY.md)에서 제품·실제 화면·기술 판단·검증을 함께 확인한다. 제품 방향은 [PRD](PRD.md), 분석 계약은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 따른다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경 문서와 구분한다.
 
 ## 처음 읽을 문서
 
 | 목적 | 문서 |
 |---|---|
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
+| 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md) |
+| 제품·기술·반복 영상과 검수 | [영상 제작·로컬 재생 안내](portfolio-demo/VIDEO_RELEASE.md) |
+| 현재 배포 구성 | [아키텍처와 실행 프로필](ARCHITECTURE.md), [구조도 HTML](portfolio-demo/architecture.html) |
 | 사용자와 제품 범위·후속 과제 | [PRD](PRD.md) |
 | 포트폴리오 영상·시연 자료 제작 | [제작 Phase·산출물·완료 기준](PORTFOLIO_DEMO_PLAN.md) |
 | 공개 환경 촬영 준비·현재 완료 근거 | [포트폴리오 시연 안내](portfolio-demo/RUNBOOK.md), [Phase별 확인 결과](portfolio-demo/ACCEPTANCE.md) |
@@ -15,10 +18,10 @@
 | 실제 앱 데모 실행·샘플 재시작 | [지속형 데모 안내](DEMO_RUNBOOK.md), [Phase 1 점검](DEMO_ACCEPTANCE.md) |
 | 첫 공개 배포·HTTPS·비용과 상태 | [배포 방향 변경과 검증 상태](PUBLIC_DEPLOYMENT.md) |
 | 공개 프론트엔드·Vercel 설정과 검증 | [Vercel 프론트엔드 배포](VERCEL_DEPLOYMENT.md) |
-| 최신 main 통합·로그인 디자인 배포 | [커밋·Production·검증 기록](LOGIN_RELEASE.md), [이미지·카피 결정](LOGIN_IMAGE_DECISION.md) |
+| 로그인 디자인 통합·배포 이력 | [커밋·Production·검증 기록](LOGIN_RELEASE.md), [이미지·카피 결정](LOGIN_IMAGE_DECISION.md) |
 | 월 고정비 없는 API 구성 검토 | [Vercel API 실제 검증과 필요한 수정](VERCEL_API_FEASIBILITY.md) |
 | 서버리스 실행 프로필·원격 연결 준비 | [API 실행 기반 구현과 검증](SERVERLESS_FOUNDATION.md) |
-| Supabase 프로젝트·DB·파일 저장소 적용 | [실제 연결·Vercel API 검증과 남은 공개 전환](SUPABASE_SETUP.md) |
+| Supabase 프로젝트·DB·파일 저장소 적용 | [초기 연결·Vercel API 검증 기록](SUPABASE_SETUP.md), [이후 공개 전환](PUBLIC_DEMO_ACCEPTANCE.md) |
 | 대용량 파일 보관·원본 다운로드 | [직접 업로드와 검증·만료 처리](DIRECT_UPLOADS.md) |
 | 서버리스 문서 색인·지표 갱신·정리 | [Supabase Cron 연결과 실제 검증](SERVERLESS_MAINTENANCE.md) |
 | 서버리스 업로드·AI 요청/실행 제한 | [배포 전 제한 구현과 검증](SERVERLESS_RELEASE_GUARDS.md) |
@@ -45,6 +48,7 @@
 
 | 범위 | 설명·실행 방법 |
 |---|---|
+| 포트폴리오 공개 리허설·촬영·영상 | [Phase별 근거](portfolio-demo/ACCEPTANCE.md), [반복 리허설](portfolio-demo/phase-2-rehearsal.json), [영상 검수](portfolio-demo/VIDEO_RELEASE.md) |
 | 지속형 데모·종료 후 재접속 | [Phase 1: 질문 1개·브라우저 점검 6개](DEMO_ACCEPTANCE.md) |
 | 첫 사용·분석 실패 복구 | [Phase 2: 합성 API UI 56개·사용자 관찰 상태](DEMO_USABILITY.md) |
 | 새 자료·자연어·저장 상태·범위 경계 | [Phase 3: 최초 28/30 → 전체 30/30, 별도 10/10](UNSEEN_DATA_ACCEPTANCE.md), [공개 보고서](evaluations/unseen-v1/) |
@@ -56,7 +60,7 @@
 | 초기 매출 반영·스케줄러 D | [통합 검증 기록](INTEGRATED_ACCEPTANCE.md) |
 | 단계별 원시 근거 | [JSON 보고서·화면](evaluations/) |
 
-fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 범위다. 최신 결과를 이전 성적에 합산하지 않으며, 건너뛴 검사는 실행된 것으로 보고하지 않는다. 실제 PG 파일·원격 저장소·운영 부하는 별도 검증이다.
+fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 범위다. 최신 결과를 이전 성적에 합산하지 않으며, 건너뛴 검사는 실행된 것으로 보고하지 않는다. 원격 Storage는 공개 환경에서 검증했으며, 실제 PG 파일·고객 사용성·대규모 운영 부하는 후속 과제다.
 
 ## 디자인 결정과 기록
 
@@ -67,5 +71,3 @@ fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 �
 - [HTML 비교·시연 폴더](../outputs/frontend-design/README.md): 초기 정적 시안과 실제 앱 캡처를 구분.
 - [초기 엔지니어링 기록](ENGINEERING_HISTORY.md): 관측성·라우터·한국어 검색 개선 당시 수치.
 - [초기 에이전트 제안](AGENT_ADVANCEMENT_PLAN.md), [데이터 신뢰성 계획](NEXT_PHASE_DATA_RELIABILITY.md): 과거 계획. 현재 제품 범위는 PRD와 후속 구현 문서를 따른다.
-
-- [포트폴리오 영상 제작·재생](portfolio-demo/VIDEO_RELEASE.md): 실제 녹화, 제품·기술·반복 영상, 한국어 자막, 검수 자료.

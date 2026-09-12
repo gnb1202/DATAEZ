@@ -1,6 +1,36 @@
 # DATAEZ Architecture
 
-Updated 2026-09-10 after [the three implementation merges](RELEASE_INTEGRATION.md).
+Updated 2026-09-12. Public deployment uses the serverless profile described below;
+the persistent profile remains available for local Docker development.
+
+## Current deployment
+
+The [public web](https://dataez.vercel.app) and FastAPI run on Vercel. Supabase
+provides PostgreSQL, pgvector, private original-file Storage and Cron. Authentication
+uses the API's own JWT flow, not Supabase Auth. OpenAI calls are made by the API.
+AWS and Redis are not part of this deployment.
+
+The browser uploads directly to a signed Storage target. The API authorizes the
+session and validates size and SHA-256 before registering the retained file;
+the direct-upload limit is 20 MiB. Parsing/import still has bounded request-path
+work. [Direct upload contract](DIRECT_UPLOADS.md)
+
+| Concern | Public `serverless` profile | Local `persistent` profile |
+|---|---|---|
+| Original storage | Private Supabase Storage | Local disk by default; configurable backend |
+| Request counters | Atomic PostgreSQL time windows, shared across instances | In-process sliding windows |
+| Scheduled work | Supabase Cron calls protected maintenance API | Configurable in-process loops |
+| Agent defaults | 8 iterations, 24,000 soft token budget | 25 iterations, 100,000 soft token budget |
+
+The default turn timeout is 200 seconds. Serverless AI attempt limits default to
+30 per user and 100 application-wide per 24-hour window, including admitted failed
+attempts. These are execution/request guards, not monetary billing caps. Environment
+overrides are possible; see [config.py](../api/app/config.py) and
+[release guard verification](SERVERLESS_RELEASE_GUARDS.md).
+
+[Portfolio case study](portfolio-demo/CASE_STUDY.md) ·
+[Deployment diagram HTML](portfolio-demo/architecture.html) ·
+[Public rehearsal evidence](portfolio-demo/ACCEPTANCE.md)
 
 ## Overview
 
@@ -39,7 +69,7 @@ run_agent_streaming
   │     intent × table-state × attachments         │
   │     + trust-boundary rule (always)             │
   │                                                │
-  └─► loop (≤ 25 iterations, token budget)         │
+  └─► loop (profile iteration/token limits)       │
         ├ stream completion ──────────────────────┘
         │   ├ content delta      → yield token frame
         │   └ tool_call delta    → accumulate by index
@@ -219,6 +249,15 @@ definition remain static snapshots.
 
 ## Background execution
 
+In the public serverless profile, startup migrations and all three resident loops
+below are disabled by default. Supabase Cron calls the authenticated maintenance
+endpoint; bounded batches process durable indexing jobs, due metrics and expired
+temporary uploads/imports. Closing the browser does not stop scheduled execution.
+Cron recalculates already collected data; it does not collect PG transactions.
+[Cron setup and execution evidence](SERVERLESS_MAINTENANCE.md)
+
+The persistent profile can run these loops:
+
 - `metric_scheduler.py` polls every 15 seconds, claims due widgets with
   `FOR UPDATE SKIP LOCKED`, and executes their saved definitions without LLM calls.
   Manual, hourly and 24-hour policies are supported. Last success and failures
@@ -228,8 +267,8 @@ definition remain static snapshots.
 - `ledger_routes.py` runs pending import expiry every 60 seconds. Temporary
   staging expiry is distinct from retained originals and committed history.
 
-All three loops run in the API process and are controlled by configuration.
-Closing the browser does not stop them; stopping every API process does.
+These persistent-profile loops run in the API process and are controlled by
+configuration. Stopping every persistent API process stops those loops.
 Database initialization is described in [Deployment](DEPLOYMENT.md#migrations).
 
 ## Observability
@@ -261,14 +300,14 @@ evaluation, browser fixtures, and a real browser/API/DB/LLM workspace run. See
 
 ## Current boundaries
 
-- The portfolio/demo deployment uses one API worker/replica. Request limits are
-  process-local, locked across request threads and measured with monotonic time.
-  Incoming requests periodically reclaim expired keys; restarting the process
-  resets counters. Redis has been removed from code and the default stack.
-  A shared limiter is future work if multi-process deployment becomes necessary.
+- Public serverless request counters persist in PostgreSQL. The DB limiter fails
+  closed with 503 when it cannot check a counter and returns 429 at the limit.
+  The local persistent limiter uses memory and resets on process restart.
+  Redis remains excluded; high-volume contention/load has not been benchmarked.
 
-- Actual PG ingestion/connectors, remote storage acceptance, user usability and
-  production load remain separate work. Synthetic test results are not those validations.
+- Private remote Storage and public upload/save/refresh flows have been verified.
+  Actual PG ingestion/connectors, customer usability and production load remain
+  separate work. Synthetic test results are not those validations.
 - Metric changes have revision history; legacy arbitrary CRUD does not have a
   universal confirmation/undo journal.
 - File parsing and transactional row import still occur in request paths.

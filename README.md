@@ -1,125 +1,95 @@
 # DATA:EZ
 
-**흩어진 매출 파일을 모으고, 자연어로 통계와 그래프를 만들어 다시 계산할 수 있는 대시보드에 저장하는 서비스입니다.** 한 계정에서 여러 가게를 운영하는 소상공인을 대상으로 합니다.
+**우리 가게 매출, 한눈에.**
 
-CSV·엑셀과 현금 기록을 관리하고, 필요한 파일을 채팅에서 찾아 분석합니다. LLM이 구조화된 지표 정의를 만들면 서버가 출처·권한·계산 조건을 검증하고 SQL로 집계합니다. 그래프와 함께 정확한 집계표, 실행 SQL, 기간과 출처를 확인할 수 있습니다.
+여러 가게를 운영하는 소상공인이 흩어진 매출 파일과 현금 기록을 모으고, 자연어로 필요한 통계를 만들어 대시보드에 저장하는 서비스입니다. 저장한 통계는 같은 출처와 계산 기준으로 다시 계산할 수 있습니다.
 
-[제품 요구사항](docs/PRD.md) · [전체 문서](docs/README.md) · [최신 통합 검증](docs/WORKSPACE_LIVE_ACCEPTANCE.md) · [브랜치 머지 기록](docs/RELEASE_INTEGRATION.md)
+[서비스 체험](https://dataez.vercel.app) · [포트폴리오 사례](docs/portfolio-demo/CASE_STUDY.md) · [영상·자막 안내](docs/portfolio-demo/VIDEO_RELEASE.md) · [전체 문서](docs/README.md)
 
-![DATA:EZ 실제 앱의 다크 대시보드](outputs/frontend-design/workspace-live/live-dashboard-dark.png)
+![실제 DATA:EZ 대시보드 — 원본과 누적 장부의 일별 순결제액](docs/portfolio-demo/assets/phase-2-dashboard-dark.png)
 
-위 화면은 합성 매출 데이터로 실제 브라우저·API·DB·LLM을 연결해 검증한 결과입니다.
+실제 공개 웹·API·DB·LLM으로 검증한 화면입니다. 합성 매출 파일의 원본 합계는 **690,200원**, 거래 30,000원 추가 후 누적 장부 합계는 **720,200원**입니다. 합계는 집계표로 검증했으며, 원본 파일은 그대로 유지됩니다. [실행 기록과 라이트 화면](docs/portfolio-demo/ACCEPTANCE.md)
 
-## 사용 흐름
+## 직접 체험하기
 
-1. 가게를 만들고 파일을 보관함에 올립니다. **샘플 데이터로 시작**하면 별도 샘플 가게에서 시작할 수 있습니다.
-2. 파일의 컬럼·값을 검사하고 분석에 연결합니다. 반복 반영할 결제 출처는 중복·충돌 검토를 거쳐 장부에 누적합니다.
-3. 채팅에서 보관 파일을 고르고 **파일 원본만 / 누적 장부 전체** 중 분석 범위를 확인합니다.
-4. “일별 결제액을 그래프로 보여줘”처럼 질문하고, 결과의 기간·출처·계산 근거를 확인합니다.
-5. 재계산 가능한 결과는 이름·단위·기간·갱신 주기를 검토하고 미리보기 후 대시보드에 저장합니다.
-6. 위젯을 이동·리사이징하고, 수동 또는 서버의 주기 실행으로 저장된 정의를 다시 계산합니다.
+1. [공개 앱](https://dataez.vercel.app)에서 회원가입·로그인합니다.
+2. **샘플 데이터로 시작**하거나 가게를 만들어 CSV/XLSX를 보관함에 올립니다.
+3. 채팅에서 보관 파일을 선택하고 **파일 원본만 / 누적 장부 전체** 범위를 확인합니다.
+4. 필요한 통계를 질문하고 그래프·집계표·SQL·기간·출처를 확인합니다.
+5. 재계산 가능한 결과의 이름·단위·기간·갱신 주기를 검토한 뒤 대시보드에 저장합니다. 위젯을 이동·리사이징하고 새로고침할 수 있습니다.
 
-## 현재 기능
+촬영과 같은 조건을 사용하려면 [원본 CSV](samples/demo/portfolio-original.csv)와 [질문·기대값](docs/portfolio-demo/scenario.json)을 참고하세요. 기본 샘플 가게는 촬영용 데이터와 별개입니다. 파일을 처음 선택하면 원본 범위가 기본이며, 누적 범위는 장부에 연결된 파일에서 사용합니다.
+
+**영상:** 제품 110초 · 기술 300초 · 반복 12초를 제작했습니다. [제작·재생 안내](docs/portfolio-demo/VIDEO_RELEASE.md)에 자막·대표 화면·검수 기록을 공개합니다. 영상 파일은 제작 환경의 로컬 산출물이며 아직 공개 호스팅하지 않았습니다. 저장소를 복제하는 것만으로 영상 마스터가 내려오지는 않습니다.
+
+## 핵심 기능
 
 | 영역 | 구현 범위 |
 |---|---|
-| 가게와 파일 | 계정별 여러 가게, 원본 보관·다운로드·미리보기, 보관함 파일 검색·선택 |
-| 매출 기록 | CSV/XLSX 검사·매핑, 출처별 반복 반영, 중복·충돌·부분 취소 검토, 현금 직접 입력 |
-| 자연어 분석 | 출처 검색, 지표 생성·후속 질문, 차트·정확한 집계표·SQL 근거 |
-| 저장 지표 | 단일 장부, 여러 장부 합계, 스칼라·그룹 계산식, 명시적으로 선택한 여러 가게 비교 |
-| 대시보드 | 저장 전 설정, 중복 저장 방지, 정의 수정·이력·복원, 배치 저장, 수동·매시간·24시간 갱신 |
-| 화면 | Spoqa Han Sans Neo, Charcoal + Blue, 다크 기본·라이트·시스템 테마, 오른쪽 접이식 채팅, 모바일 대응 |
-| 검색 관리 | 파일·장부 카탈로그와 문서 RAG, DB에 보관되는 색인 작업·재시도·실패 상태 |
+| 가게·매출·파일 | 계정별 여러 가게, 원본 보관·다운로드·미리보기, CSV/XLSX 매핑, 중복·충돌·취소 검토, 현금 입력 |
+| 자연어 분석 | 관련 파일·스키마·문서 검색, 구조화된 지표 생성, 차트·정확한 집계표·실행 SQL |
+| 저장 지표 | 단일/여러 장부 집계, 계산식, 명시적으로 선택한 여러 가게 비교, 정의 수정·이력·복원 |
+| 대시보드 | 저장 전 미리보기, 중복 저장 방지, 배치 저장, 수동·매시간·24시간 재계산 |
+| 화면 | ECharts, Spoqa Han Sans Neo, Charcoal + Blue, 다크·라이트·시스템 테마, 오른쪽 접이식 AI 채팅 |
 
-파일을 새로 선택할 때는 **원본만**이 기본입니다. 원본 분석은 저장된 파일의 행을 유지하고, 누적 장부 분석에는 이후 반영한 거래도 포함합니다. 저장 지표는 선택한 출처를 유지하며 갱신 때 다른 파일을 자동으로 고르지 않습니다. [분석 범위와 저장 계약](docs/FILE_SCOPE_AND_FIRST_USE.md)
+주기 갱신은 이미 수집한 데이터를 다시 계산하며, PG의 새 거래를 수집하지 않습니다. 정상적인 저장 지표 재계산에는 LLM을 호출하지 않습니다. 정의 없는 정적 그래프는 결과 스냅샷으로 저장됩니다. [분석 범위와 저장 계약](docs/FILE_SCOPE_AND_FIRST_USE.md)
 
-주기 갱신은 서버에 이미 있는 데이터를 다시 계산합니다. PG 사이트의 새 매출을 수집하는 기능은 없으며, 정상적인 지표 재계산에는 LLM을 호출하지 않습니다. 정의가 없는 기존 정적 그래프는 결과 스냅샷으로 저장합니다.
+## 어떻게 구현했나
+
+```text
+보관 파일·장부 → 자연어 질문 → 구조화된 지표 정의
+                                  ↓
+                       권한·출처·계산 조건 검증
+                                  ↓
+                       SQL 집계 → ECharts·집계표
+                                  ↓
+                       정의 저장 → 같은 기준으로 재계산
+```
+
+LLM은 도구 인자와 지표 정의를 제안하고, 서버가 이를 검증해 SQL을 구성합니다. RAG는 관련 자료를 찾는 역할이고 숫자는 선택된 데이터에 대한 DB 집계로 계산합니다. 원본과 누적 장부의 구분은 출처와 저장 정의에 유지됩니다.
+
+| 계층 | 현재 공개 배포 구성 |
+|---|---|
+| 웹 | Vercel · Next.js 16 / React 19 / TypeScript / Tailwind 4 |
+| 그래프·배치 | Apache ECharts 6.1.0 SVG / react-grid-layout |
+| API·모델 | Vercel Python FastAPI / OpenAI 도구 호출 / SSE |
+| 인증 | FastAPI 자체 JWT 흐름 |
+| DB·검색 | Supabase PostgreSQL / pgvector / 한국어 전문 검색 / RRF |
+| 원본 | Supabase 비공개 Storage · 서명 URL 직접 업로드 · 완료 시 크기·해시 검증 |
+| 정기 작업·제한 | Supabase Cron → 보호된 API / PostgreSQL 공유 요청 제한 |
+
+현재 배포에는 AWS와 Redis가 없습니다. 로컬 `persistent` 프로필은 디스크 저장·상주 작업 루프·메모리 요청 제한을 사용할 수 있습니다. 공개 `serverless` 프로필은 DB에 작업 상태와 요청 횟수를 보존합니다.
+
+[사례 문서](docs/portfolio-demo/CASE_STUDY.md)에서 구조화된 정의, 원본/누적 범위, 직접 업로드, Redis 제거의 이유와 제약을 설명합니다. [아키텍처](docs/ARCHITECTURE.md) · [배포 구조도 HTML](docs/portfolio-demo/architecture.html)
+
+## 검증과 한계
+
+2026-09-12 기록입니다. 서로 다른 검증 범위이므로 통과 수를 합산하지 않습니다.
+
+| 확인 | 결과·근거 |
+|---|---|
+| 실제 공개 서비스 리허설 | 수정본에서 2회 연속 통과. 각 질문 2회·저장 2회·거래 추가·재계산·드래그·재접속·가게 전환. [Phase 2 기록](docs/portfolio-demo/phase-2-rehearsal.json) |
+| API 회귀 | 525 passed / 260 skipped. DB 환경이 필요한 건너뛴 검사를 실제 DB 통과로 해석하지 않음. [검사 범위](docs/portfolio-demo/ACCEPTANCE.md) |
+| 프론트엔드 | TypeScript, 워크스페이스 14개 검사, 다크/라이트 반응형 28개 화면 통과. [검사 범위](docs/portfolio-demo/ACCEPTANCE.md) |
+| 영상 | 실제 촬영 후 모든 출력 전체 디코딩, 영상 3종 1배속 끝까지 재생. [제작·검수](docs/portfolio-demo/VIDEO_RELEASE.md) |
+
+실제 PG 연동, 고객 사용성 관찰, 대규모 운영 부하는 후속 과제입니다. 합성 데이터로 확인한 결과를 사업 성과나 일반적인 LLM 정확도 보장으로 설명하지 않습니다. [이전 평가와 원시 근거](docs/README.md#검증-근거)
 
 ## 로컬 실행
 
-포트폴리오용으로 반복 체험할 때는 [지속형 데모 안내](docs/DEMO_RUNBOOK.md)를 따릅니다. `.env`에 모델 키를 설정한 뒤 `python scripts/demo/run.py start`로 시작하면 별도 DB·원본 볼륨과 실행 설정을 유지합니다. 예시 대시보드 보기와 샘플 체험 다시 시작을 제공합니다.
-
-Docker와 Docker Compose, 사용할 수 있는 모델 API 키가 필요합니다. 로컬 파일 저장소가 기본이므로 별도 클라우드 저장소 없이 실행할 수 있습니다. 저장소 루트에서:
+Docker·Docker Compose와 모델 API 키가 필요합니다. 원본 저장은 로컬 디스크가 기본입니다.
 
 ```powershell
-Copy-Item .env.example .env
-# .env의 OPENAI_API_KEY를 설정합니다.
+# 기존 .env는 보존합니다.
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+# .env의 OPENAI_API_KEY를 설정한 뒤 실행
 docker compose up --build
 ```
 
-기존 `.env`가 있다면 복사 대신 필요한 값을 확인합니다. macOS/Linux에서는 `cp .env.example .env`를 사용할 수 있습니다.
+[웹 localhost:3000](http://localhost:3000)에서 회원가입·로그인할 수 있습니다. [API 문서](http://localhost:8000/docs) · [상태 확인](http://localhost:8000/health)
 
-- [웹 앱](http://localhost:3000): 회원가입·로그인 후 가게 또는 샘플 가게에서 시작
-- [API 문서](http://localhost:8000/docs): 현재 엔드포인트와 요청 스키마
-- [상태 확인](http://localhost:8000/health) · [준비 상태](http://localhost:8000/ready) · [메트릭](http://localhost:8000/metrics)
-
-`.env.example`의 DB·JWT 값은 로컬 개발용입니다. 개별 서버 실행, 환경변수와 마이그레이션은 [개발 안내](CONTRIBUTING.md), [설정](docs/CONFIGURATION.md), [실행·배포](docs/DEPLOYMENT.md)를 참고하세요.
-
-## 구조와 기술
-
-```text
-파일 보관 / 매출 반영 → 가게별 장부·문서 / 원본 분석 자료
-                              ↓
-채팅 → 파일·카탈로그 검색 → 검증 가능한 지표 정의
-                              ↓
-                   권한·출처·계산 조건 검사 → SQL 집계
-                              ↓
-                 차트·집계표·실행 근거 → 설정 검토·저장
-                                              ↓
-                                서버가 같은 정의를 주기 재실행
-```
-
-| 레이어 | 기술 |
-|---|---|
-| Web | Next.js 16, React 19, TypeScript, Tailwind 4, shadcn/ui |
-| 시각화 | Apache ECharts 6.1.0, SVG 렌더러, react-grid-layout |
-| API | FastAPI, psycopg3, OpenAI 도구 호출, SSE |
-| 데이터·검색 | PostgreSQL 16, pgvector, 한국어 형태소 기반 전문 검색, RRF |
-| 원본 저장 | 로컬 디스크 또는 S3 호환 저장소 |
-| 요청 제한 | 단일 API 프로세스의 메모리 기반 제한, 동시 요청 보호·만료 기록 정리 |
-| 관측성 | Prometheus, 구조화 로그, 단계별 토큰·비용·지연 기록 |
-
-[아키텍처](docs/ARCHITECTURE.md)에서 지표 정의 v1–v5, 원본 불변성, 소유권 검사와 백그라운드 작업을 설명합니다. 초기 관측성·라우터·한국어 검색 개선 과정은 [엔지니어링 기록](docs/ENGINEERING_HISTORY.md)에 보존했습니다.
-
-배포·포트폴리오 데모의 기본 구성은 **웹·API·PostgreSQL**입니다. Redis 의존성은 제거했으며, 요청 제한은 API 1개 프로세스 안에서 유지됩니다. API 재시작 시 요청 횟수는 초기화됩니다. 여러 API 프로세스나 서버를 운영할 때 공유 요청 제한 도입을 다시 검토합니다.
-
-## 검증 상태
-
-2026-09-11 기준입니다. 서로 다른 범위의 검사이며 통과 수를 합산하지 않습니다.
-
-| 검증 | 결과와 범위 |
-|---|---|
-| 새 파일·질문 Phase 3 | 실제 API·PostgreSQL·LLM: 최초 28/30 보존, 보완 후 전체 30/30, 별도 10/10. 치명 조건 위반 0건. [자료·출처·설명·저장 상태 평가](docs/UNSEEN_DATA_ACCEPTANCE.md) |
-| Redis 의존성 제거 후 | API 487 passed / 239 skipped, 새 API 이미지·실제 PostgreSQL로 준비 상태와 요청 제한 확인 |
-| 이번 머지 전 전체 API 테스트 | 481 passed / 239 skipped — 외부 테스트 DB·선택 의존성 없는 로컬 환경 |
-| 오프라인 라우팅 데이터셋 검사 | 65개 사례, 알려진 도구 32개 참조 유효성 통과; 실제 모델 정확도 평가와 별개 |
-| 평가 도구·샘플 | 평가 도구 25개 테스트, CSV 12개 체크섬, 엑셀 533개 셀 비교 통과 |
-| 최신 원본 범위·저장·샘플 회귀 | 관련 API 222 passed / 67 skipped, 브라우저 fixture 32개 흐름 통과 |
-| 최신 실제 작업 공간 통합 | 실제 브라우저·API·DB·LLM, 자연어 질문 6개·확인 항목 29개 통과 |
-| 이전 자연어 50문항 평가 | 전체 재평가 47/50, 보완 후 관련 10문항 10/10; 전체 50/50으로 합산하지 않음 |
-| PR #11–#13 CI | 각 PR의 API 테스트·웹 빌드·API 및 웹 Docker 빌드 통과 |
-
-자동 갱신 시험은 테스트 위젯의 예정 시각을 앞당겨 실제 서버 스케줄러를 실행했습니다. 한 시간이 실제로 경과한 시험은 아닙니다. [통합 검증의 환경·한계](docs/WORKSPACE_LIVE_ACCEPTANCE.md), [자연어 평가](docs/NATURAL_LANGUAGE_ACCEPTANCE.md)에 원시 근거를 연결했습니다.
-
-간단한 검사:
-
-```powershell
-python -m pytest api/tests/ -q
-python -m pytest scripts/nl-eval/test_oracle.py scripts/nl-eval/test_report.py -q
-python scripts/pg-eval/verify_samples.py
-npm.cmd --prefix web run build
-```
-
-Python·Node 의존성 설치와 실제 DB·브라우저 실행 조건은 [개발 안내](CONTRIBUTING.md)를 따릅니다. API 테스트는 설정되지 않은 외부 검사를 건너뛰며, 이를 실제 DB 검증 통과로 해석하지 않습니다.
-
-## 남은 범위
-
-지속형 데모, 내부 사용성 개선, 새 파일·질문 평가를 완료했습니다. **Phase 2의 실제 사용자 관찰은 대기** 상태이며, 관찰에서 드러난 막힘과 범위 이해 문제를 다음 개선 대상으로 삼습니다. 작업 범위·산출물·완료 조건은 [다음 Phase 계획](docs/NEXT_PHASE_DEMO_AND_QUALITY.md)을 참고하세요.
-
-[dataez.vercel.app](https://dataez.vercel.app)에서 회원가입·로그인하고 사용할 수 있습니다. 웹과 Python API는 Vercel, DB·파일·색인·정기 작업은 Supabase를 사용합니다. 공개 주소에서 **원본 업로드 → 자연어 SQL·그래프 → 대시보드 저장 → 새 거래 재계산 → 재접속**과 정기 갱신을 검증했습니다. [공개 데모 검증·화면](docs/PUBLIC_DEMO_ACCEPTANCE.md)을 참고하세요. 누적 변경사항은 main·원격 저장소에 통합했고, 저채도 POS 사진과 새 로그인 디자인도 배포했습니다. [최신 통합·배포 기록](docs/LOGIN_RELEASE.md). 다음은 포트폴리오 시연 자료 정리입니다.
-
-실제 PG 파일·외부 결제 연동은 서비스 일정이 정해질 때까지 보류합니다. 원격 저장소 연결, 실제 사용자 사용성, 더 넓은 비정형 입력과 운영 부하는 후속 검증입니다. 현재 결과는 합성 자료를 사용한 개발 검증이며 금융 거래 실행이나 세무 신고를 제공하지 않습니다.
+macOS/Linux에서는 `.env`가 없을 때 `cp .env.example .env`를 실행합니다. `.env.example`의 DB·JWT 값은 로컬 개발용입니다. 의존성·테스트·개별 실행은 [개발 안내](CONTRIBUTING.md), 환경변수는 [설정](docs/CONFIGURATION.md), 반복 체험은 [지속형 데모 안내](docs/DEMO_RUNBOOK.md)를 참고하세요.
 
 ## 라이선스
 
-[MIT](LICENSE). 포함한 웹폰트와 ECharts의 별도 라이선스·NOTICE는 [폰트 출처](web/app/fonts/README.md)와 [시안 폴더](outputs/frontend-design/README.md)에 보관합니다.
+[MIT](LICENSE). 웹폰트·ECharts의 별도 라이선스와 NOTICE는 [폰트 출처](web/app/fonts/README.md), [디자인 자료 안내](outputs/frontend-design/README.md)에 있습니다.

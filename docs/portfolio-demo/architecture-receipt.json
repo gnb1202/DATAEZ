@@ -1,9 +1,30 @@
 {
   "diagram_type": "architecture",
   "output": "docs/portfolio-demo/architecture.html",
-  "specification_sha256": "267ab06bfb10735585653610e917b3845d098c0ebe83f52aadc92142e3bdca93",
-  "artifact_sha256": "e5d67b2b37670f0dc9bf37baca3fda2b68dc0021c3ec5fc604d83b13a9d892ce",
+  "specification_sha256": "39ab0f1561166d2cb2ea0a087517086e4a056de8c3cb260d99f9529f369fb29e",
+  "artifact_sha256": "3986fbb21452ee2355166e1cccb25ef5f8406636e8905582cc143fc24ed68fc6",
   "validation": "9/9 showcase, 0 errors, 0 warnings",
-  "visual_review": "passed",
-  "correction_rounds": 1
+  "visual_review": "Phase 3 dark/light passed; Phase 4 reproduced identical LF-normalized HTML, visual content unchanged",
+  "correction_rounds": 1,
+  "hash_normalization": "SHA-256 of LF-normalized UTF-8 bytes, matching the Git blob. Archify HTML output contains mixed newlines that Git normalizes.",
+  "phase_4_revalidation": {
+    "date": "2026-09-12",
+    "command": "archify deliver architecture --quality showcase",
+    "validation": {
+      "checksPassed": 9,
+      "checkCount": 9,
+      "compositionProfile": "showcase",
+      "compositionStatus": "pass",
+      "errors": 0,
+      "warnings": 0
+    },
+    "raw_specification": {
+      "sha256": "39ab0f1561166d2cb2ea0a087517086e4a056de8c3cb260d99f9529f369fb29e",
+      "bytes": 2914
+    },
+    "raw_artifact": {
+      "sha256": "e5d67b2b37670f0dc9bf37baca3fda2b68dc0021c3ec5fc604d83b13a9d892ce",
+      "bytes": 617202
+    }
+  }
 }

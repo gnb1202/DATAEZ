@@ -1,0 +1,66 @@
+{
+  "date": "2026-09-12T11:56:57.315510+00:00",
+  "status": "passed",
+  "scope": "Phase 4 documentation; no new application tests or deployment",
+  "base_commit": "7a3885b142482333e92075e356ff746ff06f66b1",
+  "documents": {
+    "README.md": "17a8a0223ae384b04fc853722517e4aeb74ed6dd1557cd42dcc9a1a2d5c9c461",
+    "docs/README.md": "c7291d3ff35af01fe9188aa584169cf4cca0c1354776942525479bdf8c4464a4",
+    "docs/ARCHITECTURE.md": "16a498ea004b7cc755cdc0af12a9dfc08f5a88072ea8efb2b8299ca1f490c535",
+    "docs/PORTFOLIO_DEMO_PLAN.md": "4f9cc41409d40299cf011e984054f00dbef2b4a5a1f99c73183b4a82c943f40c",
+    "docs/portfolio-demo/CASE_STUDY.md": "b2920bdd7096f25d4b0d3c356fc48e031eefdaed5beba7ff66ac7d8a7d1b6dbe",
+    "docs/portfolio-demo/ACCEPTANCE.md": "971d02c33e55edf3a1b69b746bdd51af808d3923eba296d163aae07aea2cf030",
+    "docs/portfolio-demo/VIDEO_RELEASE.md": "0896dc68938c783bd0948679c1f7fa7326990be91fc10896aedd22644fc7a48a"
+  },
+  "hash_normalization": "UTF-8 bytes with LF newlines; report excludes itself",
+  "links": {
+    "local_references": 192,
+    "image_references": 3,
+    "missing": [],
+    "missing_markdown_anchors": [],
+    "tracked_or_in_change_set": true
+  },
+  "public_url_checks": [
+    {
+      "url": "https://dataez.vercel.app",
+      "status": 200
+    },
+    {
+      "url": "https://dataez-api.vercel.app/health",
+      "status": 200
+    },
+    {
+      "url": "https://github.com/gnb1202/DATAEZ",
+      "status": 200
+    }
+  ],
+  "factual_checks": {
+    "csv_original_total": "690200",
+    "csv_ledger_total_after_append": "720200",
+    "original_rows": 8,
+    "ledger_rows": 9,
+    "rehearsal_timings_match": true,
+    "serverless_defaults_match_source": true,
+    "storage_limit_matches_source": true,
+    "shared_db_limiter_matches_source": true
+  },
+  "privacy": {
+    "scope": "changed Markdown only; existing media review retained from Phase 2/3",
+    "private_account_values_checked": true,
+    "matches": 0,
+    "credential_pattern_matches": 0
+  },
+  "architecture_lf_sha256_unchanged": {
+    "docs/portfolio-demo/architecture.json": "39ab0f1561166d2cb2ea0a087517086e4a056de8c3cb260d99f9529f369fb29e",
+    "docs/portfolio-demo/architecture.html": "3986fbb21452ee2355166e1cccb25ef5f8406636e8905582cc143fc24ed68fc6"
+  },
+  "manual_review": [
+    "Hero is real Phase 2 dashboard, not a mockup",
+    "Original SQL/table image visually reviewed",
+    "Current serverless vs local persistent profile distinguished",
+    "Prior API/UI results cited with date/scope; skipped DB tests not counted as passed",
+    "Video artifacts explicitly local and not available from git clone",
+    "Source-linked tradeoffs, failed rehearsal repair and AI-assisted contribution documented"
+  ],
+  "next_phase": "Phase 5 final portfolio QA; video public hosting pending"
+}
