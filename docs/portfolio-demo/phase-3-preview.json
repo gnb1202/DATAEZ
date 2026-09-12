@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "videos": 3,
+      "downloads": 7
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "videos": 3,
+      "downloads": 7
+    }
+  ]
+}

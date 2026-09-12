@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "DATA:EZ · 배포 구조",
+    "subtitle": "동작 구조 · Vercel + Supabase · 2026-09-12",
+    "quality_profile": "showcase",
+    "animation": "none"
+  },
+  "components": [
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "Next.js 웹",
+      "sublabel": "Vercel · 브라우저 UI",
+      "pos": [
+        40,
+        250
+      ],
+      "size": [
+        190,
+        76
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "Vercel · JWT / 검증 / 집계",
+      "pos": [
+        420,
+        250
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "Supabase · 지표 / 벡터 / 요청 한도",
+      "pos": [
+        840,
+        250
+      ],
+      "size": [
+        270,
+        76
+      ]
+    },
+    {
+      "id": "model",
+      "type": "external",
+      "label": "모델 API",
+      "sublabel": "구조화된 도구 호출",
+      "pos": [
+        420,
+        40
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "cloud",
+      "label": "Private Storage",
+      "sublabel": "Supabase · 업로드 원본",
+      "pos": [
+        40,
+        470
+      ],
+      "size": [
+        230,
+        76
+      ]
+    },
+    {
+      "id": "cron",
+      "type": "backend",
+      "label": "Supabase Cron",
+      "sublabel": "유한 유지보수 작업 호출",
+      "pos": [
+        420,
+        470
+      ],
+      "size": [
+        230,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "web",
+      "to": "api",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "db",
+      "label": "SQL 집계",
+      "variant": "emphasis"
+    },
+    {
+      "from": "api",
+      "to": "model"
+    },
+    {
+      "from": "web",
+      "to": "storage",
+      "label": "서명된 업로드",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "from": "cron",
+      "to": "api",
+      "label": "정기 호출",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "파일과 계산",
+      "items": [
+        "웹은 API에서 서명된 업로드 URL을 받음",
+        "API가 완료·해시를 확인한 뒤 분석에 연결"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "현재 운영",
+      "items": [
+        "Redis 없이 DB에서 요청 한도를 공유",
+        "Cron은 기존 데이터의 지표를 재계산"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "시연 범위",
+      "items": [
+        "합성 파일을 직접 선택해 실제 SQL 집계",
+        "실제 PG 수집·고객 성과·대규모 부하는 별도"
+      ]
+    }
+  ]
+}

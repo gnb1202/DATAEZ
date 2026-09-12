@@ -15,6 +15,7 @@ from prepare import ROOT, STATE, LOCAL, API, login, request, new_take, summarize
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--new-take', action='store_true')
+    parser.add_argument('--record', action='store_true', help='Record the verified workflow after login')
     args = parser.parse_args()
     state = json.loads(STATE.read_text(encoding='utf-8'))
     with httpx.Client(base_url=API, timeout=90) as client:
@@ -22,14 +23,14 @@ def main():
         if args.new_take:
             new_take(client, state)
         take = state['recording']
-        out = LOCAL / 'takes' / take['project_id']
+        out = LOCAL / ('recordings' if args.record else 'takes') / take['project_id']
         assert not out.exists(), 'Take already attempted; inspect it, then use --new-take'
         ledger = request(client, 'GET', f"/api/projects/{take['project_id']}/tables/{take['table_id']}/data")
         expected = json.loads((ROOT/'samples/demo/expected.json').read_text(encoding='utf-8'))
         assert ledger['total_count'] == 8 and summarize(ledger['rows'])['total'] == expected['original_total']
         assert not request(client, 'GET', '/api/dashboard/widgets', params={'project_id': take['project_id']})['widgets']
         out.mkdir(parents=True)
-        payload = {**state, 'token': client.headers['Authorization'][7:], 'out': str(out)}
+        payload = {**state, 'token': client.headers['Authorization'][7:], 'out': str(out), 'record':args.record}
         run = subprocess.run(['node', str(ROOT/'scripts/portfolio-demo/rehearse.cjs')],
                              input=json.dumps(payload), text=True, encoding='utf-8', cwd=ROOT)
         raise SystemExit(run.returncode)

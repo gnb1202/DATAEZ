@@ -1,0 +1,306 @@
+{
+  "passed": true,
+  "api_mocks": false,
+  "synthetic": true,
+  "started_at": "2026-09-12T09:34:53.827Z",
+  "source_commit": "f725cb2d4a4ef84eaee9ca11bd627c4abca01768",
+  "site": "https://dataez.vercel.app",
+  "project_id": "f7323c3d-8868-4a66-924a-47db79d659a6",
+  "file_id": "95c118c5-b57f-40e2-b57d-18d4005a6d0e",
+  "table_id": "c1da8cfc-cd41-4797-9924-81fe3070a69a",
+  "stage": "complete",
+  "queries": [
+    {
+      "id": "Q1",
+      "scope": "original_file",
+      "conversation_id": "6fe93f19-319d-4bbb-80cf-ea558faf6832",
+      "elapsed_seconds": 11.11,
+      "chart_count": 1,
+      "selected_chart_index": 0,
+      "message_id": "6b84388d-9077-4c46-acde-73e5247fb568",
+      "daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900"
+      },
+      "tool_names": [
+        "library_references",
+        "preview_metric"
+      ],
+      "token_usage": null,
+      "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+      "scope_label": "파일 원본만",
+      "metric_definition": {
+        "unit": "KRW",
+        "column": "amount",
+        "filters": [],
+        "version": 1,
+        "group_by": "paid_at",
+        "table_id": "1b2cf05c-593a-42c0-971a-02b7c8259730",
+        "operation": "sum",
+        "chart_type": "line",
+        "date_grain": "day",
+        "time_range": "all",
+        "date_column": "paid_at"
+      },
+      "widget_id": "5c4b7606-5ece-4757-b25b-ef72a9aeda23",
+      "after_daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900"
+      }
+    },
+    {
+      "id": "Q2",
+      "scope": "linked_ledger",
+      "conversation_id": "78fdc210-42be-4c36-8868-7e11c2fdfcb1",
+      "elapsed_seconds": 9.84,
+      "chart_count": 1,
+      "selected_chart_index": 0,
+      "message_id": "fcc17066-a22c-4d52-aa10-962ef0f304ba",
+      "daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900"
+      },
+      "tool_names": [
+        "library_references",
+        "preview_metric"
+      ],
+      "token_usage": null,
+      "token_usage_note": "Null means not exposed by the persisted message API; no billing estimate.",
+      "scope_label": "누적 장부 전체",
+      "metric_definition": {
+        "unit": "KRW",
+        "column": "amount",
+        "filters": [],
+        "version": 1,
+        "group_by": "paid_at",
+        "table_id": "c1da8cfc-cd41-4797-9924-81fe3070a69a",
+        "operation": "sum",
+        "chart_type": "line",
+        "date_grain": "day",
+        "time_range": "all",
+        "date_column": "paid_at"
+      },
+      "widget_id": "991ce861-176d-4ce1-a9c8-d26aa60c2ded",
+      "after_daily": {
+        "2026-09-01": "164500",
+        "2026-09-02": "190000",
+        "2026-09-03": "139800",
+        "2026-09-04": "195900",
+        "2026-09-05": "30000"
+      }
+    }
+  ],
+  "checks": [
+    "Q1: real LLM → exact daily values → manual preview/save (11.11s)",
+    "Q2: real LLM → exact daily values → manual preview/save (9.84s)",
+    "Append exactly once: ledger 9 rows / 720200; original remains 690200 after both refreshes",
+    "Real drag layout persisted across reload/store switching; both charts visible at 1920×1080, dark/light captured"
+  ],
+  "page_error_count": 0,
+  "recording": true,
+  "marks": [
+    {
+      "name": "Q1_library",
+      "time": 2.294
+    },
+    {
+      "name": "Q1_file_preview",
+      "time": 6.675
+    },
+    {
+      "name": "Q1_scope",
+      "time": 10.785
+    },
+    {
+      "name": "Q1_question",
+      "time": 14.002
+    },
+    {
+      "name": "Q1_send",
+      "time": 18.015
+    },
+    {
+      "name": "Q1_answered",
+      "time": 29.118
+    },
+    {
+      "name": "Q1_analysis",
+      "time": 29.674
+    },
+    {
+      "name": "Q1_table",
+      "time": 34.903
+    },
+    {
+      "name": "Q1_sql",
+      "time": 38.947
+    },
+    {
+      "name": "Q1_save_start",
+      "time": 44.086
+    },
+    {
+      "name": "Q1_settings",
+      "time": 44.205
+    },
+    {
+      "name": "Q1_save_preview",
+      "time": 48.453
+    },
+    {
+      "name": "Q1_dashboard",
+      "time": 53.008
+    },
+    {
+      "name": "Q1_resize",
+      "time": 57.036
+    },
+    {
+      "name": "Q1_resized",
+      "time": 59.023
+    },
+    {
+      "name": "Q1_complete",
+      "time": 62.694
+    },
+    {
+      "name": "Q2_library",
+      "time": 71.032
+    },
+    {
+      "name": "Q2_file_preview",
+      "time": 74.935
+    },
+    {
+      "name": "Q2_scope",
+      "time": 79.037
+    },
+    {
+      "name": "Q2_question",
+      "time": 82.2
+    },
+    {
+      "name": "Q2_send",
+      "time": 86.203
+    },
+    {
+      "name": "Q2_answered",
+      "time": 96.043
+    },
+    {
+      "name": "Q2_analysis",
+      "time": 96.335
+    },
+    {
+      "name": "Q2_table",
+      "time": 101.538
+    },
+    {
+      "name": "Q2_sql",
+      "time": 105.571
+    },
+    {
+      "name": "Q2_save_start",
+      "time": 110.703
+    },
+    {
+      "name": "Q2_settings",
+      "time": 110.827
+    },
+    {
+      "name": "Q2_save_preview",
+      "time": 115.063
+    },
+    {
+      "name": "append_explained",
+      "time": 119.495
+    },
+    {
+      "name": "refresh_Q1",
+      "time": 123.874
+    },
+    {
+      "name": "after_table_Q1",
+      "time": 126.176
+    },
+    {
+      "name": "refresh_Q2",
+      "time": 132.308
+    },
+    {
+      "name": "after_table_Q2",
+      "time": 134.68
+    },
+    {
+      "name": "pair_layout",
+      "time": 143.926
+    },
+    {
+      "name": "pair_reload",
+      "time": 144.689
+    },
+    {
+      "name": "pair_complete",
+      "time": 148.337
+    },
+    {
+      "name": "store_switch",
+      "time": 156.734
+    },
+    {
+      "name": "showcase",
+      "time": 157.115
+    },
+    {
+      "name": "returned",
+      "time": 162.359
+    },
+    {
+      "name": "end",
+      "time": 167.372
+    }
+  ],
+  "append_sha256": "631d4e01a954b644bb629545580eaca9e80029b1db058621d5131a5f593d7093",
+  "ledger_rows": 9,
+  "original_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+  "layouts": [
+    {
+      "id": "5c4b7606-5ece-4757-b25b-ef72a9aeda23",
+      "layout": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": "991ce861-176d-4ce1-a9c8-d26aa60c2ded",
+      "layout": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "viewport": [
+    {
+      "top": 262,
+      "bottom": 778,
+      "width": 788
+    },
+    {
+      "top": 262,
+      "bottom": 778,
+      "width": 788
+    }
+  ],
+  "finished_at": "2026-09-12T09:37:45.590Z",
+  "raw_video_sha256": "e8acf908e9c95787a4771fca5c5b71e5ab2b7090a8f145503047db6ba48e70b2"
+}

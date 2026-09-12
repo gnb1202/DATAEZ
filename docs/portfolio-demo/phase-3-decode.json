@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "file": "product.mp4",
+      "full_decode": true,
+      "black_segments": []
+    },
+    {
+      "file": "technical.mp4",
+      "full_decode": true,
+      "black_segments": []
+    },
+    {
+      "file": "loop.mp4",
+      "full_decode": true,
+      "black_segments": []
+    },
+    {
+      "file": "loop.webm",
+      "full_decode": true,
+      "black_segments": []
+    }
+  ]
+}

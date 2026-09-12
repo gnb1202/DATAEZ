@@ -11,3 +11,7 @@ Dockerfile  text eol=lf
 # Synthetic fixtures are byte-addressed in manifest.json. Preserve the original
 # BOM and CRLF on every platform so Git cannot invalidate their SHA-256s.
 /samples/pg-evaluation/*.csv -text
+
+# Keep the validated diagram receipt reproducible on Windows checkouts.
+/docs/portfolio-demo/architecture.json text eol=lf
+/docs/portfolio-demo/architecture.html text eol=lf

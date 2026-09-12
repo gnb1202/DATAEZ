@@ -66,3 +66,6 @@ samples/unseen-v1/**/*.inspect.ndjson
 # Regenerable login image preview captures (keep original artwork).
 output/imagegen/*.png
 !output/imagegen/login-owner-*.png
+
+# Regenerable portfolio video masters and render intermediates.
+output/portfolio-demo/

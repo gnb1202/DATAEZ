@@ -67,3 +67,5 @@ fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 �
 - [HTML 비교·시연 폴더](../outputs/frontend-design/README.md): 초기 정적 시안과 실제 앱 캡처를 구분.
 - [초기 엔지니어링 기록](ENGINEERING_HISTORY.md): 관측성·라우터·한국어 검색 개선 당시 수치.
 - [초기 에이전트 제안](AGENT_ADVANCEMENT_PLAN.md), [데이터 신뢰성 계획](NEXT_PHASE_DATA_RELIABILITY.md): 과거 계획. 현재 제품 범위는 PRD와 후속 구현 문서를 따른다.
+
+- [포트폴리오 영상 제작·재생](portfolio-demo/VIDEO_RELEASE.md): 실제 녹화, 제품·기술·반복 영상, 한국어 자막, 검수 자료.
