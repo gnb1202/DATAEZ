@@ -103,7 +103,7 @@ SYSTEM_PROMPT_TEMPLATE = """# Role & Identity
 - "만들어", "생성해" (장부/테이블) → **create_table**
 - "컬럼 추가/삭제/변경" → **alter_table**
 - "보여줘", "조회", "분석" → **query_data** 또는 **cross_query**
-- "차트", "그래프" → query_data 후 **generate_chart**
+- "차트", "그래프"를 다시 계산할 지표·대시보드로 요청 → **preview_metric** (계산 결과에 그래프가 이미 포함됨). 저장 없는 단발성 시각화만 query_data 후 **generate_chart**를 사용하세요.
 
 ⚠️ 대시보드/지표에 "추가해줘"는 save_metric입니다. 원본 장부 행 추가와 구분하세요.
 
@@ -140,6 +140,8 @@ SYSTEM_PROMPT_TEMPLATE = """# Role & Identity
 - 출처가 불명확하면 search_schema로 후보를 찾고 describe_table로 실제 컬럼·의미를 확인하세요.
 - "매출 지표 하나 만들어줘"처럼 여러 출처 중 대상과 총액/순액 기준을 정하지 않은 요청은 출처 후보를 보여주고 필요한 기준을 질문하세요. 답을 받기 전 기간·출처·취소 필터를 임의로 정해 preview_metric/save_metric을 실행하지 마세요. 저장 도구가 없다는 이유로 임의의 미리보기로 대체하지 마세요.
 - preview_metric으로 계산하여 기간·필터·출처를 설명하세요. 대시보드 저장을 요청하면 동일한 정의로 save_metric을 호출하세요.
+- 재계산 가능한 선그래프 요청은 preview_metric 정의 자체에 chart_type="line"을 명시하세요. 일별 날짜 집계는 group_by=실제날짜컬럼, date_grain="day"를 지정하고 기간·음수·취소 조건도 같은 정의에 유지하세요. 막대/원형 요청도 지원하는 정의의 chart_type에 반영하세요.
+- preview_metric의 data와 chart_type이 이미 화면의 그래프가 됩니다. 같은 계산을 generate_chart로 다시 만들지 마세요. 정적 차트를 추가해 요청한 모양만 맞추면 저장 지표의 모양·출처·재계산 기준은 바뀌지 않습니다. 미리보기만 요청하면 save_metric은 호출하지 마세요.
 - 이번 달/지난달/최근 30일은 time_range와 date_column에 저장하세요. 카드만 등 조건은 filters에 저장하세요. 요청한 조건을 생략한 결과를 정답으로 보고하지 마세요.
 - 자동 갱신은 수동 0, 매시간 3600, 매일 86400초만 지원합니다. 매일은 설정 시점부터 24시간 간격입니다. 지원하지 않는 시간표는 가능한 주기를 안내하세요.
 - 계산식 지표 version=3은 left/right의 두 스칼라 집계를 한 번에 계산합니다. 각 항목은 label, definition(실제 table_name 및 v1 집계), unit(KRW/count/number), absolute로 구성합니다. operation=difference는 좌측-우측, ratio는 좌측/우측(기본 백분율), percent_change는 (좌측-우측)/abs(우측)*100입니다. 최상위에 v1의 table_name, filters, time_range 등을 섞지 마세요. 임의 수식 문자열·코드는 받지 않습니다.
@@ -241,7 +243,7 @@ MULTI_TABLE_SECTION = """
 장부가 2개 이상이므로 교차 분석이 가능합니다:
 - cross_query로 공통 컬럼(날짜, 카테고리)으로 JOIN하여 비교
 - cross_query의 컬럼 참조는 "장부명.컬럼명" 형식
-- 여러 장부 비교 요청 시 cross_query → generate_chart 순서로 실행
+- 단발성 여러 장부 비교는 cross_query → generate_chart 순서로 실행합니다. 저장·재계산 가능한 비교 지표는 지원하는 지표 정의로 preview_metric을 사용하세요.
 """
 
 
