@@ -386,7 +386,7 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
           />}</div>;
       case "settings":
         return (
-          <SettingsSection
+          <SettingsSection apiFetch={apiFetchWithRefresh}
             email={email}
             selectedProject={selectedProject}
             onDeleteProject={handleDeleteProject}

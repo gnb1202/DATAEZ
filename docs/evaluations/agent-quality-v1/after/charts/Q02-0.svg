@@ -1,0 +1,38 @@
+<svg width="900" height="420" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 900 420">
+<rect width="900" height="420" x="0" y="0" fill="#fff"></rect>
+<path d="M85 345.5L865 345.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 299.5L865 299.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 253.5L865 253.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 207.5L865 207.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 161.5L865 161.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 116.5L865 116.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 70.5L865 70.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-4"></path>
+<path d="M85 345.5L865 345.5" fill="none" pointer-events="visible" stroke="#54555a" stroke-linecap="round" class="zr1-cls-4"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 345)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 299.1667)" fill="#54555a">10,000</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 253.3333)" fill="#54555a">20,000</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 207.5)" fill="#54555a">30,000</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 161.6667)" fill="#54555a">40,000</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 115.8333)" fill="#54555a">50,000</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(77 70)" fill="#54555a">60,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(215 353)" fill="#54555a">2026-08-01</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(475 353)" fill="#54555a">2026-09-01</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(735 353)" fill="#54555a">2026-10-01</text>
+<path d="M125.3 345l179.4 0l0 -57.3l-179.4 0Z" fill="#3975da" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr1-cls-5"></path>
+<path d="M385.3 345l179.4 0l0 -231.9l-179.4 0Z" fill="#3975da" ecmeta_series_index="0" ecmeta_data_index="1" ecmeta_ssr_type="chart" class="zr1-cls-5"></path>
+<path d="M645.3 345l179.4 0l0 -4.1l-179.4 0Z" fill="#3975da" ecmeta_series_index="0" ecmeta_data_index="2" ecmeta_ssr_type="chart" class="zr1-cls-5"></path>
+<path d="M-5 -5l98.4 0l0 28l-98.4 0Z" transform="translate(29 17)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#3c3c41" stroke-width="0" class="zr1-cls-4"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:18px;font-family:Microsoft YaHei;font-weight:bold;" xml:space="preserve" y="9" transform="translate(29 17)" fill="#3c3c41">Q02 · bar</text>
+<style ><![CDATA[
+.zr1-cls-4:hover {
+pointer-events:none;
+}
+.zr1-cls-5:hover {
+cursor:pointer;
+fill:rgba(62,128,239,1);
+}
+
+]]>
+
+</style>
+</svg>

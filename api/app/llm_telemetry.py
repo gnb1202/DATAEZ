@@ -87,6 +87,9 @@ class TurnLedger:
     def summary(self) -> dict[str, Any]:
         return {
             "calls": len(self.calls),
+            "call_details": [{"model": c.model, "role": c.role, "prompt_tokens": c.prompt_tokens,
+                              "completion_tokens": c.completion_tokens, "duration_s": round(c.duration_s, 3),
+                              "outcome": c.outcome, "cost_usd": round(c.cost_usd, 6)} for c in self.calls],
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "total_tokens": self.total_tokens,

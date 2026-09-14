@@ -157,6 +157,9 @@ def _get_owned_conversation(
     return conv
 
 
+from .quality import ensure_quality, observed_chat, router as quality_router
+
+
 def initialize_database():
     """Idempotent schema upgrades, also invoked explicitly before serverless deployment."""
     run_startup_migrations()
@@ -175,6 +178,7 @@ def initialize_database():
     ensure_maintenance()
     ensure_request_limits()
     ensure_widget_saves()
+    ensure_quality()
     # Periodic cleanup on restart
     cleanup_old_conversations()
     cleanup_expired_refresh_tokens()
@@ -237,6 +241,7 @@ from .direct_uploads import router as direct_upload_router
 app.include_router(direct_upload_router)
 from .maintenance import router as maintenance_router
 app.include_router(maintenance_router)
+app.include_router(quality_router)
 app.include_router(ledger_router)
 app.include_router(index_router)
 
@@ -805,6 +810,7 @@ async def _read_attached_files(files: list[UploadFile]) -> list[dict[str, Any]]:
 
 
 @app.post("/api/conversations/{conversation_id}/messages", tags=["conversations"], summary="메시지 전송 (동기)")
+@observed_chat
 async def send_message(
     conversation_id: str,
     request: Request,
@@ -934,6 +940,7 @@ async def send_message(
 
 
 @app.post("/api/conversations/{conversation_id}/messages/stream", tags=["conversations"], summary="메시지 전송 (스트리밍)")
+@observed_chat
 async def send_message_streaming(
     conversation_id: str,
     request: Request,

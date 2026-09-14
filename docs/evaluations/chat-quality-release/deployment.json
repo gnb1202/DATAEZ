@@ -1,0 +1,78 @@
+{
+  "date_utc": "2026-09-13T09:35:52.593014+00:00",
+  "release": "quality-20260913-17ea846c6906",
+  "public_schema_applied": true,
+  "migration": "20260913092842_dataez_chat_quality.sql",
+  "source_state": "working tree snapshot; deployment manifests identify files, not a merged main commit",
+  "web": {
+    "id": "dpl_2qE4sCTpbcZs6xKfiqTYJiUSFnXa",
+    "url": "https://dataez.vercel.app",
+    "state": "READY"
+  },
+  "api": {
+    "id": "dpl_3VyHSr7b5kB1aSCGRCfxTDr31d8T",
+    "url": "https://dataez-api.vercel.app",
+    "state": "READY",
+    "python_runtime": "3.12",
+    "deployment_url": "https://dataez-3ha0ent9z-gnb1202-navercoms-projects.vercel.app"
+  },
+  "database": {
+    "owner": "dataez_app",
+    "rls": true,
+    "anon_read": false,
+    "authenticated_read": false,
+    "security_advisors_warn_or_error": 0
+  },
+  "public_tests": {
+    "passed": true,
+    "api": "https://dataez-api.vercel.app",
+    "mode": "actual public Vercel API + Supabase + one real model question",
+    "checks": [
+      "public health and unauthenticated quality access denied",
+      "one real LLM question, tool calling and KRW daily line: 30000/40000",
+      "feedback retry persisted; cross-user read/write and non-admin run list denied",
+      "remote DB links question/answer/model version/usage; failed request is not completed",
+      "public conversation deletion cascades to its quality run"
+    ],
+    "synthetic_demo_run_retained": true
+  },
+  "admin": {
+    "configured": true,
+    "designated_account_verified": true,
+    "production_admin_review_test": "passed (actual API)",
+    "authentication_test": "ephemeral server-signed token; no password change; browser login not automated",
+    "verification": {
+      "passed": true,
+      "date_utc": "2026-09-13T12:21:01.549451+00:00",
+      "mode": "actual production API; designated user verified with ephemeral 5-minute server-signed access token; no UI login or password change",
+      "checks": [
+        "designated registered account is administrator",
+        "admin can list and inspect the retained synthetic run and model usage",
+        "admin review saved and read back on synthetic data only",
+        "ordinary account cannot list, inspect or change reviews",
+        "unauthenticated access denied"
+      ],
+      "model_calls": 0,
+      "tested_data": "previously created synthetic run only"
+    }
+  },
+  "model_questions": 1,
+  "existing_user_data_modified": false,
+  "public_ui": {
+    "passed": true,
+    "mode": "actual public Next.js/Edge + production API; no mocks",
+    "checks": [
+      "saved negative feedback restored in actual chat",
+      "non-admin cannot open quality list"
+    ],
+    "errors": []
+  },
+  "prior_api_deployments": [
+    {
+      "id": "dpl_4b3PSSkVkWNChkCfx9VB4LzWhUtK",
+      "url": "https://dataez-api.vercel.app",
+      "state": "READY",
+      "python_runtime": "3.12"
+    }
+  ]
+}

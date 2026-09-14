@@ -924,6 +924,9 @@ def save_message(
             )
         conn.commit()
 
+    from .quality import link_message
+    link_message(message_id, role)
+
 
 def list_messages(conversation_id: str, limit: int = 100) -> list[dict[str, Any]]:
     with _connect() as conn:

@@ -1,0 +1,85 @@
+name: Agent Quality
+
+on:
+  pull_request:
+    paths: ['api/**', 'scripts/agent-quality/**', 'scripts/unseen-eval/**', 'samples/agent-quality-v1/**', 'samples/unseen-v1/**', '.github/workflows/agent-quality.yml']
+  push:
+    branches: [main]
+    paths: ['api/**', 'scripts/agent-quality/**', 'scripts/unseen-eval/**', 'samples/agent-quality-v1/**', 'samples/unseen-v1/**', '.github/workflows/agent-quality.yml']
+  workflow_dispatch:
+    inputs:
+      live:
+        description: '실제 유료 모델·임베딩 평가 실행'
+        type: boolean
+        default: false
+      suite:
+        description: '질문 범위'
+        type: choice
+        options: [smoke, full]
+        default: smoke
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r api/requirements.txt -r api/requirements-dev.txt
+      - run: python scripts/agent-quality/run.py validate
+      - run: python -m pytest scripts/agent-quality -q
+  observability:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: quality-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r api/requirements.txt -r api/requirements-dev.txt
+      - run: python -m pytest api/tests/test_quality.py api/tests/test_quality_postgres.py -q
+        env:
+          DATAEZ_TEST_DATABASE_URL: postgresql://postgres:quality-ci-only@localhost:5432/postgres
+  live:
+    if: github.event_name == 'workflow_dispatch' && inputs.live
+    needs: offline
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: pip install -r api/requirements.txt -r api/requirements-dev.txt
+      - run: npm ci --prefix web
+      - name: Real backend and model contracts (explanations remain reviewable)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EVAL_SUITE: ${{ inputs.suite }}
+        run: python scripts/agent-quality/run.py live --suite "$EVAL_SUITE" --automatic-only
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-quality-report
+          include-hidden-files: true
+          # Synthetic report only. Never upload API logs, raw accounts or env.
+          path: |
+            .local-test/agent-quality/*/assessment-*/summary.json
+            .local-test/agent-quality/*/assessment-*/report.html
+            .local-test/agent-quality/*/assessment-*/charts/*.svg
+          retention-days: 14

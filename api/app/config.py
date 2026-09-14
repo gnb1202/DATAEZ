@@ -75,6 +75,8 @@ class Settings(BaseSettings):
     query_timeout_ms: int = 30_000
     # Cleanup
     conversation_ttl_days: int = 90
+    quality_admin_user_ids: str = ""  # Comma-separated custom-auth user UUIDs; deny by default.
+    quality_release: str = "local"
     metric_scheduler_enabled: bool = True
     import_cleanup_enabled: bool = True
     # Internal scheduled runner, separate from user JWTs and disabled by default.

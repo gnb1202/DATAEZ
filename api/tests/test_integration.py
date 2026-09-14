@@ -40,6 +40,8 @@ _startup_patches = [
     patch("app.main.ensure_maintenance"),
     patch("app.main.ensure_request_limits"),
     patch("app.main.ensure_widget_saves"),
+    patch("app.main.ensure_quality"),
+    patch("app.quality.start_run", return_value=None),
     patch("app.main.cleanup_old_conversations"),
     patch("app.main.cleanup_expired_refresh_tokens"),
     patch("app.main.purge_soft_deleted"),
