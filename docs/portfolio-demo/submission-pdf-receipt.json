@@ -1,0 +1,29 @@
+{
+  "source": "docs/portfolio-demo/SUBMISSION.html",
+  "source_sha256": "c5571cfea57c8e92f3886d4ae03d31bbb558f2b5507c33642ab187963f926f72",
+  "artifact": "output/pdf/DATAEZ-SUBMISSION.pdf",
+  "sha256": "231eff4d670a535d7210ced371a4aabc2632995ff9701b87c719fa80f2bed355",
+  "bytes": 44802,
+  "renderer": "WeasyPrint 70.0",
+  "pages": 1,
+  "page_size": "A4 (595.276 x 841.890 pt)",
+  "required_text": "passed",
+  "external_link_annotations": [
+    "https://dataez.vercel.app/",
+    "https://github.com/gnb1202/DATAEZ",
+    "https://github.com/gnb1202/DATAEZ/blob/main/docs/portfolio-demo/CASE_STUDY.md"
+  ],
+  "visual_review": {
+    "status": "passed",
+    "date": "2026-09-14",
+    "method": "Poppler pdftoppm, full A4 page PNG inspected",
+    "checked": [
+      "Korean glyphs readable",
+      "no clipping or overlap",
+      "all four sections and footer visible",
+      "consistent margins and column spacing"
+    ],
+    "png_sha256": "a3528112f27d6f9d92a5083374c51d3c96b1c136a8179886e4c764a75aeb9c8a"
+  },
+  "browser_print_dialog": "not tested; in-app tab_content_export unsupported"
+}

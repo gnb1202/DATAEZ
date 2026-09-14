@@ -4,7 +4,7 @@
 
 여러 가게를 운영하는 소상공인이 흩어진 매출 파일과 현금 기록을 모으고, 자연어로 필요한 통계를 만들어 대시보드에 저장하는 서비스입니다. 저장한 통계는 같은 출처와 계산 기준으로 다시 계산할 수 있습니다.
 
-[서비스 체험](https://dataez.vercel.app) · [포트폴리오 사례](docs/portfolio-demo/CASE_STUDY.md) · [영상·자막 안내](docs/portfolio-demo/VIDEO_RELEASE.md) · [전체 문서](docs/README.md) · [현재 상태·근거](docs/CURRENT_STATUS.md)
+[서비스 체험](https://dataez.vercel.app) · [포트폴리오 사례](docs/portfolio-demo/CASE_STUDY.md) · [영상·자막 안내](docs/portfolio-demo/VIDEO_RELEASE.md) · [제출용 한 페이지](docs/portfolio-demo/SUBMISSION.html) · [A4 PDF](output/pdf/DATAEZ-SUBMISSION.pdf) · [전체 문서](docs/README.md) · [현재 상태·근거](docs/CURRENT_STATUS.md)
 
 2026-09-14 품질 관측·색상 보정·문서를 [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)로 main에 통합했습니다. 원격 CI에서 API·웹·Docker 빌드와 PostgreSQL 관측 검사를 확인했습니다. 아래 과거 QA 결과는 해당 검사 버전에 대한 기록입니다. [버전과 확인 범위](docs/CURRENT_STATUS.md)
 
@@ -69,7 +69,7 @@ LLM은 도구 인자와 지표 정의를 제안하고, 서버가 이를 검증�
 
 ## 검증과 한계
 
-2026-09-12 포트폴리오 검사와 09-13 후속 검사를 구분합니다. 서로 다른 검증 범위이므로 통과 수를 합산하지 않습니다.
+2026-09-12 포트폴리오 검사와 09-13 후속 검사, [09-14 통합 후 공개 확인](docs/evaluations/post-merge-20260914/verification.json)을 구분합니다. 서로 다른 검증 범위이므로 통과 수를 합산하지 않습니다.
 
 | 확인 | 결과·근거 |
 |---|---|

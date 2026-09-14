@@ -45,31 +45,26 @@
       "full new accessibility audit",
       "actual mobile device",
       "print pagination"
-    ],
-    "basis": "Previous session review, not rerun; generated HTML bytes unchanged. See ../evaluations/submission-20260914/previous-guide-receipt.json"
+    ]
   },
   "submission": {
     "artifact": "SUBMISSION.html",
-    "sha256": "c5571cfea57c8e92f3886d4ae03d31bbb558f2b5507c33642ab187963f926f72",
-    "bytes": 500442,
+    "sha256": "fb4ce0bb7ce58564792b1f00725f71b1a07aa9f8a6cdaabb42d4fd1ba34cfca8",
+    "bytes": 500342,
     "standalone": true,
     "visual_review": {
-      "status": "passed_scoped",
-      "date": "2026-09-14",
-      "browser": "Codex in-app browser via localhost HTTP",
+      "status": "passed_desktop",
+      "browser": "Codex in-app browser",
       "checked": [
-        "320x740, 390x844 and 1280x720 actual innerWidth and screenshots",
-        "no horizontal overflow; mobile top/body/footer and toolbar",
-        "desktop layout and companion guide navigation",
-        "WeasyPrint A4 PDF rendered and visually inspected with Poppler"
+        "desktop 1280x720 typography and content",
+        "no document horizontal overflow",
+        "companion guide link"
       ],
       "not_checked": [
-        "actual mobile device",
-        "full accessibility audit",
-        "browser native print dialog: export API unsupported",
-        "direct file opening: previous browser URL policy block preserved"
-      ],
-      "evidence": "../evaluations/submission-20260914/verification.json"
+        "mobile layout: viewport override did not affect this tab",
+        "printed PDF pagination",
+        "direct file opening: blocked by browser policy"
+      ]
     }
   }
 }

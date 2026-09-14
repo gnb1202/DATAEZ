@@ -1,0 +1,17 @@
+{
+  "artifact": "output/portfolio-demo/submission-20260914.zip",
+  "sha256": "cd4f17ef4f334dae4a1b946653d0d95e475eaadcc89b607c617547b045b6faaf",
+  "bytes": 1086756,
+  "files": [
+    "docs/portfolio-demo/PORTFOLIO_GUIDE.html",
+    "docs/portfolio-demo/SUBMISSION.html",
+    "docs/portfolio-demo/SUBMISSION.md",
+    "docs/evaluations/post-merge-20260914/verification.json",
+    "docs/evaluations/post-merge-20260914/oracle.json",
+    "READ_ME.md"
+  ],
+  "zip_integrity": "passed",
+  "extraction_hashes": "passed; HTML/JSON unchanged in fresh temporary folder",
+  "browser_portability_review": "not executed: browser file URL policy denied direct-open of extracted public HTML; no workaround attempted",
+  "video_included": false
+}

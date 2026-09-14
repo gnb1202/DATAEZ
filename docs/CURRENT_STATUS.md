@@ -2,6 +2,12 @@
 
 갱신일: **2026-09-14**. 제품 기능, 공개 배포, 원격 소스, 검사 결과를 구분한다. 이 문서는 아래 확인 시점의 기록이며 실시간 상태판이 아니다.
 
+## 09-14 제출 자료 마감 검증
+
+제출용 한 페이지를 실제 320/390/1280px 브라우저 뷰포트에서 확인하고, 320px 툴바의 인쇄 버튼 줄바꿈을 보정했다. [A4 PDF](../output/pdf/DATAEZ-SUBMISSION.pdf)는 WeasyPrint 70.0으로 생성해 1장·한글·링크 3개와 전체 페이지 PNG를 검수했다. 제출 HTML/가이드의 고정·직무별·내장 구조도 링크와 제출 Markdown의 외부 링크 22개는 HTTP 200이었다.
+
+이번 로컬 재검사는 API **545 passed / 268 skipped**, 웹 빌드 통과다. 실제 모델·공개 UI·DB 검사를 반복하지 않았다. ZIP 직접 열기는 이전 브라우저 URL 정책 차단을 존중해 미확인으로 유지한다. 인앱 PDF 내보내기도 지원되지 않아 브라우저 자체 인쇄 대화상자는 미검증이며, 동봉 PDF의 문서 렌더러 검수와 구분한다. [검증 범위와 재생성](portfolio-demo/SUBMISSION_QA.md) · [이번 실행 기록](evaluations/submission-20260914/verification.json).
+
 ## 2026-09-14 main 통합 완료
 
 [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)를 main에 머지했다. 통합 커밋은 `3524d22df4e3e419bd5cdc63190b84fdfecf352c`다. 품질 기능·색상 보정·문서/자료 세 커밋을 보존했다. 이번 문서 변경은 통합 뒤의 상태 기록이다.
@@ -9,6 +15,14 @@
 로컬 API 545 passed / 268 skipped, 평가 도구 41 passed, 웹 빌드를 확인했다. 원격 PR 검사에서 API·웹·Docker 빌드와 Agent Quality offline/실제 PostgreSQL 관측(26 passed)이 통과했다. 유료 live 모델 job은 의도적으로 건너뛰었다. [원격 검사와 통합 근거](evaluations/integration-20260914/verification.json).
 
 아래는 **09-13 점검 당시 배포/소스 기록**이다. 그때의 미통합·미푸시 상태는 이번 머지로 해소됐다. API는 이번 통합에서 별도 재배포하거나 운영 DB 마이그레이션을 재실행하지 않았다. 웹의 Git 연동 배포는 기존 수동 배포와 별도로 진행되므로 아래 09-13 배포 ID를 최신 자동 배포 ID로 해석하지 않는다.
+
+## 09-14 통합 후 공개 확인
+
+웹 소스 `ef934385e1c2126f85007bcf37f35489129cef16`에 연결된 Vercel 성공 상태를 확인하고, 별도 합성 계정으로 공개 UI의 샘플 시작 → 원본 선택 → 실제 질문 1회 → 집계표·SQL → 설정 검토·저장 → 재로그인·재계산을 확인했다. 일별 집계는 독립 Decimal 기대값과 일치했고 합계는 690,200원이다. 위젯 1개와 원본·전체 기간·KRW·수동 갱신 설정이 유지됐다.
+
+이번에는 샘플 시작 버튼을 사용했다. 수동 CSV 업로드·계정 격리·모의 장애·24문항 평가·전체 Phase 5를 다시 수행하지 않았다. 합성 자료는 보존하고 검사 세션은 로그아웃했다. [별도 실행 기록](evaluations/post-merge-20260914/verification.json) · [독립 기대값](evaluations/post-merge-20260914/oracle.json).
+
+[소개 HTML](portfolio-demo/PORTFOLIO_GUIDE.html)에 평가·관측·수동 회귀 후보 흐름을 추가하고 [제출용 한 페이지](portfolio-demo/SUBMISSION.html)와 [이력서 문장](portfolio-demo/SUBMISSION.md)을 구성했다. 과거 화면·영상은 새로 촬영하지 않았다.
 
 ## 09-13 배포와 소스 기록
 
