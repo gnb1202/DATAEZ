@@ -1,0 +1,98 @@
+{
+  "run_id": "submission-20260914",
+  "checked_at_utc": "2026-09-14T11:02:59.498415+00:00",
+  "scope": "Submission document finalization; no public account, model, DB mutation, or full product QA rerun",
+  "starting_git": {
+    "branch": "codex/portfolio-submission",
+    "head": "7ba4f00",
+    "main_and_origin_main": "ef934385e1c2126f85007bcf37f35489129cef16",
+    "fetch": "completed; main and origin/main equal"
+  },
+  "mobile_and_desktop": {
+    "browser": "Codex in-app browser",
+    "url": "http://127.0.0.1:3137/portfolio-demo/SUBMISSION.html",
+    "source_sha256": "c5571cfea57c8e92f3886d4ae03d31bbb558f2b5507c33642ab187963f926f72",
+    "measurements": [
+      {
+        "innerWidth": 320,
+        "innerHeight": 740,
+        "clientWidth": 305,
+        "scrollWidth": 305,
+        "grid_columns": 1
+      },
+      {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "grid_columns": 1
+      },
+      {
+        "innerWidth": 1280,
+        "innerHeight": 720,
+        "clientWidth": 1265,
+        "scrollWidth": 1265,
+        "grid_columns": 3
+      }
+    ],
+    "visual_review": "passed; viewport screenshots of top/body/footer and toolbar; desktop top and guide link. Full-page stitched screenshot duplicated part of the page, so viewport screenshots and DOM were used for final judgement.",
+    "browser_errors_observed": 0,
+    "actual_device": false
+  },
+  "pdf": {
+    "receipt": "../../portfolio-demo/submission-pdf-receipt.json",
+    "rendering": "WeasyPrint 70.0, source print CSS, Poppler page PNG review",
+    "status": "passed_scoped",
+    "browser_export": "unsupported tab_content_export; native print dialog not tested",
+    "links_fix": "Print nav uses normal flow to retain three external annotations in WeasyPrint"
+  },
+  "local_checks": {
+    "api": {
+      "command": "python -m pytest api/tests -q",
+      "passed": 545,
+      "skipped": 268,
+      "seconds": 19.36
+    },
+    "web": {
+      "command": "npm run build --prefix web",
+      "status": "passed",
+      "reported_next_version": "16.1.6",
+      "limitations": "Local dependencies; NEXT_PUBLIC_API_URL unset, auth-disabled build warning. Not a public login test."
+    },
+    "agent_quality": "Not rerun; no relevant app or evaluator changes"
+  },
+  "guide_reuse": {
+    "sha256": "3780def04c5aa2d5b7bd06ab6883ec95c78662dfb321b208b3715509e8959319",
+    "status": "byte-identical to prior reviewed guide; prior review preserved separately",
+    "archify": "Builder verified artifact/specification hashes and prior 9 checks; no new diagram created"
+  },
+  "not_verified": [
+    "ZIP-extracted HTML file:// direct open: prior browser URL policy block respected, no workaround attempted",
+    "Native browser print dialog",
+    "Actual mobile device",
+    "Full accessibility audit",
+    "Full guide print pagination",
+    "Paid model evaluation and public product UI rerun"
+  ],
+  "integration": "pending PR and remote CI",
+  "package": {
+    "artifact": "output/portfolio-demo/submission-20260914.zip",
+    "sha256": "01a5d21704b95fd0a94a81a2b4cf2d4b980121f884a0d65b207caa300fba4476",
+    "bytes": 1134837,
+    "allowlist_files": 9,
+    "crc": "passed",
+    "extraction_hashes": "passed; HTML/JSON/PDF bytes unchanged in a new temporary directory",
+    "direct_open": "not executed: previous browser file URL policy denied direct-open of extracted public HTML; no retry or workaround attempted"
+  },
+  "static_and_http": "artifact-checks.json; 22/22 HTTP 200, HTML local links/IDs/placeholders/fonts passed",
+  "checkout_integrity": ".gitattributes pins both generated HTML files to LF to preserve receipt hashes on Windows checkouts",
+  "public_text_scan": {
+    "files": 26,
+    "credential_pattern_hits": 0,
+    "scope": "Changed text only; not a complete security audit or binary inspection"
+  },
+  "whitespace_checks": {
+    "current_staged_diff": "passed",
+    "main_diff": "One pre-existing trailing space in the verbatim embedded Spoqa license, SUBMISSION.html line 32; preserved as source license text. No other whitespace errors."
+  }
+}

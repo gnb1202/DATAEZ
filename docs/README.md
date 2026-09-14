@@ -10,7 +10,7 @@
 | 대화 기록·사용자 평가·관리자 권한 | [대화 품질 관측](CHAT_QUALITY_OBSERVABILITY.md) |
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
 | 자연어·도구 호출·그래프의 백엔드 평가 | [파이프라인과 실제 수정 전후 결과](AGENT_QUALITY_PIPELINE.md), [실행 방법](../scripts/agent-quality/README.md), [질문과 독립 기대값](../samples/agent-quality-v1/questions.json) |
-| 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md), [소개 HTML](portfolio-demo/PORTFOLIO_GUIDE.html) (09-14 품질 평가·관측·공개 확인 반영; 앱 캡처는 09-12 색상 보정 전) · [제출용 한 페이지](portfolio-demo/SUBMISSION.html) · [이력서 문장](portfolio-demo/SUBMISSION.md) |
+| 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md), [소개 HTML](portfolio-demo/PORTFOLIO_GUIDE.html) (09-14 품질 평가·관측·공개 확인 반영; 앱 캡처는 09-12 색상 보정 전) · [제출용 한 페이지](portfolio-demo/SUBMISSION.html) · [A4 PDF](../output/pdf/DATAEZ-SUBMISSION.pdf) · [자료 검수](portfolio-demo/SUBMISSION_QA.md) · [이력서 문장](portfolio-demo/SUBMISSION.md) |
 | 포트폴리오 최종 QA·전달 패키지 | [FINAL_QA](portfolio-demo/FINAL_QA.md), [실제/모의 검사 결과](portfolio-demo/phase-5-qa.json) |
 | 제품·기술·반복 영상과 검수 | [영상 제작·로컬 재생 안내](portfolio-demo/VIDEO_RELEASE.md) |
 | 현재 배포 구성 | [아키텍처와 실행 프로필](ARCHITECTURE.md), [구조도 HTML](portfolio-demo/architecture.html) |

@@ -15,3 +15,7 @@ Dockerfile  text eol=lf
 # Keep the validated diagram receipt reproducible on Windows checkouts.
 /docs/portfolio-demo/architecture.json text eol=lf
 /docs/portfolio-demo/architecture.html text eol=lf
+
+# Submission receipts and ZIP checks compare generated HTML byte hashes.
+/docs/portfolio-demo/PORTFOLIO_GUIDE.html text eol=lf
+/docs/portfolio-demo/SUBMISSION.html text eol=lf

@@ -12,15 +12,22 @@ FILES = [
     'docs/portfolio-demo/PORTFOLIO_GUIDE.html',
     'docs/portfolio-demo/SUBMISSION.html',
     'docs/portfolio-demo/SUBMISSION.md',
+    'docs/portfolio-demo/SUBMISSION_QA.md',
+    'docs/portfolio-demo/submission-pdf-receipt.json',
+    'output/pdf/DATAEZ-SUBMISSION.pdf',
     'docs/evaluations/post-merge-20260914/verification.json',
     'docs/evaluations/post-merge-20260914/oracle.json',
 ]
 readme = '''# DATA:EZ 포트폴리오 전달 자료
 
 ZIP을 풀고 docs/portfolio-demo/SUBMISSION.html을 브라우저로 여세요.
+제출용 A4 한 장 PDF는 output/pdf/DATAEZ-SUBMISSION.pdf에 있습니다.
 상세 설명은 같은 폴더의 PORTFOLIO_GUIDE.html에 있습니다.
 두 HTML에는 폰트와 필요한 이미지·구조도가 포함되어 있습니다.
 한 페이지의 인쇄 버튼은 브라우저 인쇄/PDF 저장을 엽니다.
+동봉 PDF는 WeasyPrint 70.0 문서 렌더러로 출력하고 한글·페이지 수·링크를 검수했습니다.
+브라우저 인쇄 대화상자와 ZIP 해제 HTML의 file:// 직접 열기는 자동 검증하지 못했습니다.
+검증 범위와 제한은 docs/portfolio-demo/SUBMISSION_QA.md를 참고하세요.
 폰트 라이선스는 각 HTML 하단에 있습니다.
 
 공개 서비스: https://dataez.vercel.app/
@@ -34,6 +41,10 @@ ZIP을 풀고 docs/portfolio-demo/SUBMISSION.html을 브라우저로 여세요.
 본인 기여 문장은 직접 결정하고 설명할 수 있는 범위로 조정하세요.
 '''
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+pdf_receipt = json.loads((ROOT / 'docs/portfolio-demo/submission-pdf-receipt.json').read_text(encoding='utf-8'))
+for path_key, hash_key in [('artifact', 'sha256'), ('source', 'source_sha256')]:
+    assert hashlib.sha256((ROOT / pdf_receipt[path_key]).read_bytes()).hexdigest() == pdf_receipt[hash_key], 'Stale submission PDF; render and review again'
+assert pdf_receipt['visual_review']['status'] == 'passed', 'Review PDF before packaging'
 with zipfile.ZipFile(OUTPUT, 'w', zipfile.ZIP_DEFLATED) as archive:
     archive.writestr('READ_ME.md', readme)
     for name in FILES:
@@ -66,7 +77,7 @@ receipt = {
     'bytes': OUTPUT.stat().st_size,
     'files': FILES + ['READ_ME.md'],
     'zip_integrity': 'passed',
-    'extraction_hashes': 'passed; HTML/JSON unchanged in fresh temporary folder',
+    'extraction_hashes': 'passed; HTML/JSON/PDF unchanged in fresh temporary folder',
     'browser_portability_review': 'pending',
     'video_included': False,
 }
