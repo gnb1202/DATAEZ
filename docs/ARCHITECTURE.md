@@ -301,7 +301,7 @@ L1 uses a deterministic scorer for the observed router output; the model output
 itself can vary. CI validates the dataset without model calls. Live routing and
 judge scores are reported separately from SQL, state and permission checks.
 
-A separate [24-question backend quality pipeline](AGENT_QUALITY_PIPELINE.md) checks actual tool arguments, independently calculated cells, metric definitions and ECharts SVG output. Six explanation cases require recorded review; the published review was performed by Codex, not a blind human judge. The new workflow is implemented locally; a remote CI run is not verified.
+A separate [24-question backend quality pipeline](AGENT_QUALITY_PIPELINE.md) checks actual tool arguments, independently calculated cells, metric definitions and ECharts SVG output. Six explanation cases require recorded review; the published review was performed by Codex, not a blind human judge. The workflow was integrated in PR #14; offline and PostgreSQL jobs passed remotely on 2026-09-14. Paid model evaluation was not rerun.
 
 Current acceptance also includes real PostgreSQL tests, 50-question natural-language
 evaluation, browser fixtures, and a real browser/API/DB/LLM workspace run. See

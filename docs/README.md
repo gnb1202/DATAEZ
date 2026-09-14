@@ -1,6 +1,6 @@
 # DATA:EZ 문서
 
-2026-09-13 기준. [현재 배포·원격 소스·확인 범위](CURRENT_STATUS.md)와 [문서 사실관계 점검](DOCUMENTATION_AUDIT.md)을 먼저 확인한다. 처음 방문했다면 [포트폴리오 사례](portfolio-demo/CASE_STUDY.md)에서 제품·실제 화면·기술 판단·검증을 함께 확인한다. 제품 방향은 [PRD](PRD.md), 분석 계약은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 따른다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경 문서와 구분한다.
+2026-09-14 통합 기준. [현재 배포·원격 소스·확인 범위](CURRENT_STATUS.md)와 [문서 사실관계 점검](DOCUMENTATION_AUDIT.md)을 먼저 확인한다. 처음 방문했다면 [포트폴리오 사례](portfolio-demo/CASE_STUDY.md)에서 제품·실제 화면·기술 판단·검증을 함께 확인한다. 제품 방향은 [PRD](PRD.md), 분석 계약은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 따른다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경 문서와 구분한다.
 
 ## 처음 읽을 문서
 

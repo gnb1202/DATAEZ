@@ -1,5 +1,7 @@
 # DATA:EZ 에이전트 품질 파이프라인
 
+> 2026-09-14 후속: [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)로 main 통합과 원격 CI 확인을 완료했다. 아래 09-13 미커밋·미푸시 설명은 당시 기록이다. [통합 검사 근거](../../docs/evaluations/integration-20260914/verification.json).
+
 [실제 실행·발견 문제·수정 전후 결과](../../docs/AGENT_QUALITY_PIPELINE.md)
 
 자연어 이해 → function calling → 지표 정의 → SQL 집계 → 차트 응답을 백엔드에서 검사한다. 질문은 `samples/agent-quality-v1/questions.json`에 있고, 실제 CSV/XLSX는 기존 `samples/unseen-v1`을 재사용한다. 24개 개발 회귀 문항이며, 기존 unseen holdout 10개를 새 평가의 비공개 시험처럼 주장하지 않는다.

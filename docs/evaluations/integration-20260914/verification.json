@@ -1,0 +1,124 @@
+{
+  "date": "2026-09-14",
+  "pr": {
+    "mergeCommit": {
+      "oid": "3524d22df4e3e419bd5cdc63190b84fdfecf352c"
+    },
+    "mergedAt": "2026-09-14T07:47:42Z",
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148636/job/103896441865",
+        "name": "offline",
+        "startedAt": "2026-09-14T07:43:08Z",
+        "status": "COMPLETED",
+        "workflowName": "Agent Quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148644/job/103896442064",
+        "name": "Build API Image",
+        "startedAt": "2026-09-14T07:43:08Z",
+        "status": "COMPLETED",
+        "workflowName": "Docker Build"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148626/job/103896442243",
+        "name": "API Tests",
+        "startedAt": "2026-09-14T07:43:08Z",
+        "status": "COMPLETED",
+        "workflowName": "Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148636/job/103896442170",
+        "name": "observability",
+        "startedAt": "2026-09-14T07:43:08Z",
+        "status": "COMPLETED",
+        "workflowName": "Agent Quality"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:47:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148644/job/103896441854",
+        "name": "Build Web Image",
+        "startedAt": "2026-09-14T07:43:09Z",
+        "status": "COMPLETED",
+        "workflowName": "Docker Build"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148626/job/103896442179",
+        "name": "Web Build",
+        "startedAt": "2026-09-14T07:43:08Z",
+        "status": "COMPLETED",
+        "workflowName": "Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:45Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34819148636/job/103896604306",
+        "name": "live",
+        "startedAt": "2026-09-14T07:43:46Z",
+        "status": "COMPLETED",
+        "workflowName": "Agent Quality"
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "Vercel",
+        "startedAt": "2026-09-14T07:43:36Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://vercel.com/gnb1202-navercoms-projects/dataez/92XwWGCcg5Rof5Eer1j5zxk12fFE"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T07:43:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://vercel.com/github",
+        "name": "Vercel Preview Comments",
+        "startedAt": "2026-09-14T07:43:37Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "url": "https://github.com/gnb1202/DATAEZ/pull/14"
+  },
+  "integration_commit": "3524d22df4e3e419bd5cdc63190b84fdfecf352c",
+  "local_checks": {
+    "date": "2026-09-14",
+    "api": {
+      "passed": 545,
+      "skipped": 268
+    },
+    "pipeline": {
+      "passed": 41,
+      "questions_validated": 24,
+      "model_calls": 0
+    },
+    "web_build": "passed; local Next 16.1.6; API URL unset warning, not a deployment",
+    "local_postgres": "not rerun: Docker Desktop startup timed out; PR CI supplies disposable PostgreSQL",
+    "secret_scan": {
+      "candidate_files": 98,
+      "private_key_provider_key_jwt_signed_url_pattern_hits": 0,
+      "scope": "heuristic scan only, not a complete security audit"
+    },
+    "whitespace_note": "One trailing space in verbatim embedded font license in portfolio HTML retained to preserve artifact hash."
+  },
+  "postgres_ci": "26 passed; disposable PostgreSQL service in Agent Quality workflow",
+  "paid_model_evaluation": "not run; opt-in live job skipped",
+  "scope": "integration tests, not a repeat of portfolio final QA"
+}

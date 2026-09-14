@@ -124,8 +124,9 @@ python scripts/agent-quality/run.py live --suite smoke
 ```
 
 The new `agent-quality.yml` adds offline, PostgreSQL observability and opt-in
-paid evaluation jobs. It is currently local and uncommitted; remote Actions and
-secret configuration remain unverified. Explain review-pending results separately
+paid evaluation jobs. PR #14 integrated the workflow into main on 2026-09-14;
+offline and PostgreSQL CI passed. Paid execution and its secret configuration
+were not verified. Explain review-pending results separately
 from automatic contracts. [Current source/deployment status](docs/CURRENT_STATUS.md).
 
 ### Adding golden cases

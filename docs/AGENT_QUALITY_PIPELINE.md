@@ -1,5 +1,7 @@
 # 자연어·도구 호출·그래프 품질 파이프라인
 
+> 2026-09-14 후속: [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)로 main 통합과 원격 CI 확인을 완료했다. 아래 09-13 미커밋·미푸시 설명은 당시 기록이다. [통합 검사 근거](evaluations/integration-20260914/verification.json).
+
 2026-09-13 · 로컬 격리 환경의 실제 모델 평가
 
 [실행 방법](../scripts/agent-quality/README.md) · [24문항과 기대값](../samples/agent-quality-v1/questions.json) · [수정 후 HTML](evaluations/agent-quality-v1/after/report.html) · [최초 설명 검토 결과](evaluations/agent-quality-v1/baseline/report.html)

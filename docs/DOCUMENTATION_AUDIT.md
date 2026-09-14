@@ -1,5 +1,7 @@
 # DATA:EZ 문서 사실관계 점검
 
+> 2026-09-14 후속: [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)로 main 통합과 원격 CI 확인을 완료했다. 아래 09-13 미커밋·미푸시 설명은 당시 기록이다. [통합 검사 근거](evaluations/integration-20260914/verification.json).
+
 2026-09-13 · README와 현재 운영/개발 안내를 대상으로 한 1차 정리. [현재 상태](CURRENT_STATUS.md)를 상태 설명의 시작점으로 삼는다.
 
 ## 바로잡은 내용

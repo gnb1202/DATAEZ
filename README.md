@@ -6,7 +6,7 @@
 
 [서비스 체험](https://dataez.vercel.app) · [포트폴리오 사례](docs/portfolio-demo/CASE_STUDY.md) · [영상·자막 안내](docs/portfolio-demo/VIDEO_RELEASE.md) · [전체 문서](docs/README.md) · [현재 상태·근거](docs/CURRENT_STATUS.md)
 
-2026-09-13 기준으로 공개 배포와 원격 `main`은 다릅니다. 최근 품질 관측·색상 보정은 작업 트리에서 배포했으며 아직 커밋·원격 통합 전입니다. 아래 과거 QA 결과는 해당 검사 버전에 대한 기록입니다. [버전과 확인 범위](docs/CURRENT_STATUS.md)
+2026-09-14 품질 관측·색상 보정·문서를 [PR #14](https://github.com/gnb1202/DATAEZ/pull/14)로 main에 통합했습니다. 원격 CI에서 API·웹·Docker 빌드와 PostgreSQL 관측 검사를 확인했습니다. 아래 과거 QA 결과는 해당 검사 버전에 대한 기록입니다. [버전과 확인 범위](docs/CURRENT_STATUS.md)
 
 [2026-09-12 최종 QA](docs/portfolio-demo/FINAL_QA.md): 새 계정의 첫 사용·실제 분석·접근 격리·오류 복구·화면·로컬 영상 전달을 확인했습니다. 합의한 검사 범위에서 미해결 P0/P1은 없습니다.
 

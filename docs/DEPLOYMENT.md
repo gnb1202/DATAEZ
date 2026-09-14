@@ -8,7 +8,7 @@ Redis are not used in this deployment.
 
 [Current versions and evidence](CURRENT_STATUS.md) distinguish public deployments
 from GitHub `main`: the latest quality and color changes were deployed as working
-tree snapshots and have not been committed or pushed. Prior rollout/probe records
+tree snapshots, then integrated into main through PR #14 on 2026-09-14. Prior rollout/probe records
 are historical, not the current deployment checklist. The single-server Compose
 candidate remains an alternative and is not how the public service is hosted.
 
@@ -226,7 +226,7 @@ deployment or a rerun of the full browser/LLM acceptance.
 
 - `test.yml` — pytest, golden-dataset validation, Next.js type-check and build
 - `docker.yml` — both images build
-- `agent-quality.yml` — local workflow definition added for offline contracts, a disposable PostgreSQL observability job, and opt-in paid model evaluation. It is not yet pushed to `main`; no remote run is claimed
+- `agent-quality.yml` — local workflow definition added for offline contracts, a disposable PostgreSQL observability job, and opt-in paid model evaluation. Integrated in PR #14; offline and PostgreSQL CI passed on 2026-09-14. The paid job was skipped
 
 The original routing gate (`make eval`) remains an on-demand command. The new
 Agent Quality workflow defines a separate paid backend evaluation only for
