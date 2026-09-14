@@ -43,15 +43,15 @@ export function Sidebar({ activeSection, onSectionChange, collapsed, onCollapsed
           </select>
           <button onClick={onCreateProject} className="mt-2 flex items-center gap-1 px-1 py-1 text-xs text-muted-foreground hover:text-foreground"><Plus size={13} />가게 추가</button>
         </>}
-        <button onClick={onNewAnalysis} title="새 분석" aria-label="새 분석" className="mt-7 mb-6 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[var(--line-strong)] bg-card text-sm font-medium hover:bg-secondary"><Plus size={17} />{!compact && "새 분석"}</button>
+        <button onClick={onNewAnalysis} title="새 분석" aria-label="새 분석" className="mt-7 mb-6 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-primary bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--action-hover)]"><Plus size={17} />{!compact && "새 분석"}</button>
       </div>
       <nav aria-label="작업 메뉴" className="space-y-1 px-3">
-        {navigation.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => onSectionChange(id)} title={label} aria-label={label} aria-current={activeSection === id ? "page" : undefined} className={cn("flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm transition-colors", compact && "justify-center px-0", activeSection === id ? "bg-sidebar-accent text-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground")}><Icon size={18} />{!compact && label}</button>)}
+        {navigation.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => onSectionChange(id)} title={label} aria-label={label} aria-current={activeSection === id ? "page" : undefined} className={cn("flex h-11 w-full items-center gap-3 rounded-lg border border-transparent px-3 text-sm transition-colors", compact && "justify-center px-0", activeSection === id ? "border-accent/35 bg-sidebar-accent font-medium text-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground")}><Icon size={18} className={activeSection === id ? "text-accent" : undefined} />{!compact && label}</button>)}
       </nav>
       <div className="mt-auto space-y-2 p-3">
         {compact && <button aria-label="메뉴 펼치기" onClick={() => onCollapsedChange(false)} className="flex h-10 w-full items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary"><PanelLeftOpen size={18} /></button>}
-        <button onClick={() => onSectionChange("settings")} title="설정 및 계정" aria-label="설정 및 계정" aria-current={activeSection === "settings" ? "page" : undefined} className={cn("flex w-full items-center gap-3 rounded-lg p-3 text-muted-foreground hover:bg-secondary", compact && "justify-center", activeSection === "settings" && "bg-sidebar-accent text-foreground")}>
-          <Settings size={18} className="shrink-0" />{!compact && <span className="min-w-0 flex-1 text-left"><span className="block text-sm text-foreground">설정 및 계정</span><span className="mt-1 block truncate text-[11px]">{email}</span></span>}{!compact && <ArrowUpRight size={13} />}
+        <button onClick={() => onSectionChange("settings")} title="설정 및 계정" aria-label="설정 및 계정" aria-current={activeSection === "settings" ? "page" : undefined} className={cn("flex w-full items-center gap-3 rounded-lg border border-transparent p-3 text-muted-foreground transition-colors hover:bg-secondary", compact && "justify-center", activeSection === "settings" && "border-accent/35 bg-sidebar-accent text-foreground hover:bg-sidebar-accent")}>
+          <Settings size={18} className={cn("shrink-0", activeSection === "settings" && "text-accent")} />{!compact && <span className="min-w-0 flex-1 text-left"><span className="block text-sm text-foreground">설정 및 계정</span><span className="mt-1 block truncate text-[11px]">{email}</span></span>}{!compact && <ArrowUpRight size={13} />}
         </button>
       </div>
     </div>
