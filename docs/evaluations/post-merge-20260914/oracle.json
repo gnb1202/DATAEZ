@@ -1,0 +1,13 @@
+{
+  "source": "api/app/sample_workspace.py CSV literal",
+  "csv_sha256": "7bb2bf5d3d9778d0185b9a69e455b944a7e1b83d3f66efd53fb8d478ae4db807",
+  "rows": 8,
+  "total": "690200",
+  "daily": {
+    "2026-09-01": "164500",
+    "2026-09-02": "190000",
+    "2026-09-03": "139800",
+    "2026-09-04": "195900"
+  },
+  "observed_source": "public UI exact aggregation table, not model prose"
+}

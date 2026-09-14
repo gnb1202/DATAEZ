@@ -1,0 +1,60 @@
+{
+  "run_id": "post-merge-20260914",
+  "date": "2026-09-14",
+  "timezone": "Asia/Seoul",
+  "status": "passed_scoped_public_smoke",
+  "source_commit": "ef934385e1c2126f85007bcf37f35489129cef16",
+  "web": {
+    "url": "https://dataez.vercel.app/",
+    "git_deployment_status": "success",
+    "status_url": "https://vercel.com/gnb1202-navercoms-projects/dataez/97ZiNAAJtCLcaDh49ry6KmGNUGJj"
+  },
+  "api": {
+    "url": "https://dataez-api.vercel.app/",
+    "existing_release": "quality-20260913-17ea846c6906",
+    "redeployed_this_run": false
+  },
+  "method": "Codex in-app browser, actual public UI and real model; no mocked responses",
+  "account": "New synthetic account created through UI; existing user accounts untouched. Identifiers and credentials excluded from this public receipt.",
+  "data_setup": "UI sample-start button created a sample store, stored CSV and selected original scope. Manual CSV upload was not retested.",
+  "question_count": 1,
+  "question": "선택한 샘플 파일의 원본 행만 사용해 paid_at 날짜별 amount 합계를 원화 꺾은선 그래프로 미리 보여줘. 음수 취소를 그대로 차감하고 전체 기간을 사용해. 재계산 가능한 지표로 준비하되 아직 저장하지 마.",
+  "automatic_question_retries": 0,
+  "oracle": {
+    "file": "oracle.json",
+    "method": "CSV literal extracted from api/app/sample_workspace.py with ast.literal_eval; summed independently using Python Decimal without importing the app",
+    "expected_rows": 8,
+    "expected_total_krw": "690200",
+    "expected_daily": {"2026-09-01":"164500","2026-09-02":"190000","2026-09-03":"139800","2026-09-04":"195900"}
+  },
+  "observed": {
+    "source": "Rendered exact aggregation table, settings dialog and dashboard; not model prose",
+    "daily_before_save": {"2026-09-01":"164500","2026-09-02":"190000","2026-09-03":"139800","2026-09-04":"195900"},
+    "chart_count": 1,
+    "chart_type": "line",
+    "scope": "original_file",
+    "period": "all_time",
+    "currency": "KRW",
+    "sql_reviewed": "date_trunc day on paid_at, SUM(amount), GROUP BY 1 ORDER BY 1, parameterized; physical table identifiers omitted",
+    "save_settings_preview": "passed",
+    "saved_title": "통합 확인 · 원본 일별 매출",
+    "refresh_schedule": "manual",
+    "save_confirmation": "저장 완료",
+    "relogin": "passed",
+    "widget_count_after_relogin": 1,
+    "title_scope_period_schedule_preserved": true,
+    "recalculation_clicks_after_relogin": 1,
+    "recalculated_at_ui": "2026-09-14 17:20:08 Asia/Seoul",
+    "daily_after_recalculation": {"2026-09-01":"164500","2026-09-02":"190000","2026-09-03":"139800","2026-09-04":"195900"},
+    "captured_console_errors": 0,
+    "logout_at_end": "passed"
+  },
+  "evidence_type": "Agent-observed browser UI transcript plus independent oracle; this receipt does not contain a raw recording or credential-bearing capture",
+  "cleanup": "Synthetic fixture retained; test browser logged out. No existing data deleted.",
+  "limits": [
+    "Not a repeat of Phase 5 or the 24-question evaluation",
+    "No manual upload, cross-account access, multi-store switch, fault injection or responsive/device checks in this public smoke run",
+    "One fixed question is not a general model accuracy estimate",
+    "No new application code, DB schema change or API deployment"
+  ]
+}

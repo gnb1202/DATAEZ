@@ -1,10 +1,13 @@
 {
-  "date": "2026-09-13",
+  "date": "2026-09-14",
   "artifact": "PORTFOLIO_GUIDE.html",
   "basis": [
     "CASE_STUDY.md",
     "FINAL_QA.md",
-    "architecture.json"
+    "architecture.json",
+    "../AGENT_QUALITY_PIPELINE.md",
+    "../CHAT_QUALITY_OBSERVABILITY.md",
+    "../evaluations/post-merge-20260914/verification.json"
   ],
   "archify": {
     "type": "architecture",
@@ -23,66 +26,45 @@
       "compositionStatus": "pass",
       "errors": 0,
       "warnings": 0
-    },
-    "visual_review": "passed",
-    "correction_rounds": 0
+    }
   },
   "diagram_note": "Existing verified architecture reused unchanged; a new workflow candidate was abandoned after two unsuccessful correction rounds. The guide uses a separate HTML explanation of the request flow.",
   "standalone": true,
-  "sha256": "0721d29f7ee0deffd2abde2baf4391280d36f892bb6f3c0bb80201b8c6ad3a49",
-  "bytes": 1725967,
-  "visual_review": "passed",
-  "visual_review_scope": [
-    "guide desktop and mobile, dark/light",
-    "embedded architecture dark/light",
-    "print diagram visible"
-  ],
-  "browser_checks": {
-    "errors": [],
-    "checks": [
-      {
-        "width": 1440,
-        "theme": "dark",
-        "overflow": false
-      },
-      {
-        "width": 1440,
-        "theme": "light",
-        "overflow": false
-      },
-      {
-        "width": 768,
-        "theme": "dark",
-        "overflow": false
-      },
-      {
-        "width": 768,
-        "theme": "light",
-        "overflow": false
-      },
-      {
-        "width": 390,
-        "theme": "dark",
-        "overflow": false
-      },
-      {
-        "width": 390,
-        "theme": "light",
-        "overflow": false
-      }
+  "sha256": "3780def04c5aa2d5b7bd06ab6883ec95c78662dfb321b208b3715509e8959319",
+  "bytes": 1729579,
+  "visual_review": {
+    "status": "passed_scoped",
+    "browser": "Codex in-app browser",
+    "checked": [
+      "desktop 1280x720 dark/light quality section",
+      "role selection updates evidence and resume",
+      "390x844 emulated guide layout without horizontal overflow",
+      "embedded existing Archify renders"
     ],
-    "role": true,
-    "comparison": true,
-    "archify": true
+    "not_checked": [
+      "full new accessibility audit",
+      "actual mobile device",
+      "print pagination"
+    ]
   },
-  "additional_checks": {
-    "offline_file_open": true,
-    "keyboard_role_navigation": true,
-    "clipboard_copy": true,
-    "all_three_roles": true,
-    "diagram_popup": true,
-    "print_svg_loaded": true,
-    "local_evidence_targets": 11
-  },
-  "print_note": "Extracted SVG adapted to standalone XML for print; interactive Archify HTML bytes remain unchanged."
+  "submission": {
+    "artifact": "SUBMISSION.html",
+    "sha256": "fb4ce0bb7ce58564792b1f00725f71b1a07aa9f8a6cdaabb42d4fd1ba34cfca8",
+    "bytes": 500342,
+    "standalone": true,
+    "visual_review": {
+      "status": "passed_desktop",
+      "browser": "Codex in-app browser",
+      "checked": [
+        "desktop 1280x720 typography and content",
+        "no document horizontal overflow",
+        "companion guide link"
+      ],
+      "not_checked": [
+        "mobile layout: viewport override did not affect this tab",
+        "printed PDF pagination",
+        "direct file opening: blocked by browser policy"
+      ]
+    }
+  }
 }

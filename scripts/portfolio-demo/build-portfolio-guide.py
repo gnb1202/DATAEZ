@@ -44,13 +44,27 @@ assert not re.search(r'__[A-Z][A-Z0-9_]+__', template)
 out = ROOT / 'docs/portfolio-demo/PORTFOLIO_GUIDE.html'
 out.write_text(template, encoding='utf-8', newline='\n')
 public_receipt = {
-    'date': '2026-09-13', 'artifact': 'PORTFOLIO_GUIDE.html',
-    'basis': ['CASE_STUDY.md', 'FINAL_QA.md', 'architecture.json'],
+    'date': '2026-09-14', 'artifact': 'PORTFOLIO_GUIDE.html',
+    'basis': ['CASE_STUDY.md', 'FINAL_QA.md', 'architecture.json', '../AGENT_QUALITY_PIPELINE.md', '../CHAT_QUALITY_OBSERVABILITY.md', '../evaluations/post-merge-20260914/verification.json'],
     'archify': {key: receipt[key] for key in ['type', 'specification', 'artifact', 'validation']},
     'diagram_note': 'Existing verified architecture reused unchanged; a new workflow candidate was abandoned after two unsuccessful correction rounds. The guide uses a separate HTML explanation of the request flow.',
     'standalone': True,
     'sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
     'bytes': out.stat().st_size,
+    'visual_review': 'pending',
+}
+submission = (ROOT / 'scripts/portfolio-demo/submission.template.html').read_text(encoding='utf-8')
+for key in ['__FONT400__', '__FONT700__', '__FONT_LICENSE__']:
+    assert key in submission
+    submission = submission.replace(key, replacements[key])
+assert not re.search(r'__[A-Z][A-Z0-9_]+__', submission)
+submission_out = ROOT / 'docs/portfolio-demo/SUBMISSION.html'
+submission_out.write_text(submission, encoding='utf-8', newline='\n')
+public_receipt['submission'] = {
+    'artifact': 'SUBMISSION.html',
+    'sha256': hashlib.sha256(submission_out.read_bytes()).hexdigest(),
+    'bytes': submission_out.stat().st_size,
+    'standalone': True,
     'visual_review': 'pending',
 }
 (ROOT / 'docs/portfolio-demo/portfolio-guide-receipt.json').write_text(json.dumps(public_receipt, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')

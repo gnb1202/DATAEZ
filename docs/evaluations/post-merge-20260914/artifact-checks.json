@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-14",
+  "checks": [
+    {
+      "artifact": "PORTFOLIO_GUIDE.html",
+      "unique_ids": true,
+      "local_and_repository_link_targets": "passed",
+      "embedded_assets": true,
+      "sha256": "3780def04c5aa2d5b7bd06ab6883ec95c78662dfb321b208b3715509e8959319"
+    },
+    {
+      "artifact": "SUBMISSION.html",
+      "unique_ids": true,
+      "local_and_repository_link_targets": "passed",
+      "embedded_assets": true,
+      "sha256": "fb4ce0bb7ce58564792b1f00725f71b1a07aa9f8a6cdaabb42d4fd1ba34cfca8"
+    }
+  ],
+  "scope": "Static artifact checks; repository target existence, not HTTP status of every external link",
+  "public_text_scan": {
+    "files": 7,
+    "pattern_hits": 0,
+    "scope": "Changed submission/template and new evidence text only; not a full security audit or binary image inspection"
+  },
+  "whitespace_note": "git diff --cached --check reported one trailing space in the verbatim embedded Spoqa font license in new SUBMISSION.html; retained as source license text."
+}
