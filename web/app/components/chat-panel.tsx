@@ -67,6 +67,7 @@ function summarizeToolInput(toolName: string, input: Record<string, unknown>): s
 }
 
 type ChatPanelProps = {
+  apiFetch?: import("./answer-feedback").QualityFetch;
   composer?: Composer;
   onOpenLibrary?: (search?: string) => void;
   onComposerChange?: (value: Composer) => void;
@@ -88,7 +89,7 @@ type ChatPanelProps = {
 
 const ALLOWED_FILE_TYPES = ".csv,.xlsx,.xls";
 
-export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onReviewConversation, recoveryNotice, onPinChart }: ChatPanelProps) {
+export default function ChatPanel({ apiFetch, composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onReviewConversation, recoveryNotice, onPinChart }: ChatPanelProps) {
   const [localInput, setLocalInput] = useState("");
   const input = composer?.text ?? localInput;
   const setInput = (text: string) => {
@@ -181,7 +182,7 @@ export default function ChatPanel({ composer, onComposerChange, onOpenLibrary, o
             const isLastAssistant =
               msg.role === "assistant" && idx === messages.length - 1;
             return (
-              <MessageBubble
+              <MessageBubble apiFetch={apiFetch}
                 key={msg.message_id}
                 message={msg}
                 showSuggestions={isLastAssistant && !loading}

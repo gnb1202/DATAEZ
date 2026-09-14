@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-13T12:38:40.380361+00:00",
+  "deployment": "dpl_6Cq7jr7f9GPCkS7cPAoMCk9HaLS1",
+  "url": "https://dataez.vercel.app/",
+  "scope": "Web color polish only; backend unchanged; uncommitted working tree snapshot.",
+  "changes": [
+    "Primary actions use action blue with white text",
+    "Blue selected navigation and tabs",
+    "Dark panel #22252a -> #252a32",
+    "Dark chart primary #82b4ff -> #6ca5ff",
+    "Quality review cards and selected rows use theme surfaces"
+  ],
+  "checks": {
+    "local_build": "pass (Next 16.1.6)",
+    "production_build": "pass (Next 16.3.4)",
+    "eslint": "0 errors; existing TanStack Virtual React Compiler warning",
+    "visual": "Actual Sidebar, Tabs, Button and ECharts components with synthetic fixture: dark and light inspected using browser. Fixture removed before deploy. Not an authenticated production end-to-end test.",
+    "public_login": "Observed solid rgb(49,106,196), white text, enabled login; new panel/chart CSS tokens loaded.",
+    "photo_filter": "saturate(0.25) brightness(1), preserved",
+    "contrast": {
+      "dark_button": 5.26,
+      "light_button": 6.48,
+      "dark_selected_icon": 5.27,
+      "light_selected_icon": 5.35,
+      "dark_muted_on_card": 6.59
+    }
+  },
+  "manifest_sha256": "456a0fdd566d0e65b1d971f8e1245eec347655637743dcf0399a39ad78e400e9"
+}

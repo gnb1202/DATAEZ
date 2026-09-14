@@ -227,6 +227,7 @@ def run_agent(
         return AgentResult(
             answer="OpenAI API 키가 설정되지 않았습니다. .env 파일에 OPENAI_API_KEY를 설정해주세요.",
             steps=[AgentStep(type="answer", content="API key not configured")],
+            usage={"turn_outcome": "not_configured"},
         )
 
     ledger = TurnLedger()
@@ -272,6 +273,7 @@ def run_agent(
     charts: list[dict[str, Any]] = []
     table_data: list[dict[str, Any]] = []
     answer = ""
+    turn_outcome = "completed"
     total_tokens = 0
 
     # Skip tool forcing when nothing was selected, and when routing degraded.
@@ -285,6 +287,7 @@ def run_agent(
             logger.warning("Token budget exhausted (%d tokens), stopping agent", total_tokens)
             answer = "토큰 예산이 초과되었습니다. 더 간결한 질문으로 다시 시도해주세요."
             steps.append(AgentStep(type="answer", content=answer))
+            turn_outcome = "budget_exhausted"
             agent_turns_total.labels(mode="sync", outcome="budget_exhausted").inc()
             break
 
@@ -315,6 +318,7 @@ def run_agent(
             logger.error("LLM call failed", exc_info=True)
             answer = "AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
             steps.append(AgentStep(type="answer", content=answer))
+            turn_outcome = "llm_error"
             agent_turns_total.labels(mode="sync", outcome="llm_error").inc()
             break
 
@@ -366,6 +370,7 @@ def run_agent(
             agent_turns_total.labels(mode="sync", outcome="answered").inc()
             break
         else:
+            turn_outcome = "incomplete_response"
             answer = choice.message.content or "분석이 완료되었습니다."
             steps.append(AgentStep(type="answer", content=answer))
             agent_turns_total.labels(mode="sync", outcome="answered").inc()
@@ -374,11 +379,12 @@ def run_agent(
     if not answer:
         answer = "최대 반복 횟수에 도달했습니다. 더 구체적인 질문으로 다시 시도해주세요."
         steps.append(AgentStep(type="answer", content=answer))
+        turn_outcome = "iterations_exhausted"
         agent_turns_total.labels(mode="sync", outcome="iterations_exhausted").inc()
 
     agent_iterations.labels(mode="sync").observe(iteration + 1)
     answer, suggestions = _parse_suggestions(answer)
-    usage = ledger.summary()
+    usage = {**ledger.summary(), "turn_outcome": turn_outcome}
     logger.info(
         "Agent finished: %d tokens across %d LLM calls, est. $%.5f",
         usage["total_tokens"],
@@ -406,7 +412,7 @@ def run_agent(
 # ---------------------------------------------------------------------------
 
 
-def _streaming_meta_step(executor: ToolExecutor, ledger: TurnLedger) -> AgentStep:
+def _streaming_meta_step(executor: ToolExecutor, ledger: TurnLedger, outcome: str = "completed") -> AgentStep:
     """Final meta frame carrying mutation flags and this turn's LLM usage.
 
     Usage is emitted unconditionally. The previous version only sent a meta
@@ -420,7 +426,7 @@ def _streaming_meta_step(executor: ToolExecutor, ledger: TurnLedger) -> AgentSte
                 "mutations_performed": executor.mutations_performed,
                 "schema_changed": executor.schema_changed,
                 "mutated_table_ids": list(executor.mutated_table_ids),
-                "usage": ledger.summary(),
+                "usage": {**ledger.summary(), "turn_outcome": outcome},
             },
             ensure_ascii=False,
         ),
@@ -439,6 +445,7 @@ async def run_agent_streaming(
 ):
     """Async generator that yields AgentStep objects in real-time."""
     if not settings.openai_api_key:
+        yield AgentStep(type="meta", content=json.dumps({"usage": {"turn_outcome": "not_configured"}}))
         yield AgentStep(
             type="answer",
             content="OpenAI API 키가 설정되지 않았습니다. .env 파일에 OPENAI_API_KEY를 설정해주세요.",
@@ -492,6 +499,7 @@ async def run_agent_streaming(
     for iteration in range(settings.agent_max_iterations):
         if total_tokens >= settings.agent_max_token_budget:
             logger.warning("Token budget exhausted (%d tokens), stopping streaming agent", total_tokens)
+            yield _streaming_meta_step(executor, ledger, "budget_exhausted")
             yield AgentStep(type="answer", content="토큰 예산이 초과되었습니다. 더 간결한 질문으로 다시 시도해주세요.")
             return
 
@@ -567,6 +575,7 @@ async def run_agent_streaming(
         except Exception:
             logger.error("LLM streaming call failed", exc_info=True)
             agent_turns_total.labels(mode="streaming", outcome="llm_error").inc()
+            yield _streaming_meta_step(executor, ledger, "llm_error")
             yield AgentStep(
                 type="error",
                 content="AI 모델 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
@@ -636,7 +645,7 @@ async def run_agent_streaming(
             yield AgentStep(type="answer", content=answer)
             agent_iterations.labels(mode="streaming").observe(iteration + 1)
             agent_turns_total.labels(mode="streaming", outcome="answered").inc()
-            yield _streaming_meta_step(executor, ledger)
+            yield _streaming_meta_step(executor, ledger, "completed" if finish_reason == "stop" and streamed_content else "incomplete_response")
             return
 
     agent_iterations.labels(mode="streaming").observe(settings.agent_max_iterations)
@@ -645,4 +654,4 @@ async def run_agent_streaming(
         type="answer",
         content="최대 반복 횟수에 도달했습니다. 더 구체적인 질문으로 다시 시도해주세요.",
     )
-    yield _streaming_meta_step(executor, ledger)
+    yield _streaming_meta_step(executor, ledger, "iterations_exhausted")

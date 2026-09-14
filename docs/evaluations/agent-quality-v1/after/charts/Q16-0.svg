@@ -1,0 +1,29 @@
+<svg width="900" height="420" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 900 420">
+<rect width="900" height="420" x="0" y="0" fill="#fff"></rect>
+<path d="M85 345.5L865 345.5" fill="none" pointer-events="visible" stroke="#54555a" stroke-linecap="round" class="zr6-cls-22"></path>
+<g clip-path="url(#zr6-c0)">
+<path d="" fill="none" pointer-events="visible" stroke="#3975da" stroke-width="2" stroke-linejoin="bevel" class="zr6-cls-24"></path>
+</g>
+<path d="M-5 -5l100.4 0l0 28l-100.4 0Z" transform="translate(29 17)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#3c3c41" stroke-width="0" class="zr6-cls-22"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:18px;font-family:Microsoft YaHei;font-weight:bold;" xml:space="preserve" y="9" transform="translate(29 17)" fill="#3c3c41">Q16 · line</text>
+<defs >
+<clipPath id="zr6-c0">
+<path d="M84 69l782 0l0 277l-782 0Z" fill="#000" class="zr6-cls-23"></path>
+</clipPath>
+</defs>
+<style ><![CDATA[
+.zr6-cls-22:hover {
+pointer-events:none;
+}
+.zr6-cls-23:hover {
+cursor:pointer;
+fill:rgba(0,0,0,1);
+}
+.zr6-cls-24:hover {
+cursor:pointer;
+}
+
+]]>
+
+</style>
+</svg>

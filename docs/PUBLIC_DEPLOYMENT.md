@@ -1,5 +1,7 @@
 # DATA:EZ 첫 공개 데모 배포안
 
+> 2026-09-13 후속 상태: [현재 배포와 원격 main](CURRENT_STATUS.md)을 우선한다. 아래 배포 ID·커밋·후보 설명은 해당 날짜의 기록이다.
+
 2026-09-11 · 배포 후보 `codex/public-demo-deployment`의 누적 작업을 main에 통합했다.
 
 **현재 상태: [공개 웹](https://dataez.vercel.app)과 [공개 API](https://dataez-api.vercel.app)를 연결하고 실제 로그인·업로드·LLM 그래프·대시보드 저장·재계산과 정기 갱신을 검증했다.** [공개 데모 기록](PUBLIC_DEMO_ACCEPTANCE.md)과 [최신 main 통합·로그인 배포 기록](LOGIN_RELEASE.md)을 우선한다. 아래는 초기 배포 결정과 이전 후보를 보존한 기록이다.

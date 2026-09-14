@@ -1,6 +1,6 @@
-# DATAEZ Architecture
+# DATA:EZ Architecture
 
-Updated 2026-09-12. Public deployment uses the serverless profile described below;
+Updated 2026-09-13. [Deployment/source status](CURRENT_STATUS.md). Public deployment uses the serverless profile described below;
 the persistent profile remains available for local Docker development.
 
 ## Current deployment
@@ -97,6 +97,7 @@ reaches the client as an `error` frame rather than truncating the stream.
 - `components/dashboard/metric-save-settings.tsx` — title, unit, period, preview and schedule
 - `components/dashboard/echarts-chart.tsx` — lazy modular ECharts 6.1.0 with SVG,
   exact-value tooltips and accessible table/SQL evidence
+- `app/quality/page.tsx`, `app/components/answer-feedback.tsx` — administrator review and answer feedback; permissions enforced by the API
 - `app/theme.css`, `app/fonts/` — Charcoal + Blue and local Spoqa Han Sans Neo;
   dark, light and system modes
 - `components/dashboard/sections/` — lazily loaded sections
@@ -108,6 +109,8 @@ reaches the client as an `error` frame rather than truncating the stream.
 |---|---|
 | `main.py` | HTTP endpoints, SSE assembly, middleware |
 | `agent.py` | Agent loop, sync and streaming |
+| `library_agent.py` | Selected-file scope prompt and tool access guards |
+| `quality.py` | Run lifecycle, owned feedback, administrator review and synthetic candidates |
 | `agent_tools.py` | Tool registry, `TOOL_META`, structured errors, per-tool metrics, audit |
 | `router.py` | Orchestrator: intent + tool subset, schema-enforced |
 | `prompts.py` | Conditional system prompt assembly |
@@ -141,6 +144,8 @@ On failure it retries once, then degrades to a **read-only** tool set
 first-iteration forced tool call. The earlier behaviour — returning all 14
 tools, including `delete_rows`, while still forcing a call — made the failure
 path more dangerous than having no router.
+
+Selected library files further constrain this result: `agent.py` filters the selected tools to `SCOPED_TOOLS`, adds required read/analysis tools, and attaches scope guards plus the library prompt. Cross-store selections add explicit owned-store inspection tools. The orchestrator is therefore not the only tool-access boundary.
 
 Model tiering follows task difficulty: the worker runs the multi-step loop
 (`OPENAI_MODEL`), the orchestrator does one short classification
@@ -275,7 +280,9 @@ Database initialization is described in [Deployment](DEPLOYMENT.md#migrations).
 
 `TurnLedger` accumulates every LLM call made while answering one message —
 orchestrator, worker, and embeddings — so cost can be attributed per stage and
-persisted per message (`messages.total_tokens`, `cost_usd`, `usage`).
+persisted per message (`messages.total_tokens`, `cost_usd`, `usage`). Calls outside the active turn or usage lost on termination are not a complete billing ledger.
+
+`quality_runs` links execution state/version to the existing question and answer rows. `message_feedback` stores one current rating per assistant message. An API UUID allowlist protects `/quality` and its administrative endpoints; ordinary accounts can evaluate only their own answers. A completed run is not a quality pass. Review failures can become manually authored synthetic regression candidates, not automatic training data. [Retention, access and evidence](CHAT_QUALITY_OBSERVABILITY.md).
 
 Prometheus metrics use route templates rather than raw paths, so project and
 conversation UUIDs do not mint a time series each.
@@ -293,6 +300,8 @@ Three layers, cheapest first:
 L1 uses a deterministic scorer for the observed router output; the model output
 itself can vary. CI validates the dataset without model calls. Live routing and
 judge scores are reported separately from SQL, state and permission checks.
+
+A separate [24-question backend quality pipeline](AGENT_QUALITY_PIPELINE.md) checks actual tool arguments, independently calculated cells, metric definitions and ECharts SVG output. Six explanation cases require recorded review; the published review was performed by Codex, not a blind human judge. The new workflow is implemented locally; a remote CI run is not verified.
 
 Current acceptance also includes real PostgreSQL tests, 50-question natural-language
 evaluation, browser fixtures, and a real browser/API/DB/LLM workspace run. See

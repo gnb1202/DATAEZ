@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   LogOut,
   Mail,
@@ -19,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import type { Project } from "@/app/lib/api";
 
 interface SettingsSectionProps {
+  apiFetch?: (path: string, init?: RequestInit) => Promise<Response>;
   email: string;
   selectedProject: Project | null;
   onDeleteProject: (projectId: string) => Promise<void>;
@@ -26,11 +28,18 @@ interface SettingsSectionProps {
 }
 
 export function SettingsSection({
+  apiFetch,
   email,
   selectedProject,
   onDeleteProject,
   onLogout,
 }: SettingsSectionProps) {
+  const [qualityAdmin, setQualityAdmin] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    apiFetch?.("/api/quality/access").then(async res => { if (res.ok) { const data = await res.json(); if (alive) setQualityAdmin(data.admin); } }).catch(() => {});
+    return () => { alive = false; };
+  }, [apiFetch]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -47,6 +56,7 @@ export function SettingsSection({
 
   return (
     <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {qualityAdmin && <Link href="/quality" className="mb-5 block rounded-xl border border-border p-4 text-sm text-accent">대화 품질 검토 →</Link>}
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="bg-secondary">
           <TabsTrigger value="profile" className="gap-2">

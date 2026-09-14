@@ -1,4 +1,4 @@
-# Contributing to DATAEZ
+# Contributing to DATA:EZ
 
 ## Development Setup
 
@@ -9,8 +9,8 @@ sample data, see [the demo runbook](docs/DEMO_RUNBOOK.md). Runner safeguards use
 
 ### Prerequisites
 
-- Python 3.12+
-- Node.js 20+
+- Python 3.12 (current API deployment runtime)
+- Node.js 24 (current CI/deployment version)
 - Docker & Docker Compose
 
 ### Backend (API)
@@ -34,8 +34,9 @@ real chat and search embedding require a usable key.
 
 Before starting `uvicorn`, also set `DATABASE_URL` to an initialized development
 PostgreSQL database (`db/init.sql`, pgvector when RAG is enabled) and a writable
-`LOCAL_STORAGE_PATH`. Request limits run in process memory with no external
-service; run one API worker/replica. Prefer the full
+`LOCAL_STORAGE_PATH`. The default persistent profile uses in-process request limits; run one API
+worker/replica with that limiter. The public serverless profile uses PostgreSQL
+windows instead. Prefer the full
 Compose setup below for a ready database/network. Python settings do not read
 the root `.env` automatically; `uvicorn --env-file ../.env` can load it, but
 host database URLs and paths still need their own values.
@@ -108,8 +109,24 @@ make eval             # live: one orchestrator call per case, gates on threshold
 make eval-report      # live + writes a Markdown scorecard for the PR body
 ```
 
-CI runs `eval-validate` on every push. The live gate is manual because it
-spends tokens.
+The existing test workflow defines `eval-validate`; the live routing gate is manual because it spends tokens. Workflow definitions are not evidence of a successful remote run.
+
+For actual backend intent/tool/metric/SQL/chart checks, use the separate
+[agent-quality pipeline](scripts/agent-quality/README.md):
+
+```powershell
+# From the repository root; no model/DB calls
+python scripts/agent-quality/run.py validate
+python -m pytest scripts/agent-quality -q
+
+# Requires a model key and disposable local Docker DB; paid calls
+python scripts/agent-quality/run.py live --suite smoke
+```
+
+The new `agent-quality.yml` adds offline, PostgreSQL observability and opt-in
+paid evaluation jobs. It is currently local and uncommitted; remote Actions and
+secret configuration remain unverified. Explain review-pending results separately
+from automatic contracts. [Current source/deployment status](docs/CURRENT_STATUS.md).
 
 ### Adding golden cases
 
@@ -186,6 +203,7 @@ documents nothing.
 | `test_eval_routing.py` | Golden set validity, scoring, CI gates |
 | `test_eval_judge.py` | Judge config, position bias, pairwise aggregation |
 | `test_llm_telemetry.py` | Token and cost accounting |
+| `test_quality.py`, `test_quality_postgres.py` | Run lifecycle, feedback, admin access and real DB constraints; the latter needs a disposable test DB |
 | `test_korean_text.py` | Morpheme tokenization, token counting |
 | `test_sql_executor.py` | Table access validation |
 | `test_data_import.py` | CSV import, type inference |
@@ -242,6 +260,8 @@ node scripts/ui-eval/workspace.cjs
 node scripts/ui-eval/file-library.cjs
 node scripts/ui-eval/analysis-dashboard.cjs
 ```
+
+`node scripts/ui-eval/quality.cjs` additionally tests feedback/admin UI with mock API responses. Its default base is `http://127.0.0.1:3140` (different from the workspace scripts).
 
 Those three scripts use API fixtures and do not call a real LLM. For actual
 browser/API/DB/LLM execution, use the prerequisites and isolated orchestration in

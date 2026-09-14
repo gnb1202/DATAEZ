@@ -167,7 +167,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !API_CONFIGURED}
-              className="mt-1 h-[52px] w-full rounded-[7px] bg-accent font-bold text-accent-foreground hover:bg-accent/90 transition-colors"
+              className="mt-1 h-[52px] w-full rounded-[7px] bg-primary font-bold text-primary-foreground hover:bg-[var(--action-hover)] transition-colors"
               size="lg"
             >
               {loading ? (

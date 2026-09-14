@@ -1,0 +1,25 @@
+{
+  "documents": [
+    "CONTRIBUTING.md",
+    "README.md",
+    "docs/AGENT_QUALITY_PIPELINE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/CHAT_QUALITY_OBSERVABILITY.md",
+    "docs/COLOR_PALETTE.md",
+    "docs/CONFIGURATION.md",
+    "docs/CURRENT_STATUS.md",
+    "docs/DEPLOYMENT.md",
+    "docs/DOCUMENTATION_AUDIT.md",
+    "docs/PORTFOLIO_DEMO_PLAN.md",
+    "docs/PUBLIC_DEPLOYMENT.md",
+    "docs/README.md",
+    "docs/VERCEL_DEPLOYMENT.md",
+    "docs/portfolio-demo/ACCEPTANCE.md",
+    "docs/portfolio-demo/CASE_STUDY.md",
+    "docs/portfolio-demo/FINAL_QA.md",
+    "scripts/agent-quality/README.md"
+  ],
+  "local_links_checked": 313,
+  "broken": [],
+  "scope": "local Markdown path existence; external URLs and fragment anchors not validated"
+}

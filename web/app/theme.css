@@ -1,4 +1,4 @@
-/* Charcoal + Blue, confirmed 2026-09-09. Source: outputs/frontend-design/tokens.css */
+/* Charcoal + Blue, confirmed 2026-09-09. Base: outputs/frontend-design/tokens.css. Contrast polish: 2026-09-13 */
 :root {
   color-scheme: light;
   --bg: #f5f7fa;
@@ -8,7 +8,7 @@
   --surface-inset: #edf1f6;
   --surface-raised: #eaf0f8;
   --surface-input: #ffffff;
-  --surface-selected: #e0e8f4;
+  --surface-selected: #e0eafb;
   --surface-code: #eef2f8;
   --hover: #e6edf7;
   --line: #d7dfe8;
@@ -51,12 +51,12 @@
   color-scheme: dark;
   --bg: #191b1f;
   --side: #121417;
-  --panel: #22252a;
+  --panel: #252a32;
   --chat: #1d2026;
   --surface-inset: #161a20;
   --surface-raised: #2a2f38;
   --surface-input: #242a33;
-  --surface-selected: #2b3647;
+  --surface-selected: #253c5d;
   --surface-code: #171d26;
   --hover: #2c3440;
   --line: #3b414b;
@@ -82,13 +82,13 @@
   --info-surface: #26384e;
   --error-text: #f1afbc;
   --error-surface: #402b34;
-  --chart-primary: #82b4ff;
+  --chart-primary: #6ca5ff;
   --chart-secondary: #deb77b;
   --chart-cancel: #e3a0a8;
   --chart-cancel-strong: #f1bbc2;
   --chart-grid: #3b414b;
-  --chart-area-start: rgba(130, 180, 255, 0.16);
-  --chart-area-end: rgba(130, 180, 255, 0);
+  --chart-area-start: rgba(108, 165, 255, 0.18);
+  --chart-area-end: rgba(108, 165, 255, 0);
   --tooltip-bg: #252b34;
   --tooltip-line: #71839d;
   --shadow: rgba(0, 0, 0, 0.32);

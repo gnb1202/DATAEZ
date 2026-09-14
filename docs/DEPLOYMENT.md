@@ -1,18 +1,38 @@
 # Deployment
 
-Updated 2026-09-11. The [frontend is live on Vercel](https://dataez.vercel.app),
-with authentication disabled until the public API is configured.
-Real API-to-Supabase DB/Storage integration has passed; public API rollout remains pending. See [Supabase setup](SUPABASE_SETUP.md) and the
-[Vercel deployment record](VERCEL_DEPLOYMENT.md) and [integration record](RELEASE_INTEGRATION.md).
+Updated 2026-09-13. The [web](https://dataez.vercel.app) and
+[FastAPI](https://dataez-api.vercel.app) are deployed on Vercel and connected;
+authentication is enabled. Supabase supplies PostgreSQL/pgvector, private Storage
+and Cron. The API uses its own JWT authentication, not Supabase Auth. AWS and
+Redis are not used in this deployment.
 
-The first public deployment candidate now integrates the verified brand and Phase 3
-work. AWS/Lightsail is now deferred due to recurring cost. Vercel Hobby for web/API
-and Supabase Free for PostgreSQL and original files are being evaluated.
-The [temporary Vercel API probe](VERCEL_API_FEASIBILITY.md) passed dependency, parser and SSE checks;
-it does not establish full backend compatibility. See [deployment decisions and verification status](PUBLIC_DEPLOYMENT.md).
-The existing public Compose configuration still implements the earlier single-server
-candidate; it has not yet been adapted or verified for the selected split deployment.
-No paid AWS server has been created. The Vercel frontend is on the existing Hobby plan.
+[Current versions and evidence](CURRENT_STATUS.md) distinguish public deployments
+from GitHub `main`: the latest quality and color changes were deployed as working
+tree snapshots and have not been committed or pushed. Prior rollout/probe records
+are historical, not the current deployment checklist. The single-server Compose
+candidate remains an alternative and is not how the public service is hosted.
+
+## Public serverless release
+
+1. Use the API settings in [`api/.env.vercel.example`](../api/.env.vercel.example)
+   and [configuration](CONFIGURATION.md): `APP_ENV=production`,
+   `RUNTIME_MODE=serverless`, durable Storage, transaction-pool connection,
+   startup migrations/resident workers disabled and prepared statements disabled.
+2. Review and apply pending versioned schema changes through the established
+   [Supabase migration process](SUPABASE_SETUP.md). Confirm migration history
+   before applying anything; do not replay old bootstrap scripts against user data.
+   Schema versions are in [`supabase/migrations`](../supabase/migrations/).
+3. Deploy only the changed API/web project. Set server secrets on the API project;
+   the web uses build-time `NEXT_PUBLIC_API_URL=https://dataez-api.vercel.app`.
+   Record the source manifest/commit and each deployment ID.
+4. Keep [Cron maintenance](SERVERLESS_MAINTENANCE.md) configured with a separate
+   server-only secret. Request counters are shared in PostgreSQL.
+5. Check `/health`, `/ready` and affected authenticated flows. Health endpoints
+   alone do not validate model responses, permissions or scheduled work.
+
+The latest quality schema is `20260913092842_dataez_chat_quality.sql`.
+Its [application and public verification](evaluations/chat-quality-release/deployment.json)
+are separate from the later [web color release](evaluations/color-polish/verification.json).
 
 For a persistent portfolio demo, use [the demo runbook](DEMO_RUNBOOK.md):
 `python scripts/demo/run.py start`, `status`, `stop`, and `restart --no-build`.
@@ -48,7 +68,7 @@ Compose mounts **only `db/init.sql` and `001_pgvector_rag.sql`** into
 `/docker-entrypoint-initdb.d`. Postgres executes those on a fresh data volume,
 not on every startup. It does not automatically mount all numbered migrations.
 
-For existing databases, `ensure_*` functions run at startup and converge the
+For existing persistent databases, `ensure_*` functions run at startup and converge the
 schema — including migrating `content_tsv` off the generated column introduced
 by 001, saved metric schedules, imports, indexing jobs, file scope and samples.
 The numbered SQL files document equivalent schema changes; the API startup
@@ -72,7 +92,7 @@ Back up an existing database before upgrading and verify `/ready` after startup.
 | `013_sample_workspace.sql` | Per-account sample store mapping |
 | `014_sample_restarts.sql` | Owner-scoped retry keys for non-destructive sample restarts |
 
-`main.py` calls the idempotent `ensure_*` functions before serving requests.
+With startup migrations enabled, `main.py` calls the idempotent `ensure_*` functions before serving requests. Public serverless startup skips them; schema changes must be applied separately. The initializer also deletes expired conversations, so it is not a schema-only operation.
 `ensure_library()` includes the original-file schema and sample mapping. The
 source-analysis write trigger is installed when the immutable table is created.
 Do not remove a Docker volume merely to apply a newer schema.
@@ -91,7 +111,9 @@ docker compose exec -e PYTHONPATH=/app api python /tmp/reindex_fts.py
 cd api && python ../scripts/reindex_fts.py
 ```
 
-## Production checklist
+## Alternative persistent deployment checklist
+
+This checklist applies to a separate persistent/container installation, not a report of checks performed on Vercel.
 
 **Required**
 
@@ -108,7 +130,7 @@ cd api && python ../scripts/reindex_fts.py
 
 - [ ] TLS terminated at a reverse proxy; keep `X-Accel-Buffering: no` intact for SSE
 - [ ] `/metrics` restricted at the proxy — it is not authenticated
-- [ ] `STORAGE_BACKEND=s3` if more than one API replica runs; the local backend
+- [ ] Shared durable Storage (`s3` or `supabase`) if more than one API replica runs; the local backend
       writes to a container-local volume
 - [ ] Scheduled `db/backup.sh`, and a restore actually tested with `db/restore.sh`
 - [ ] Pricing rows in `api/app/llm_cost.py` matching the deployed models
@@ -204,6 +226,9 @@ deployment or a rerun of the full browser/LLM acceptance.
 
 - `test.yml` — pytest, golden-dataset validation, Next.js type-check and build
 - `docker.yml` — both images build
+- `agent-quality.yml` — local workflow definition added for offline contracts, a disposable PostgreSQL observability job, and opt-in paid model evaluation. It is not yet pushed to `main`; no remote run is claimed
 
-The eval gate that spends tokens (`make eval`) is **not** in CI. It is run on
-demand before merging changes to routing or prompts.
+The original routing gate (`make eval`) remains an on-demand command. The new
+Agent Quality workflow defines a separate paid backend evaluation only for
+explicit `workflow_dispatch` with `live=true`; normal PR/push jobs do not call a
+model. Local tests do not establish that GitHub Actions has run successfully.

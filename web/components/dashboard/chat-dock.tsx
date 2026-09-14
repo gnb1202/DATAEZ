@@ -18,7 +18,7 @@ export function ChatDock({ analysis, open, onOpenChange, onOpenResult, storeName
   onOpenLibrary: (search?: string) => void; onOpenResult: (id: string) => void; storeName: string; disabled: boolean;
 }) {
   const narrow = useSyncExternalStore(subscribe, () => window.matchMedia(query).matches, () => false);
-  const panel = <ChatPanel composer={analysis.composer} onComposerChange={analysis.setComposer} messages={analysis.messages}
+  const panel = <ChatPanel apiFetch={analysis.apiFetch} composer={analysis.composer} onComposerChange={analysis.setComposer} messages={analysis.messages}
     onOpenLibrary={onOpenLibrary} onSend={analysis.send} loading={analysis.loading} disabled={disabled || analysis.messageLoading}
     streamingSteps={analysis.stream.streamingSteps} streamingAnswer={analysis.stream.streamingAnswer}
     streamError={analysis.error} onStop={analysis.stop}

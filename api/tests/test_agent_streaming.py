@@ -9,6 +9,7 @@ rather than a truncated stream.
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
+import json
 
 import pytest
 
@@ -199,11 +200,27 @@ class TestFailureSurfacing:
         with patch("app.agent.get_async_openai_client", return_value=client):
             steps = await _collect()
 
-        assert [s.type for s in steps] == ["error"]
-        assert "오류" in steps[0].content
+        assert [s.type for s in steps] == ["meta", "error"]
+        assert json.loads(steps[0].content)["usage"]["turn_outcome"] == "llm_error"
+        assert "오류" in steps[1].content
 
     async def test_missing_api_key_short_circuits(self):
         with patch("app.agent.settings") as mock_settings:
             mock_settings.openai_api_key = ""
             steps = await _collect()
-        assert steps[0].type == "answer"
+        assert steps[0].type == "meta"
+        assert json.loads(steps[0].content)["usage"]["turn_outcome"] == "not_configured"
+        assert steps[1].type == "answer"
+
+    async def test_budget_exit_retains_outcome_and_usage(self):
+        with patch("app.agent.settings.agent_max_token_budget", 0):
+            steps = await _collect()
+        assert steps[-1].type == "answer"
+        meta = json.loads(next(s.content for s in steps if s.type == "meta"))
+        assert meta["usage"]["turn_outcome"] == "budget_exhausted"
+
+    async def test_iteration_exit_retains_outcome(self):
+        with patch("app.agent.settings.agent_max_iterations", 0):
+            steps = await _collect()
+        meta = json.loads(next(s.content for s in steps if s.type == "meta"))
+        assert meta["usage"]["turn_outcome"] == "iterations_exhausted"

@@ -179,7 +179,7 @@ export function useWorkspaceAnalysis(projectId: string, token: string, apiFetch:
     } finally { if (alive.current && request === epoch.current) setMessageLoading(false); }
   };
 
-  return { conversations, conversationId, messages, result: messages.find((item) => item.message_id === resultId), setResultId,
+  return { apiFetch, conversations, conversationId, messages, result: messages.find((item) => item.message_id === resultId), setResultId,
     composer, setComposer, historyLoading, messageLoading, loading: sending || stream.loading,
     error: error || stream.error, stream, reset, openConversation, send, stop, refreshHistory,
     recoveryAvailable, recoveryNotice, reviewCurrentConversation };

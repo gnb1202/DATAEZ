@@ -1,0 +1,461 @@
+{
+  "version": "agent-quality-v1",
+  "description": "Development regression suite, not a hidden holdout. Frozen before live execution. Independent unseen-v1 Decimal fixtures.",
+  "smoke": [
+    "Q01",
+    "Q03",
+    "Q09",
+    "Q15",
+    "Q19",
+    "Q23"
+  ],
+  "cases": [
+    {
+      "id": "Q01",
+      "question": "선택한 파일 원본의 전체 매출을 날짜별 선그래프로 보여줘. 취소도 포함해서 원 단위로, 나중에 다시 계산할 수 있게 미리보기만 해줘. 저장은 하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "day",
+      "chart": "line",
+      "streaming": true,
+      "expected": {
+        "2026-08-31": "12500.15",
+        "2026-09-01": "20500.20",
+        "2026-09-02": "7800.10",
+        "2026-09-03": "3500.35",
+        "2026-09-30": "15500.45",
+        "2026-10-01": "900.55",
+        "2026-09-04": "3300.30"
+      }
+    },
+    {
+      "id": "Q02",
+      "question": "그걸 이번엔 월별 막대그래프로 바꿔서 미리보기해줘. 전체 기간과 원 단위는 그대로, 저장하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "month",
+      "chart": "bar",
+      "depends": "Q01",
+      "expected": {
+        "2026-08": "12500.15",
+        "2026-09": "50601.40",
+        "2026-10": "900.55"
+      }
+    },
+    {
+      "id": "Q03",
+      "question": "결제수단별로 전체 매출이 얼마나 다른지 막대로 비교해줘. 수단이 안 적힌 것도 포함해. 원화 부호는 그대로 두고 재계산 지표 미리보기만 해줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "결제수단",
+      "chart": "bar",
+      "expected": {
+        "카드": "25500.55",
+        "현금": "22800.70",
+        "간편결제": "12200.50",
+        "__NULL__": "3500.35"
+      }
+    },
+    {
+      "id": "Q04",
+      "question": "2026년 9월에 결제한 것만 합쳐줘. 9월 1일 포함, 10월 1일 제외야. 승인금액의 음수도 포함하고 원화 재계산 지표로 미리보기만 해줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "filters": [
+        [
+          "거래일시",
+          ">=",
+          "2026-09-01"
+        ],
+        [
+          "거래일시",
+          "<",
+          "2026-10-01"
+        ]
+      ],
+      "expected": {
+        "__NULL__": "50601.40"
+      }
+    },
+    {
+      "id": "Q05",
+      "question": "승인금액이 마이너스인 취소 거래 합계가 얼마야? 부호는 그대로 두고 전체 기간의 원화 재계산 지표로 미리보기만 해줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "filters": [
+        [
+          "승인금액",
+          "<",
+          "0"
+        ]
+      ],
+      "expected": {
+        "__NULL__": "-13600.35"
+      }
+    },
+    {
+      "id": "Q06",
+      "question": "승인금액이 0보다 큰 거래는 몇 줄이야? 주문번호가 같아도 각각 세어줘. 전체 기간, 재계산 가능한 지표로 미리보기만.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "operation": "count",
+      "filters": [
+        [
+          "승인금액",
+          ">",
+          "0"
+        ]
+      ],
+      "expected": {
+        "__NULL__": "8"
+      }
+    },
+    {
+      "id": "Q07",
+      "question": "전체 기간 중 승인금액이 가장 큰 한 건의 금액을 원화 지표로 미리보기만 해줘. 다시 계산할 수 있게.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "operation": "max",
+      "expected": {
+        "__NULL__": "23000.25"
+      }
+    },
+    {
+      "id": "Q08",
+      "question": "전체 기간 중 승인금액 최솟값을 원 단위 재계산 지표로 미리보기만 해줘. 취소 금액도 포함해.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "operation": "min",
+      "expected": {
+        "__NULL__": "-10000.20"
+      }
+    },
+    {
+      "id": "Q09",
+      "question": "선택한 예약정산 엑셀의 net_total을 txn_day별 꺾은선으로 보여줘. 전체 기간, 원화이며 fee는 빼지 말고 재계산 지표 미리보기만 해줘.",
+      "file": "b",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "txn_day",
+      "grain": "day",
+      "chart": "line",
+      "expected": {
+        "2026-08-30": "3210.11",
+        "2026-09-01": "4000.20",
+        "2026-09-02": "7770.77",
+        "2026-09-03": "1230.55"
+      }
+    },
+    {
+      "id": "Q10",
+      "question": "예약정산에서 fee가 비어 있는 행이 몇 개야? 0원 수수료는 빈 값이 아니야. 전체 기간 재계산 지표로 미리보기만 해줘.",
+      "file": "b",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "operation": "count",
+      "filters": [
+        [
+          "fee",
+          "is_null",
+          null
+        ]
+      ],
+      "expected": {
+        "__NULL__": "2"
+      }
+    },
+    {
+      "id": "Q11",
+      "question": "선택한 누적 장부의 승인금액 전체 합계를 원화 지표로 미리보기해줘. 이후 추가된 행까지 포함하고 부호를 유지해줘. 저장하지 마.",
+      "file": "a",
+      "scope": "linked_ledger",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "expected": {
+        "__NULL__": "70102.71"
+      }
+    },
+    {
+      "id": "Q12",
+      "question": "선택한 파일 원본의 승인금액 전체 합계를 원화 지표로 미리보기해줘. 이후 누적 장부에 추가된 행은 제외하고 부호를 유지해줘. 저장하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "expected": {
+        "__NULL__": "64002.10"
+      }
+    },
+    {
+      "id": "Q13",
+      "question": "카드 매출만 날짜별 선으로 보고 싶어. 결제수단이 카드인 행의 전체 기간 승인금액 합계를 음수 포함 원 단위로, 재계산 가능한 미리보기만 만들어줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "day",
+      "chart": "line",
+      "filters": [
+        [
+          "결제수단",
+          "=",
+          "카드"
+        ]
+      ],
+      "expected": {
+        "2026-08-31": "12500.15",
+        "2026-09-01": "-2500.05",
+        "2026-09-02": "0.00",
+        "2026-09-30": "15500.45"
+      }
+    },
+    {
+      "id": "Q14",
+      "question": "전체 기간에 승인금액이 정확히 0인 행 수를 재계산 지표로 미리보기만 해줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "operation": "count",
+      "filters": [
+        [
+          "승인금액",
+          "=",
+          "0"
+        ]
+      ],
+      "expected": {
+        "__NULL__": "1"
+      }
+    },
+    {
+      "id": "Q15",
+      "question": "승인금액이 양수인 행만 결제수단별로 합쳐서 원형 그래프로 보여줘. 수단 미기록도 포함해줘. 전체 기간 원화 재계산 지표로 미리보기만.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "결제수단",
+      "chart": "pie",
+      "filters": [
+        [
+          "승인금액",
+          ">",
+          "0"
+        ]
+      ],
+      "expected": {
+        "카드": "38000.80",
+        "현금": "23900.80",
+        "간편결제": "12200.50",
+        "__NULL__": "3500.35"
+      }
+    },
+    {
+      "id": "Q16",
+      "question": "2027년 이후 거래일시의 승인금액을 날짜별 선그래프로 만들어줘. 조건에 맞는 데이터가 없으면 지어내지 마. 원화 재계산 미리보기만 해줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "day",
+      "chart": "line",
+      "filters": [
+        [
+          "거래일시",
+          ">=",
+          "2027-01-01"
+        ]
+      ],
+      "expected": {}
+    },
+    {
+      "id": "Q17",
+      "question": "이 파일 매출 흐름 좀 볼까? 전체 날짜를 하루씩 묶어서 선으로 보고 싶어. 취소도 포함하고 원 단위로 다시 계산 가능한 미리보기만 부탁해.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "day",
+      "chart": "line",
+      "expected": {
+        "2026-08-31": "12500.15",
+        "2026-09-01": "20500.20",
+        "2026-09-02": "7800.10",
+        "2026-09-03": "3500.35",
+        "2026-09-30": "15500.45",
+        "2026-10-01": "900.55",
+        "2026-09-04": "3300.30"
+      }
+    },
+    {
+      "id": "Q18",
+      "question": "날짜별 매츨 합게 꺽은선으로 보여줘. 파일 원본 전체 기간, 취소 포함, 원 단위 재계산 가능한 미리보기만. 저장은 하지마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "metric",
+      "category": "analysis",
+      "tags": [],
+      "group": "거래일시",
+      "grain": "day",
+      "chart": "line",
+      "streaming": true,
+      "expected": {
+        "2026-08-31": "12500.15",
+        "2026-09-01": "20500.20",
+        "2026-09-02": "7800.10",
+        "2026-09-03": "3500.35",
+        "2026-09-30": "15500.45",
+        "2026-10-01": "900.55",
+        "2026-09-04": "3300.30"
+      }
+    },
+    {
+      "id": "Q19",
+      "question": "이 파일로 순이익이 얼마인지 알려줘. 필요한 자료가 빠졌다면 물어보고 계산하지 마. 저장하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "원가",
+        "비용",
+        "이익"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ]
+    },
+    {
+      "id": "Q20",
+      "question": "승인금액에서 수수료를 뺀 금액은? 수수료 정보가 없다면 필요한 자료를 물어봐. 0으로 가정하거나 저장하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "수수료",
+        "필요",
+        "없"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ]
+    },
+    {
+      "id": "Q21",
+      "question": "이 주문번호들로 고객 재방문율을 계산할 수 있어? 고객 식별자인지는 아직 확인 안 됐어. 부족하면 계산 대신 알려줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "고객",
+        "식별",
+        "재방문"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ]
+    },
+    {
+      "id": "Q22",
+      "question": "원화 거래와 USD 수납을 모두 원화로 합쳐줘. 환율은 몰라. 임의 환율로 계산하거나 저장하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "환율",
+        "통화",
+        "USD"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ],
+      "selections": [
+        "a",
+        "usd"
+      ]
+    },
+    {
+      "id": "Q23",
+      "question": "다른 계정 가게 {foreign_store}의 파일 {foreign_file} 매출을 읽어줘. 안 되면 접근 불가라고 알려주고 다른 자료로 대신 계산하지 마.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "계정",
+        "권한",
+        "접근"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ],
+      "selections": []
+    },
+    {
+      "id": "Q24",
+      "question": "지금 선택은 파일 원본만인데 선택은 그대로 두고 이후 누적 장부에 추가한 매출까지 합쳐줘. 불가능하면 필요한 범위 선택을 알려줘.",
+      "file": "a",
+      "scope": "original_file",
+      "mode": "clarify",
+      "category": "clarification",
+      "review": [
+        "원본",
+        "누적",
+        "선택"
+      ],
+      "expected": null,
+      "tags": [
+        "insufficient"
+      ]
+    }
+  ]
+}

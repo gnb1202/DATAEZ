@@ -250,7 +250,7 @@ export function TablesSection({
         </div>
         <Button
           onClick={onImportClick}
-          className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-[var(--action-hover)]"
         >
           <Upload className="h-4 w-4" />
           CSV 가져오기
@@ -279,7 +279,7 @@ export function TablesSection({
           <Button
             onClick={onImportClick}
             size="sm"
-            className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-[var(--action-hover)]"
           >
             <Upload className="h-4 w-4" />
             CSV 가져오기

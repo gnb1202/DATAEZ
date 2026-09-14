@@ -36,10 +36,17 @@ def main():
     parser.add_argument('--suite',choices=['main','holdout'],default='main')
     parser.add_argument('--cases',help='Comma-separated IDs for regression only; state chain is included')
     parser.add_argument('--env-file',type=Path,default=ROOT/'.env')
+    parser.add_argument('--question-set',type=Path,help='Read-only agent-quality catalog; original unseen manifest stays frozen')
+    parser.add_argument('--output-dir',type=Path,help='New output directory under .local-test only')
     args=parser.parse_args()
     all_cases=CASES if args.suite=='main' else HOLDOUT
+    if args.question_set:
+        sys.path.insert(0,str(ROOT/'scripts/agent-quality'))
+        from catalog import load_catalog,select
+        catalog=load_catalog(args.question_set)
+        all_cases=select(catalog,'full',args.cases)
     selected=all_cases
-    if args.cases:
+    if args.cases and not args.question_set:
         wanted=set(args.cases.split(','));known={c['id'] for c in all_cases}
         if wanted-known:raise ValueError('Unknown case IDs')
         if any(c.get('state') for c in all_cases if c['id'] in wanted):wanted|={c['id'] for c in all_cases if c.get('state')}
@@ -52,6 +59,12 @@ def main():
     if not env.get('OPENAI_API_KEY'):raise ValueError('Configured model key required, including for setup embeddings')
     run_id='unseen_'+args.suite+'_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid4().hex[:8]
     out=ROOT/'.local-test/unseen-eval'/run_id;out.mkdir(parents=True)
+    if args.output_dir:
+        out.rmdir()  # This invocation's unused empty directory only.
+        out=args.output_dir.resolve()
+        if not out.is_relative_to((ROOT/'.local-test').resolve()):
+            raise ValueError('Custom output must be under .local-test')
+        out.mkdir(parents=True,exist_ok=False)
     container='dataez-'+run_id.replace('_','-');dbname='eval_'+uuid4().hex
     dbport,apiport=runtime.free_port(),runtime.free_port()
     admin=f'postgresql://postgres@127.0.0.1:{dbport}/postgres'
@@ -74,6 +87,10 @@ def main():
         worker_model=env.get('OPENAI_MODEL'),router_model=env.get('OPENAI_ORCHESTRATOR_MODEL'),embedding_model=env.get('OPENAI_EMBEDDING_MODEL'),
         cost_note='Repository price-table estimate, not current billing. Setup indexing counters are separate from question usage.',
         fixture_checks=[],cases=[],semantic_review='pending',passed=False,automatic_question_retries=0)
+    if args.question_set:
+        report['question_set_sha256']=hashlib.sha256(args.question_set.read_bytes()).hexdigest()
+        report['question_set_version']=catalog['version']
+    report['agent_limits']={k:env.get(k) for k in ['AGENT_MAX_ITERATIONS','AGENT_MAX_TOKEN_BUDGET','AGENT_TIMEOUT_SECONDS']}
     api=None;created=False;log=(out/'api.log').open('w',encoding='utf-8')
     def check(name,actual,wanted):
         ok=actual==wanted;report['fixture_checks'].append(dict(name=name,actual=actual,expected=wanted,passed=ok))
@@ -167,16 +184,19 @@ def main():
             baseline_files={key:hashlib.sha256(client.get(f"/api/library/files/{ids[key]['file_id']}/download",headers=auth(FILES[key]['store'])).content).hexdigest() for key in file_keys}
             report['original_download_hashes']=baseline_files
             state_conversation=None
+            conversations={}
             if args.live_llm:
                 for case in selected:
-                    if case.get('state') and state_conversation:cid=state_conversation
+                    if case.get('depends'):cid=conversations[case['depends']]
+                    elif case.get('state') and state_conversation:cid=state_conversation
                     else:cid=request('POST','/api/conversations',json={'project_id':pid})['conversation_id']
+                    conversations[case['id']]=cid
                     if case.get('state'):state_conversation=cid
                     selections=[ids[key][('document' if key=='document' else case.get('scope','original_file'))+'_selection'] for key in case.get('selections',[case['file']])]
                     question=case['question'].format(foreign_store=stores['foreign'],foreign_file=ids['foreign']['file_id'])
                     before=widgets();raw_before=snapshot();start=time.monotonic()
                     record=dict(id=case['id'],category=case['category'],question=question,attempt=1,semantic_review='pending',passed=False)
-                    evidence={};details={};streaming=case['id'] in {'N04','B29','H03'}
+                    evidence={};details={};streaming=case.get('streaming',case['id'] in {'N04','B29','H03'})
                     record['transport']='streaming HTTP' if streaming else 'synchronous HTTP'
                     print('Case '+case['id']+' starting',flush=True)
                     try:

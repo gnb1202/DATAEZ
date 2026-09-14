@@ -1,5 +1,6 @@
 "use client";
 
+import { AnswerFeedback, type QualityFetch } from "./answer-feedback";
 import { memo } from "react";
 import { User, Bot, Plus, Pencil, Trash2, Pin, TableProperties, Database, Columns3, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ import { EChartsChart } from "@/components/dashboard/echarts-chart";
 import { MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
 
 type MessageBubbleProps = {
+  apiFetch?: QualityFetch;
   message: Message;
   onOpenLibrary?: (search?: string) => void;
   showSuggestions?: boolean;
@@ -28,6 +30,7 @@ type MessageBubbleProps = {
 };
 
 function MessageBubble({
+  apiFetch,
   message,
   showSuggestions,
   onSuggestionClick,
@@ -184,6 +187,7 @@ function MessageBubble({
             {message.steps && message.steps.length > 0 && (
               <ReasoningSteps steps={message.steps} />
             )}
+            {apiFetch && /^[0-9a-f-]{36}$/i.test(message.message_id) && <AnswerFeedback messageId={message.message_id} apiFetch={apiFetch} />}
           </div>
         )}
       </div>

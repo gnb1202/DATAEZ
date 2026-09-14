@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "date_utc": "2026-09-13T12:21:01.549451+00:00",
+  "mode": "actual production API; designated user verified with ephemeral 5-minute server-signed access token; no UI login or password change",
+  "checks": [
+    "designated registered account is administrator",
+    "admin can list and inspect the retained synthetic run and model usage",
+    "admin review saved and read back on synthetic data only",
+    "ordinary account cannot list, inspect or change reviews",
+    "unauthenticated access denied"
+  ],
+  "model_calls": 0,
+  "tested_data": "previously created synthetic run only"
+}

@@ -1,5 +1,7 @@
 # DATA:EZ 포트폴리오 최종 QA
 
+> 후속 변경 안내 (2026-09-13): 아래 결과는 당시 검사 버전에 대한 기록이다. 이후 품질 관측·프롬프트·색상 변경과 각각의 검증은 [현재 상태](../CURRENT_STATUS.md)에서 구분한다. 이번 문서 갱신으로 Phase 5 전체를 재실행한 것은 아니다.
+
 2026-09-12 · **합의한 범위 통과 · 미해결 P0/P1 없음**
 
 [상세 결과 JSON](phase-5-qa.json) · [사례 문서](CASE_STUDY.md) · [영상 안내](VIDEO_RELEASE.md) · [공개 앱](https://dataez.vercel.app)
