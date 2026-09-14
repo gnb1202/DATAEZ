@@ -1,13 +1,16 @@
 # DATA:EZ 문서
 
-2026-09-12 기준. 처음 방문했다면 [포트폴리오 사례](portfolio-demo/CASE_STUDY.md)에서 제품·실제 화면·기술 판단·검증을 함께 확인한다. 제품 방향은 [PRD](PRD.md), 분석 계약은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 따른다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경 문서와 구분한다.
+2026-09-13 기준. [현재 배포·원격 소스·확인 범위](CURRENT_STATUS.md)와 [문서 사실관계 점검](DOCUMENTATION_AUDIT.md)을 먼저 확인한다. 처음 방문했다면 [포트폴리오 사례](portfolio-demo/CASE_STUDY.md)에서 제품·실제 화면·기술 판단·검증을 함께 확인한다. 제품 방향은 [PRD](PRD.md), 분석 계약은 [분석 범위·저장 설정·첫 사용 안내](FILE_SCOPE_AND_FIRST_USE.md)를 따른다. 각 Phase 문서는 해당 단계의 설계와 검증 기록이며 이후 변경 문서와 구분한다.
 
 ## 처음 읽을 문서
 
 | 목적 | 문서 |
 |---|---|
+| 배포·원격 main·과거 검사 구분 | [현재 상태](CURRENT_STATUS.md), [문서 점검 결과](DOCUMENTATION_AUDIT.md) |
+| 대화 기록·사용자 평가·관리자 권한 | [대화 품질 관측](CHAT_QUALITY_OBSERVABILITY.md) |
 | 서비스 개요·실행·현재 검증 | [프로젝트 README](../README.md) |
-| 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md) |
+| 자연어·도구 호출·그래프의 백엔드 평가 | [파이프라인과 실제 수정 전후 결과](AGENT_QUALITY_PIPELINE.md), [실행 방법](../scripts/agent-quality/README.md), [질문과 독립 기대값](../samples/agent-quality-v1/questions.json) |
+| 포트폴리오 사례·기술 판단·면접 설명 | [CASE_STUDY](portfolio-demo/CASE_STUDY.md), [소개 HTML](portfolio-demo/PORTFOLIO_GUIDE.html) (09-12 QA 근거로 제작; 이후 품질 관측·색상 보정 미반영) |
 | 포트폴리오 최종 QA·전달 패키지 | [FINAL_QA](portfolio-demo/FINAL_QA.md), [실제/모의 검사 결과](portfolio-demo/phase-5-qa.json) |
 | 제품·기술·반복 영상과 검수 | [영상 제작·로컬 재생 안내](portfolio-demo/VIDEO_RELEASE.md) |
 | 현재 배포 구성 | [아키텍처와 실행 프로필](ARCHITECTURE.md), [구조도 HTML](portfolio-demo/architecture.html) |
@@ -33,7 +36,7 @@
 | 코드 구조와 계산·검색·저장 경계 | [아키텍처](ARCHITECTURE.md) |
 | 개발 환경·테스트 실행 | [기여·개발 안내](../CONTRIBUTING.md) |
 | 환경변수·마이그레이션·운영 | [설정](CONFIGURATION.md), [실행·배포](DEPLOYMENT.md) |
-| 이번 통합의 브랜치·PR·검증 | [머지 기록](RELEASE_INTEGRATION.md) |
+| 이전 통합의 브랜치·PR·검증 | [과거 머지 기록](RELEASE_INTEGRATION.md); 최근 미통합 작업은 [현재 상태](CURRENT_STATUS.md) |
 
 ## 구현별 문서
 
@@ -49,6 +52,8 @@
 
 | 범위 | 설명·실행 방법 |
 |---|---|
+| 09-13 자연어·도구·계산·그래프 | [24문항 평가](AGENT_QUALITY_PIPELINE.md), [수정 후 원시 점수](evaluations/agent-quality-v1/after/summary.json) |
+| 09-13 대화 품질·배포·권한 | [관측 검사 범위](CHAT_QUALITY_OBSERVABILITY.md#검증), [공개 배포](evaluations/chat-quality-release/deployment.json), [관리자 API](evaluations/chat-quality-release/admin-verification.json) |
 | 포트폴리오 공개 리허설·촬영·영상 | [Phase별 근거](portfolio-demo/ACCEPTANCE.md), [반복 리허설](portfolio-demo/phase-2-rehearsal.json), [영상 검수](portfolio-demo/VIDEO_RELEASE.md) |
 | 지속형 데모·종료 후 재접속 | [Phase 1: 질문 1개·브라우저 점검 6개](DEMO_ACCEPTANCE.md) |
 | 첫 사용·분석 실패 복구 | [Phase 2: 합성 API UI 56개·사용자 관찰 상태](DEMO_USABILITY.md) |
@@ -72,3 +77,5 @@ fixture 기반 UI 검사, 실제 DB 검사, 실제 LLM 검사는 서로 다른 �
 - [HTML 비교·시연 폴더](../outputs/frontend-design/README.md): 초기 정적 시안과 실제 앱 캡처를 구분.
 - [초기 엔지니어링 기록](ENGINEERING_HISTORY.md): 관측성·라우터·한국어 검색 개선 당시 수치.
 - [초기 에이전트 제안](AGENT_ADVANCEMENT_PLAN.md), [데이터 신뢰성 계획](NEXT_PHASE_DATA_RELIABILITY.md): 과거 계획. 현재 제품 범위는 PRD와 후속 구현 문서를 따른다.
+
+- [09-13 색상 보정 검증](evaluations/color-polish/verification.json): 실제 컴포넌트의 다크·라이트 확인과 공개 로그인 검사. 전체 사용자 흐름 재검사는 아님.

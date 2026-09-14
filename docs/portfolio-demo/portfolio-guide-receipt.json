@@ -1,0 +1,88 @@
+{
+  "date": "2026-09-13",
+  "artifact": "PORTFOLIO_GUIDE.html",
+  "basis": [
+    "CASE_STUDY.md",
+    "FINAL_QA.md",
+    "architecture.json"
+  ],
+  "archify": {
+    "type": "architecture",
+    "specification": {
+      "sha256": "39ab0f1561166d2cb2ea0a087517086e4a056de8c3cb260d99f9529f369fb29e",
+      "bytes": 2914
+    },
+    "artifact": {
+      "sha256": "e5d67b2b37670f0dc9bf37baca3fda2b68dc0021c3ec5fc604d83b13a9d892ce",
+      "bytes": 617202
+    },
+    "validation": {
+      "checksPassed": 9,
+      "checkCount": 9,
+      "compositionProfile": "showcase",
+      "compositionStatus": "pass",
+      "errors": 0,
+      "warnings": 0
+    },
+    "visual_review": "passed",
+    "correction_rounds": 0
+  },
+  "diagram_note": "Existing verified architecture reused unchanged; a new workflow candidate was abandoned after two unsuccessful correction rounds. The guide uses a separate HTML explanation of the request flow.",
+  "standalone": true,
+  "sha256": "0721d29f7ee0deffd2abde2baf4391280d36f892bb6f3c0bb80201b8c6ad3a49",
+  "bytes": 1725967,
+  "visual_review": "passed",
+  "visual_review_scope": [
+    "guide desktop and mobile, dark/light",
+    "embedded architecture dark/light",
+    "print diagram visible"
+  ],
+  "browser_checks": {
+    "errors": [],
+    "checks": [
+      {
+        "width": 1440,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "width": 768,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "width": 768,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "theme": "light",
+        "overflow": false
+      }
+    ],
+    "role": true,
+    "comparison": true,
+    "archify": true
+  },
+  "additional_checks": {
+    "offline_file_open": true,
+    "keyboard_role_navigation": true,
+    "clipboard_copy": true,
+    "all_three_roles": true,
+    "diagram_popup": true,
+    "print_svg_loaded": true,
+    "local_evidence_targets": 11
+  },
+  "print_note": "Extracted SVG adapted to standalone XML for print; interactive Archify HTML bytes remain unchanged."
+}

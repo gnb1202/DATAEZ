@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-09-13T14:11:58.398291+00:00",
+  "mode": "read-only HTTP; no model calls or authenticated user data",
+  "checks": [
+    {
+      "url": "https://dataez.vercel.app/",
+      "status": 200
+    },
+    {
+      "url": "https://dataez-api.vercel.app/health",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "storage_backend": "supabase"
+      }
+    },
+    {
+      "url": "https://dataez-api.vercel.app/ready",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "checks": {
+          "database": "ok"
+        }
+      }
+    }
+  ]
+}

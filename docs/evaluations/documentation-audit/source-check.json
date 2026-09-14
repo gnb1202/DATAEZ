@@ -1,0 +1,20 @@
+{
+  "api": {
+    "files": 96,
+    "changed": [],
+    "missing": [],
+    "manifest": "docs/evaluations/chat-quality-release/api-manifest.json"
+  },
+  "web": {
+    "files": 136,
+    "changed": [],
+    "missing": [],
+    "manifest": "docs/evaluations/color-polish/web-manifest.json"
+  },
+  "git": {
+    "branch": "codex/agent-quality-pipeline",
+    "head": "148ab1bed5acbaf1b43ca18e022dba2e8f74e41e",
+    "remote_main": "148ab1bed5acbaf1b43ca18e022dba2e8f74e41e",
+    "changes_committed": false
+  }
+}

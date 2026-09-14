@@ -4,7 +4,7 @@ All settings come from environment variables. The authoritative defaults live
 in [`api/app/config.py`](../api/app/config.py); [`.env.example`](../.env.example)
 is a working local template.
 
-Updated 2026-09-10. Docker Compose reads the root `.env` and passes configured
+Updated 2026-09-13. Defaults below describe code, not a fresh dump of production secrets. [Deployment state](CURRENT_STATUS.md). Docker Compose reads the root `.env` and passes configured
 values to the API. A directly started Python process does not automatically
 read that file: export its variables or use `uvicorn --env-file ../.env` from
 `api/`. Override `DATABASE_URL` and `LOCAL_STORAGE_PATH` for a host
@@ -19,19 +19,21 @@ from the root `.env` or process environment.
 Validation runs at startup and **fails fast** — a misconfigured deployment does
 not boot into a half-working state.
 
-## The only value you must supply
+## Local Compose setup
 
 | Variable | Notes |
 |---|---|
 | `OPENAI_API_KEY` | Startup fails without it |
 
-Everything else in `.env.example` already works for a local run.
+The template supplies the remaining local Compose settings. This is not a production template; serverless storage, database, authentication and maintenance require separate configuration.
 
 ## Environment
 
 | Variable | Default | Notes |
 |---|---|---|
 | `APP_ENV` | `development` | `production` tightens secret validation |
+| `RUNTIME_MODE` | `persistent` | `serverless` changes pool, workers, limits and startup defaults |
+| `STARTUP_MIGRATIONS_ENABLED` | `true` (persistent), `false` (serverless) | Apply schema separately before a serverless release |
 
 `APP_ENV=production` rejects a `JWT_SECRET_KEY` that is under 32 characters or
 contains `dev` / `insecure`. The development secret shipped in `.env.example`
@@ -95,7 +97,7 @@ and connection setup in [serverless foundation](SERVERLESS_FOUNDATION.md).
 The S3 client is constructed lazily, so a local-only deployment never needs AWS
 configuration present.
 
-Original files are read through authenticated API routes with owner/store checks.
+Original download authorization uses API owner/store checks; depending on the route, bytes are proxied or a short-lived signed download URL is returned. Supabase private Storage direct upload/download was verified in the [public acceptance](PUBLIC_DEMO_ACCEPTANCE.md).
 The S3-compatible adapter is available, but remote provider acceptance has not
 been performed in the latest workspace test. Storage credentials must remain
 server-side and must not use a `NEXT_PUBLIC_` prefix.
@@ -126,7 +128,7 @@ models, or spend is counted at zero and logged as a warning.
 | `RAG_ENABLED` | `true` | |
 | `RAG_TOP_K` | `5` | Results returned; the candidate pool is `4 × k` |
 | `RAG_RRF_K` | `60` | RRF damping constant |
-| `INDEX_WORKER_ENABLED` | `true` | Runs durable search jobs when RAG is enabled; disabling it leaves jobs pending |
+| `INDEX_WORKER_ENABLED` | `true` (persistent), `false` (serverless) | Enables the resident index loop. With it disabled, jobs need the maintenance runner or an explicit supported retry/run path |
 
 Korean text is analysed into morphemes before indexing and querying. See
 [ARCHITECTURE.md](ARCHITECTURE.md#retrieval) for why.
@@ -135,8 +137,8 @@ Korean text is analysed into morphemes before indexing and querying. See
 
 | Variable | Default | Notes |
 |---|---|---|
-| `AGENT_MAX_ITERATIONS` | `25` | Tool-call rounds per turn |
-| `AGENT_MAX_TOKEN_BUDGET` | `100000` | Checked before each iteration |
+| `AGENT_MAX_ITERATIONS` | `25` (persistent), `8` (serverless) | Tool-call rounds per turn |
+| `AGENT_MAX_TOKEN_BUDGET` | `100000` (persistent), `24000` (serverless) | Checked before each iteration |
 | `MAX_SELECT_ROWS` | `10000` | Hard cap on any SELECT |
 | `QUERY_TIMEOUT_MS` | `30000` | Postgres `statement_timeout` |
 
@@ -152,15 +154,13 @@ a single call can overshoot it. It is a circuit breaker, not a hard ceiling.
 | `UPLOAD_RATE_LIMIT_PER_MINUTE` | `10` |
 | `DELETE_RATE_LIMIT_PER_MINUTE` | `20` |
 
-The sliding-window limiter runs in process memory and needs no external service.
+In `persistent` mode the sliding-window limiter runs in process memory and needs no external service.
 A lock protects admission across request threads, monotonic time avoids wall-clock
 adjustments, and incoming requests trigger expired-key cleanup at most once per
 minute. Rejected requests do not extend the window or add history.
 
 Run one API worker/replica with this configuration. Counters reset when the API
-restarts and are not shared across processes. Revisit a shared limiter when
-multiple workers/replicas become a deployment requirement. `/ready` checks
-PostgreSQL; there is no rate-limit service connection to probe.
+restarts and are not shared across processes. In `serverless` mode the API already uses atomic PostgreSQL windows shared across instances. A DB check failure returns 503 and an exhausted window returns 429; Redis is not required. `/ready` checks PostgreSQL, not admission behavior. See [`rate_limiter.py`](../api/app/rate_limiter.py).
 
 ## CORS and frontend
 
@@ -174,7 +174,7 @@ Both `NEXT_PUBLIC_*` values are resolved while Next.js builds the application.
 Setting them only at runtime has no effect — compose passes them as build args.
 Deploying to another host requires rebuilding the web image.
 
-Docker Compose passes its local API default explicitly. Vercel can publish the
+The public web is already connected to `https://dataez-api.vercel.app`; authentication is enabled. Docker Compose passes its local API default explicitly. Vercel can publish the
 frontend before the API is available: leave `NEXT_PUBLIC_API_URL` unset to show
 the service preparation notice and disable authentication. Once the HTTPS API
 is ready, configure this variable and redeploy. API/model/database secrets do
@@ -190,13 +190,15 @@ site URL when a custom canonical domain is selected.
 |---|---|
 | `CONVERSATION_TTL_DAYS` | `90` |
 
+The cutoff uses the last conversation update. Cleanup runs in `initialize_database()`; serverless startup skips that initializer. This is not a guaranteed daily deletion schedule. Deleting a conversation cascades to its messages, quality runs and feedback; exported candidate files remain separate. See [quality retention](CHAT_QUALITY_OBSERVABILITY.md).
+
 ## Background jobs
 
 | Variable | Default | Effect |
 |---|---|---|
-| `METRIC_SCHEDULER_ENABLED` | `true` | Executes due saved metrics; poll interval 15 seconds |
-| `INDEX_WORKER_ENABLED` | `true` | Executes search indexing/retry jobs; poll interval 5 seconds |
-| `IMPORT_CLEANUP_ENABLED` | `true` | Expires pending import staging; poll interval 60 seconds |
+| `METRIC_SCHEDULER_ENABLED` | `true` (persistent), `false` (serverless) | Executes due saved metrics; poll interval 15 seconds |
+| `INDEX_WORKER_ENABLED` | `true` (persistent), `false` (serverless) | Executes search indexing/retry jobs; poll interval 5 seconds |
+| `IMPORT_CLEANUP_ENABLED` | `true` (persistent), `false` (serverless) | Expires pending import staging; poll interval 60 seconds |
 | `MAINTENANCE_ENABLED` | `false` | Enables the authenticated bounded runner for Supabase Cron |
 | `MAINTENANCE_SECRET` | empty | Separate server-only ASCII secret, at least 32 characters |
 
@@ -217,3 +219,17 @@ request limits, not billing caps; background embeddings are separate.
 defaults also set `AGENT_MAX_ITERATIONS=8`, `AGENT_MAX_TOKEN_BUDGET=24000`; worker
 completions are capped at 4096 tokens per call. Chat messages allow 1–8000 characters.
 See [release guards](SERVERLESS_RELEASE_GUARDS.md) for upload paths, recovery and validation.
+
+## Conversation quality
+
+| Variable | Default | Effect |
+|---|---|---|
+| `QUALITY_ADMIN_USER_IDS` | empty | Comma-separated UUIDs from the API's own `users` table. Empty means no quality administrators; email/client input does not grant access |
+| `QUALITY_RELEASE` | `local` | API release label saved with new runs; distinct from the web deployment ID |
+
+Quality observation is attached to authenticated, owned chat endpoints. It does
+not backfill old runs or guarantee that every observation write succeeds.
+`completed` means execution completion, not a correct answer. Administrators can
+inspect other users' recorded conversations. Keep their UUID allowlist server-side;
+do not publish account identifiers in release evidence. See [behavior, access,
+retention and verification](CHAT_QUALITY_OBSERVABILITY.md).
