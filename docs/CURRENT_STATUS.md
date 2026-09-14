@@ -2,6 +2,12 @@
 
 갱신일: **2026-09-14**. 제품 기능, 공개 배포, 원격 소스, 검사 결과를 구분한다. 이 문서는 아래 확인 시점의 기록이며 실시간 상태판이 아니다.
 
+## 09-14 제출 문서 main 통합 완료
+
+[PR #15](https://github.com/gnb1202/DATAEZ/pull/15)를 main에 머지했다. 통합 커밋은 `f1921b76a2d88602b4ba253fb6e0c450d61cf9d5`이며 문서 커밋 `7ba4f00`, 제출 검수 커밋 `7bef049`를 보존했다. 원격 PR 및 main 검사에서 API 테스트·웹 빌드·두 Docker 이미지 빌드가 모두 통과했다. 문서 변경이므로 Agent Quality 워크플로는 새로 실행되지 않았다.
+
+통합 커밋의 Vercel 배포 `dpl_AX2qVRZgGKy5awgRuR5LJE5ugAzg`가 **production / Ready**이고 `dataez.vercel.app`에 연결됨을 CLI로 확인했다. 공개 첫 페이지 HTTP 200, 원격 커밋의 제출 HTML/PDF와 검수본 바이트 일치도 확인했다. API 재배포·DB 변경은 수행하지 않았다. 이 문서의 후속 상태 기록 커밋과 위 배포 스냅샷은 구분한다. [통합·CI·배포 기록](evaluations/submission-20260914/verification.json).
+
 ## 09-14 제출 자료 마감 검증
 
 제출용 한 페이지를 실제 320/390/1280px 브라우저 뷰포트에서 확인하고, 320px 툴바의 인쇄 버튼 줄바꿈을 보정했다. [A4 PDF](../output/pdf/DATAEZ-SUBMISSION.pdf)는 WeasyPrint 70.0으로 생성해 1장·한글·링크 3개와 전체 페이지 PNG를 검수했다. 제출 HTML/가이드의 고정·직무별·내장 구조도 링크와 제출 Markdown의 외부 링크 22개는 HTTP 200이었다.

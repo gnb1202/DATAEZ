@@ -1,0 +1,58 @@
+{
+  "checked_at_utc": "2026-09-14T11:08:14.654861+00:00",
+  "zip_sha256": "01a5d21704b95fd0a94a81a2b4cf2d4b980121f884a0d65b207caa300fba4476",
+  "local_markdown_links": [
+    {
+      "from": "docs/portfolio-demo/SUBMISSION_QA.md",
+      "target": "docs/portfolio-demo/SUBMISSION.html"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION_QA.md",
+      "target": "output/pdf/DATAEZ-SUBMISSION.pdf"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION_QA.md",
+      "target": "docs/portfolio-demo/PORTFOLIO_GUIDE.html"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION_QA.md",
+      "target": "docs/portfolio-demo/submission-pdf-receipt.json"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION.md",
+      "target": "docs/portfolio-demo/SUBMISSION.html"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION.md",
+      "target": "docs/portfolio-demo/PORTFOLIO_GUIDE.html"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION.md",
+      "target": "output/pdf/DATAEZ-SUBMISSION.pdf"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION.md",
+      "target": "docs/portfolio-demo/SUBMISSION_QA.md"
+    },
+    {
+      "from": "docs/portfolio-demo/SUBMISSION.md",
+      "target": "docs/evaluations/post-merge-20260914/verification.json"
+    }
+  ],
+  "additional_http_after_merge": [
+    {
+      "url": "https://github.com/gnb1202/DATAEZ/blob/main/docs/evaluations/integration-20260914/verification.json",
+      "status": 200
+    },
+    {
+      "url": "https://github.com/gnb1202/DATAEZ/blob/main/docs/evaluations/submission-20260914/verification.json",
+      "status": 200
+    },
+    {
+      "url": "https://github.com/gnb1202/DATAEZ/blob/main/docs/portfolio-demo/submission-package-receipt.json",
+      "status": 200
+    }
+  ],
+  "earlier_http_basis": "artifact-checks.json",
+  "scope": "Package Markdown links and new public repository targets after PR #15 merge; programmatic checks, not browser direct-open"
+}

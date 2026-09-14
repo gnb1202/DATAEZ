@@ -74,7 +74,18 @@
     "Full guide print pagination",
     "Paid model evaluation and public product UI rerun"
   ],
-  "integration": "pending PR and remote CI",
+  "integration": {
+    "pr": "https://github.com/gnb1202/DATAEZ/pull/15",
+    "state": "MERGED",
+    "merged_at": "2026-09-14T11:07:33Z",
+    "merge_commit": "f1921b76a2d88602b4ba253fb6e0c450d61cf9d5",
+    "head_commit": "7bef049fee1c5155119d72ed16a8f2557f7c21ac",
+    "preserved_commits": [
+      "7ba4f00",
+      "7bef049"
+    ],
+    "local_main_and_origin_main_at_check": "f1921b76a2d88602b4ba253fb6e0c450d61cf9d5"
+  },
   "package": {
     "artifact": "output/portfolio-demo/submission-20260914.zip",
     "sha256": "01a5d21704b95fd0a94a81a2b4cf2d4b980121f884a0d65b207caa300fba4476",
@@ -94,5 +105,131 @@
   "whitespace_checks": {
     "current_staged_diff": "passed",
     "main_diff": "One pre-existing trailing space in the verbatim embedded Spoqa license, SUBMISSION.html line 32; preserved as source license text. No other whitespace errors."
-  }
+  },
+  "remote_ci": {
+    "pr_checks": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T11:07:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34836422736/job/103951174241",
+        "name": "Build API Image",
+        "startedAt": "2026-09-14T11:05:43Z",
+        "status": "COMPLETED",
+        "workflowName": "Docker Build"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T11:06:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34836422717/job/103951174254",
+        "name": "API Tests",
+        "startedAt": "2026-09-14T11:05:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T11:06:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34836422736/job/103951174600",
+        "name": "Build Web Image",
+        "startedAt": "2026-09-14T11:05:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Docker Build"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T11:06:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/gnb1202/DATAEZ/actions/runs/34836422717/job/103951174012",
+        "name": "Web Build",
+        "startedAt": "2026-09-14T11:05:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Tests"
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "Vercel",
+        "startedAt": "2026-09-14T11:05:38Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://vercel.com/gnb1202-navercoms-projects/dataez/8212fURFcHzYAe9LFsTLMAyudrUx"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-14T11:05:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://vercel.com/github",
+        "name": "Vercel Preview Comments",
+        "startedAt": "2026-09-14T11:05:43Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "main_runs": [
+      {
+        "conclusion": "success",
+        "headSha": "f1921b76a2d88602b4ba253fb6e0c450d61cf9d5",
+        "jobs": [
+          {
+            "name": "API Tests",
+            "conclusion": "success",
+            "startedAt": "2026-09-14T11:07:38Z",
+            "completedAt": "2026-09-14T11:08:20Z",
+            "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589644/job/103951697646"
+          },
+          {
+            "name": "Web Build",
+            "conclusion": "success",
+            "startedAt": "2026-09-14T11:07:38Z",
+            "completedAt": "2026-09-14T11:08:25Z",
+            "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589644/job/103951697961"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589644"
+      },
+      {
+        "conclusion": "success",
+        "headSha": "f1921b76a2d88602b4ba253fb6e0c450d61cf9d5",
+        "jobs": [
+          {
+            "name": "Build Web Image",
+            "conclusion": "success",
+            "startedAt": "2026-09-14T11:07:38Z",
+            "completedAt": "2026-09-14T11:07:53Z",
+            "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589645/job/103951697751"
+          },
+          {
+            "name": "Build API Image",
+            "conclusion": "success",
+            "startedAt": "2026-09-14T11:07:38Z",
+            "completedAt": "2026-09-14T11:09:06Z",
+            "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589645/job/103951698132"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/gnb1202/DATAEZ/actions/runs/34836589645"
+      }
+    ],
+    "agent_quality": "Not triggered for this docs-only change; previous quality/PostgreSQL results are historical, not this run"
+  },
+  "web_deployment": {
+    "checked_at_utc": "2026-09-14T11:10:11.985175+00:00",
+    "commit": "f1921b76a2d88602b4ba253fb6e0c450d61cf9d5",
+    "id": "dpl_AX2qVRZgGKy5awgRuR5LJE5ugAzg",
+    "status": "Ready",
+    "target": "production",
+    "alias": "https://dataez.vercel.app",
+    "url": "https://dataez-580ewmujs-gnb1202-navercoms-projects.vercel.app",
+    "evidence": "GitHub commit Vercel success status + Vercel CLI 59.16.0 inspect of public alias",
+    "api_deployed": false,
+    "db_migration": false
+  },
+  "remote_artifacts": "remote-artifacts.json; public homepage 200 and exact committed HTML/PDF bytes match local reviewed artifacts",
+  "package_links": "package-link-checks.json; 9 relative Markdown references resolve inside ZIP, 3 additional external repository links return HTTP 200 after merge",
+  "font_embedding": [
+    "Spoqa subset embedded",
+    "Spoqa-Bold subset embedded"
+  ]
 }

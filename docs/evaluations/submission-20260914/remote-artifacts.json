@@ -1,0 +1,25 @@
+{
+  "checked_at_utc": "2026-09-14T11:08:45.023608+00:00",
+  "checks": [
+    {
+      "url": "https://dataez.vercel.app/",
+      "status": 200,
+      "bytes": 13231
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnb1202/DATAEZ/f1921b76a2d88602b4ba253fb6e0c450d61cf9d5/docs/portfolio-demo/SUBMISSION.html",
+      "status": 200,
+      "bytes": 500442,
+      "local_bytes_match": true,
+      "sha256": "c5571cfea57c8e92f3886d4ae03d31bbb558f2b5507c33642ab187963f926f72"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnb1202/DATAEZ/f1921b76a2d88602b4ba253fb6e0c450d61cf9d5/output/pdf/DATAEZ-SUBMISSION.pdf",
+      "status": 200,
+      "bytes": 44802,
+      "local_bytes_match": true,
+      "sha256": "231eff4d670a535d7210ced371a4aabc2632995ff9701b87c719fa80f2bed355"
+    }
+  ],
+  "scope": "Read-only public homepage response and committed HTML/PDF byte comparison; no public login or analysis rerun"
+}

@@ -1,6 +1,6 @@
 # DATA:EZ — 다음 세션 작업 인계
 
-> **후속 진행 알림 (2026-09-14):** 이 파일의 본문은 이번 세션 시작 전의 인계 스냅샷으로 보존한다. 아래의 모바일/PDF 미검증 상태와 Git 통합 대기 상태를 최신 상태로 해석하지 않는다. 후속 검증 결과는 [현재 상태](docs/CURRENT_STATUS.md), [제출 자료 검수](docs/portfolio-demo/SUBMISSION_QA.md), [새 실행 기록](docs/evaluations/submission-20260914/verification.json)을 따른다. ZIP 해제 HTML 직접 열기와 브라우저 자체 인쇄는 계속 미확인이다.
+> **후속 완료 알림 (2026-09-14):** [PR #15](https://github.com/gnb1202/DATAEZ/pull/15)에서 문서 작업을 main·원격에 통합했고 통합 커밋의 CI와 production 배포를 확인했다. 이 파일의 본문은 이번 세션 시작 전의 인계 스냅샷으로 보존한다. 아래의 모바일/PDF 미검증 상태와 Git 통합 대기 상태를 최신 상태로 해석하지 않는다. 후속 검증 결과는 [현재 상태](docs/CURRENT_STATUS.md), [제출 자료 검수](docs/portfolio-demo/SUBMISSION_QA.md), [새 실행 기록](docs/evaluations/submission-20260914/verification.json)을 따른다. ZIP 해제 HTML 직접 열기와 브라우저 자체 인쇄는 계속 미확인이다.
 
 작성 기준: **2026-09-14, Asia/Seoul**. 이 문서는 대화 요약과 다음 작업의 시작점이다. 실행 증거 원문은 아래 연결된 문서를 따른다. 과거 검증 결과를 새 세션에서 직접 수행한 검사로 보고하지 않는다.
 
