@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ResponsiveGridLayout, verticalCompactor } from "react-grid-layout";
-import type { Layout, ResponsiveLayouts } from "react-grid-layout";
+import { ResponsiveGridLayout, cloneLayout, getFirstCollision, noCompactor, sortLayoutItemsByRowCol } from "react-grid-layout";
+import type { Compactor, Layout, ResponsiveLayouts } from "react-grid-layout";
 import {
   LayoutDashboard,
   X,
@@ -31,6 +31,22 @@ type DashboardWidget = {
 
 type LedgerSourceStatus = { id: string; table_id: string; name: string; row_count: number; last_committed_at?: string | null; baseline_at?: string | null };
 const gridBreakpoints = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 };
+const freePlacementCompactor: Compactor = {
+  ...noCompactor,
+  preventCollision: true,
+  compact(layout) {
+    const result = cloneLayout(layout);
+    const placed: Layout[number][] = [];
+    // Keep intentional gaps. Narrower screens can clamp two cards into the
+    // same columns: move only colliding cards down, never pull cards upward.
+    for (const item of sortLayoutItemsByRowCol(result)) {
+      let collision;
+      while ((collision = getFirstCollision(placed, item))) item.y = collision.y + collision.h;
+      placed.push(item);
+    }
+    return result;
+  },
+};
 
 function MetricSourceStatus({ widget, sources, projectId }: { widget: DashboardWidget; sources: LedgerSourceStatus[] | null; projectId: string }) {
   if (widget.widget_data.scope === "selected_stores") {
@@ -262,7 +278,7 @@ function StoreDashboardSection({
           <div>
             <h2 className="text-lg font-semibold text-foreground">저장한 지표 <span className="ml-2 numeric text-sm font-normal text-muted-foreground">{widgets.length}</span></h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              자동 갱신 {widgets.filter(w => !!w.refresh_interval_seconds && (w.refresh_failures || 0) < 3).length}개 · 드래그하여 배치와 크기를 조절하세요
+              자동 갱신 {widgets.filter(w => !!w.refresh_interval_seconds && (w.refresh_failures || 0) < 3).length}개 · 빈 곳으로 드래그하거나 크기를 조절하면 배치가 자동 저장됩니다
             </p>
           </div>
         <Button
@@ -293,7 +309,7 @@ function StoreDashboardSection({
             onDragStop={(layout) => handleLayoutChange(layout, {})}
             onResizeStop={(layout) => handleLayoutChange(layout, {})}
             dragConfig={{ handle: ".widget-drag-handle" }}
-            compactor={verticalCompactor}
+            compactor={freePlacementCompactor}
             margin={[16, 16] as const}
           >
             {widgets.map((widget) => (
