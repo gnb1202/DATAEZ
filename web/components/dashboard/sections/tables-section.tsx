@@ -145,7 +145,7 @@ interface TablesSectionProps {
   onDeleteTable: (tableId: string) => Promise<void>;
   onNavigateToChat: () => void;
   onTablesChange: () => void;
-  onOpenDashboard: () => void;
+  onCreateFirstMetric: () => void;
 }
 
 export function TablesSection({
@@ -155,7 +155,7 @@ export function TablesSection({
   onImportClick,
   onDeleteTable,
   onNavigateToChat,
-  onTablesChange, onOpenDashboard,
+  onTablesChange, onCreateFirstMetric,
 }: TablesSectionProps) {
   const { selectedProjectId: projectId, apiFetch } = useDashboard();
   const [previewData, setPreviewData] = useState<Record<string, unknown>[]>([]);
@@ -257,7 +257,7 @@ export function TablesSection({
         </Button>
       </div>
 
-      <LedgerImportPanel key={projectId} tables={tables} onTablesChange={onTablesChange} onOpenDashboard={onOpenDashboard} />
+      <LedgerImportPanel key={projectId} tables={tables} onTablesChange={onTablesChange} onCreateFirstMetric={onCreateFirstMetric} />
       <CashEntryPanel key={`cash-${projectId}`} onTablesChange={onTablesChange} />
       <SearchIndexPanel key={`search-${projectId}`} />
 

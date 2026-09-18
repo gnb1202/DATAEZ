@@ -34,7 +34,7 @@ async function main() {
     await page.getByRole('combobox',{name:'현재 작업 가게'}).selectOption(input.project);
     pass('Public login and authenticated store workspace');
     await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
-    await page.getByRole('button',{name:'파일 보관함',exact:true}).click();
+    await page.getByRole('tab',{name:'파일 보관함',exact:true}).click();
     const uploaded=response('/complete');
     const filename='공개데모_매출.csv';
     await page.getByLabel('보관할 파일',{exact:true}).setInputFiles({name:filename,mimeType:'text/csv',buffer:Buffer.from('paid_at,amount,method\n2026-09-10,120000,카드\n2026-09-11,180000,현금\n2026-09-11,-10000,카드\n')});

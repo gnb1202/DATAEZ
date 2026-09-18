@@ -86,6 +86,7 @@ async function main() {
     await page.getByRole("button", { name: "AI 채팅 닫기", exact: true }).click();
     await page.getByRole("button", { name: "대시보드", exact: true }).click();
     await page.getByRole("button", { name: "분석 이력", exact: true }).click();
+    await page.getByRole("button", { name: "AI 분석", exact: true }).click();
     await page.locator("#workspace-chat-toggle").click();
     assert.equal(await input().inputValue(), "카드와 현금 매출을 비교해줘");
     await page.getByText("payments.csv", { exact: true }).waitFor();
@@ -127,10 +128,13 @@ async function main() {
     await page.getByRole("button", { name: "대시보드", exact: true }).click();
     await main.getByText("일별 결제액", { exact: true }).waitFor();
     const beforeToggle = layoutWrites;
-    await page.getByRole("button", { name: "AI 채팅 닫기", exact: true }).click();
+    assert.equal(await page.locator('#workspace-chat').isVisible(), false);
+    await page.getByRole("button", { name: "메뉴 접기", exact: true }).click();
     await delay(500);
-    assert.equal(layoutWrites, beforeToggle, "chat width change must not rewrite saved layout");
+    assert.equal(layoutWrites, beforeToggle, "sidebar width change must not rewrite saved layout");
+    await page.getByRole("button", { name: "메뉴 펼치기", exact: true }).click();
     const handle = main.locator(".widget-drag-handle").first();
+    await handle.scrollIntoViewIfNeeded();
     const box = await handle.boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down(); await page.mouse.move(box.x + 110, box.y + 20, { steps: 10 }); await page.mouse.up();
@@ -143,7 +147,7 @@ async function main() {
     await page.mouse.down(); await page.mouse.move(resize.x - 90, resize.y + 100, { steps: 10 }); await page.mouse.up();
     await delay(200);
     assert.ok(layoutWrites > beforeResize);
-    check("saving targets selected store; drag/resize persist, chat width change does not");
+    check("saving targets selected store; drag/resize persist, sidebar width change does not");
 
     await page.reload();
     await page.getByRole("combobox", { name: "현재 작업 가게" }).waitFor();
@@ -161,6 +165,8 @@ async function main() {
     await input().fill("후속 질문 초안");
     await page.getByRole("button", { name: "데이터 관리", exact: true }).click();
     await page.getByRole("region", { name: "검색 갱신 상태" }).waitFor();
+    assert.equal(await page.locator('#workspace-chat').isVisible(), false);
+    await page.getByRole('button', { name: 'AI 분석', exact: true }).click();
     assert.equal(await input().inputValue(), "후속 질문 초안");
     await page.getByRole("button", { name: /일별 결제액.*결과 보기/ }).click();
     await main.getByText("성수점 과거 결과", { exact: true }).waitFor();
@@ -170,6 +176,7 @@ async function main() {
     await main.evaluate((node) => { const link = document.createElement("a"); link.href = "/dashboard?project=store-a&section=tables"; link.textContent = "검토 연결 테스트"; node.append(link); });
     await main.getByRole("link", { name: "검토 연결 테스트" }).click();
     await page.getByRole("region", { name: "검색 갱신 상태" }).waitFor();
+    await page.getByRole('button', { name: 'AI 분석', exact: true }).click();
     assert.equal(await input().inputValue(), "후속 질문 초안");
     assert.equal(requests.filter((item) => item.p === "/api/auth/refresh").length, refreshCount);
     check("same-store review link opens data without reloading or losing the composer");

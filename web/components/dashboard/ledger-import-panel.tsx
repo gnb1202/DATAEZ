@@ -36,7 +36,7 @@ type Baseline = { row_count: number; counts: Record<string, number>; can_adopt: 
 const statusNames: Record<string, string> = { staging: "업로드 중단", uploaded: "미리보기 전", ready: "반영 대기", committed: "반영 완료", failed: "검증 오류", expired: "보관 만료" };
 const fieldClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm disabled:opacity-50";
 
-export function LedgerImportPanel({ onTablesChange, tables, onOpenDashboard }: { onTablesChange: () => void; tables: TableMeta[]; onOpenDashboard?: () => void }) {
+export function LedgerImportPanel({ onTablesChange, tables, onCreateFirstMetric }: { onTablesChange: () => void; tables: TableMeta[]; onCreateFirstMetric?: () => void }) {
   const { selectedProjectId: projectId, apiFetch } = useDashboard();
   const [sources, setSources] = useState<Source[]>([]);
   const [sourceId, setSourceId] = useState("");
@@ -248,7 +248,7 @@ export function LedgerImportPanel({ onTablesChange, tables, onOpenDashboard }: {
           <p>이 파일의 반영 결과: {batch.result.rows_inserted}행 · {batch.result.amount}원</p>
           {batch.review_version === 1 && <p>중복 제외 {batch.result.duplicates_skipped ?? 0}행 · 사용자 제외 {batch.result.candidates_excluded ?? 0}행</p>}
           <p className="text-muted-foreground">저장 지표는 대시보드에서 새로고침하거나 설정한 주기에 재계산됩니다.</p>
-          {onOpenDashboard && <Button variant="outline" onClick={onOpenDashboard}>대시보드에서 첫 지표 만들기</Button>}
+          {onCreateFirstMetric && <Button variant="outline" onClick={onCreateFirstMetric}>첫 지표 만들기</Button>}
         </div> : <>
           {batch.summary && <>
             <p className="font-medium">반영 예정 {batch.summary.counts?.included ?? batch.summary.row_count}행 · {batch.summary.amount}원</p>

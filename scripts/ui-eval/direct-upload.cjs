@@ -63,7 +63,7 @@ async function main() {
     await page.addInitScript(()=>localStorage.setItem('dataez_refresh_token','fixture'));
     await page.goto(process.env.UI_BASE_URL || 'http://127.0.0.1:3132/dashboard');
     await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
-    await page.getByRole('button',{name:'파일 보관함',exact:true}).click();
+    await page.getByRole('tab',{name:'파일 보관함',exact:true}).click();
     const input=page.getByLabel('보관할 파일');
     await input.setInputFiles({name:file.filename,mimeType:'text/plain',buffer:bytes});
     await page.getByText('원본을 보관했습니다. 미리보기에서 검사 후 분석에 연결하세요.',{exact:true}).waitFor();

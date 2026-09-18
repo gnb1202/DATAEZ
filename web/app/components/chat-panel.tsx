@@ -7,6 +7,7 @@ import type { Message, StreamingStep } from "../lib/api";
 import type { Composer } from "../hooks/use-workspace-analysis";
 import { referenceScope, referenceKey } from "../lib/file-library";
 import MessageBubble from "./message-bubble";
+import type { CashReviewOptions } from "./cash-entry-review";
 
 const QUICK_PROMPTS = [
   "이 가게에서 분석할 수 있는 자료를 찾아줘",
@@ -68,6 +69,7 @@ function summarizeToolInput(toolName: string, input: Record<string, unknown>): s
 
 type ChatPanelProps = {
   apiFetch?: import("./answer-feedback").QualityFetch;
+  cashReview?: CashReviewOptions;
   composer?: Composer;
   onOpenLibrary?: (search?: string) => void;
   onComposerChange?: (value: Composer) => void;
@@ -89,7 +91,7 @@ type ChatPanelProps = {
 
 const ALLOWED_FILE_TYPES = ".csv,.xlsx,.xls";
 
-export default function ChatPanel({ apiFetch, composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onReviewConversation, recoveryNotice, onPinChart }: ChatPanelProps) {
+export default function ChatPanel({ apiFetch, cashReview, composer, onComposerChange, onOpenLibrary, onOpenResult, draft, onDraftConsumed, messages, onSend, loading, disabled, streamingSteps, streamingAnswer, streamError, onStop, onReviewConversation, recoveryNotice, onPinChart }: ChatPanelProps) {
   const [localInput, setLocalInput] = useState("");
   const input = composer?.text ?? localInput;
   const setInput = (text: string) => {
@@ -183,6 +185,7 @@ export default function ChatPanel({ apiFetch, composer, onComposerChange, onOpen
               msg.role === "assistant" && idx === messages.length - 1;
             return (
               <MessageBubble apiFetch={apiFetch}
+                cashReview={cashReview}
                 key={msg.message_id}
                 message={msg}
                 showSuggestions={isLastAssistant && !loading}

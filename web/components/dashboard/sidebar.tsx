@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Database, History, Settings, Plus, PanelLeftClose, PanelLeftOpen, Store, ArrowUpRight } from "lucide-react";
+import { LayoutDashboard, ChartNoAxesCombined, Database, History, Settings, Plus, PanelLeftClose, PanelLeftOpen, Store, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/app/lib/api";
 import type { Section } from "@/app/dashboard/page";
@@ -21,6 +21,7 @@ export interface SidebarProps {
 }
 const navigation = [
   { id: "dashboard" as const, label: "대시보드", icon: LayoutDashboard },
+  { id: "analysis" as const, label: "AI 분석", icon: ChartNoAxesCombined },
   { id: "tables" as const, label: "데이터 관리", icon: Database },
   { id: "history" as const, label: "분석 이력", icon: History },
 ];

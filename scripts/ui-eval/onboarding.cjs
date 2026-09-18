@@ -17,6 +17,7 @@ if(!out||!ui)throw new Error('Use scripts/onboarding-eval/run.py');
   try{
     await page.goto(ui);await page.getByLabel('이메일',{exact:true}).fill(input.email);await page.getByLabel('비밀번호',{exact:true}).fill(input.password);
     await page.locator('form button[type=submit]').click();await page.waitForURL('**/dashboard');
+    await page.getByRole('button',{name:'가게와 데이터 준비하기',exact:true}).click();
     await guide.getByRole('button',{name:'첫 가게 만들기',exact:true}).click();
     const dialog=page.getByRole('dialog');let pending;
     await dialog.getByLabel('가게 이름',{exact:true}).fill('처음 카페');pending=response('/api/projects');await dialog.getByRole('button',{name:'만들기',exact:true}).click();report.project_id=(await json(pending)).id;
@@ -43,14 +44,17 @@ if(!out||!ui)throw new Error('Use scripts/onboarding-eval/run.py');
     pending=response(`/imports/${uploaded.id}/commit`);await review.getByRole('button',{name:'장부에 반영',exact:true}).click();assert.equal((await json(pending)).result.rows_inserted,3);
     await review.getByText('장부 반영 완료',{exact:true}).waitFor();await page.reload();
     await panel.getByRole('button',{name:/first-payments.csv/}).click();
-    await panel.getByRole('button',{name:'대시보드에서 첫 지표 만들기',exact:true}).click();
+    await panel.getByRole('button',{name:'첫 지표 만들기',exact:true}).click();
     await guide.getByLabel('첫 지표의 출처',{exact:true}).waitFor();await guide.getByLabel('첫 지표 이름',{exact:true}).fill('내 첫 일별 결제액');
     pending=response('/metrics/preview');await guide.getByRole('button',{name:'첫 지표 미리보기',exact:true}).click();const preview=await json(pending);assert.deepEqual(preview.data.map(r=>r.value),['100000','-20000','50000']);
     await guide.getByText(/^-\d+(\.\d+)?K$/).first().waitFor();
     await shot('first-metric-preview.png');pending=response('/metrics');await guide.getByRole('button',{name:'첫 지표 저장',exact:true}).click();report.metric_id=(await json(pending)).id;
     await page.getByRole('button',{name:'내 첫 일별 결제액 수정·이력',exact:true}).waitFor();await page.reload();
-    await page.getByRole('button',{name:'내 첫 일별 결제액 수정·이력',exact:true}).waitFor();assert.equal(await guide.getAttribute('open'),null);
-    await guide.locator(':scope > summary').click();await guide.getByRole('button',{name:'이 출처로 자연어 질문 작성',exact:true}).click();
+    await page.getByRole('button',{name:'내 첫 일별 결제액 수정·이력',exact:true}).waitFor();assert.equal(await guide.count(),0);
+    await nav.getByRole('button',{name:'데이터 관리',exact:true}).click();
+    await page.getByRole('tab',{name:'시작 안내·샘플',exact:true}).click();
+    await guide.getByText('시작 안내 · 저장 지표가 준비되었습니다',{exact:true}).waitFor();
+    if(await guide.getAttribute('open')===null)await guide.locator(':scope > summary').click();await guide.getByRole('button',{name:'이 출처로 자연어 질문 작성',exact:true}).click();
     const textarea=page.locator('textarea');await textarea.waitFor();await page.waitForFunction(()=>document.querySelector('textarea')?.value.includes('시작 결제원장'));
     const question=await textarea.inputValue();assert.match(question,/미리보기만/);assert.match(question,/저장은 아직 하지 마/);
     // A draft is populated, never submitted until the user clicks Send.
@@ -61,7 +65,7 @@ if(!out||!ui)throw new Error('Use scripts/onboarding-eval/run.py');
     await nav.getByRole('button',{name:'대시보드',exact:true}).click();
     await page.getByRole('button', { name: '가게 추가', exact: true }).click();
     await dialog.getByLabel('가게 이름',{exact:true}).fill('두 번째 가게');pending=response('/api/projects');await dialog.getByRole('button',{name:'만들기',exact:true}).click();report.other_project_id=(await json(pending)).id;
-    await dialog.waitFor({state:'hidden'});await guide.getByRole('button',{name:'파일 연결·반영하러 가기',exact:true}).waitFor();assert.equal(await page.locator('.react-grid-item').count(),0);assert.equal(await guide.getByLabel('첫 지표의 출처',{exact:true}).count(),0);
+    await dialog.waitFor({state:'hidden'});await page.getByText('저장한 지표가 아직 없습니다',{exact:true}).waitFor();assert.equal(await page.locator('.react-grid-item').count(),0);assert.equal(await guide.count(),0);
     await page.getByRole('combobox', { name: '현재 작업 가게' }).selectOption({ label: '처음 카페' });await page.getByRole('button',{name:'내 첫 일별 결제액 수정·이력',exact:true}).waitFor();
     await shot('first-dashboard.png');assert.deepEqual(report.errors,[]);report.passed=true;console.log('PASS: real first-use mapping, validation repair, dedup review, resume, metric, natural draft and store isolation');
   }catch(e){report.passed=false;report.failure=e.stack;await shot('browser-failure.png').catch(()=>{});throw e;}

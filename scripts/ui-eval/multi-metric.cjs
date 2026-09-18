@@ -53,6 +53,8 @@ async function main() {
     });
     await page.addInitScript(() => localStorage.setItem("dataez_refresh_token", "ui-fixture"));
     await page.goto(process.env.UI_BASE_URL || "http://127.0.0.1:3100/dashboard");
+    await page.getByRole('button', { name: 'AI 분석', exact: true }).click();
+    await page.getByRole('tab', { name: '직접 지표 만들기', exact: true }).click();
     await page.getByText("여러 장부의 결제액 합치기", { exact: true }).click();
     const form = page.locator("details").filter({ has: page.locator("summary", { hasText: "여러 장부의 결제액 합치기" }) });
     await form.getByLabel("지표 이름", { exact: true }).fill("현금·카드 통합 결제액");
@@ -88,6 +90,8 @@ async function main() {
     await fs.mkdir(artifactDir, { recursive: true });
     await page.screenshot({ path: path.join(artifactDir, "multi-metric.png"), fullPage: true, animations: "disabled" });
     await page.getByRole("combobox", { name: "현재 작업 가게" }).selectOption("store-b");
+    await page.getByRole('button', { name: 'AI 분석', exact: true }).click();
+    await page.getByRole('tab', { name: '직접 지표 만들기', exact: true }).click();
     await page.getByText("장부 관리에서 이 가게의 데이터를 먼저 등록해주세요.").waitFor({ state: "attached" });
     assert.equal(await page.getByText("현금·카드 통합 결제액", { exact: true }).count(), 0);
     assert.equal(await page.getByText("여러 장부의 결제액 합치기", { exact: true }).count(), 0);

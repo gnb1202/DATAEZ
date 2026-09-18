@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { X, MessageSquare } from "lucide-react";
 import ChatPanel from "@/app/components/chat-panel";
 import type { useWorkspaceAnalysis } from "@/app/hooks/use-workspace-analysis";
+import type { CashReviewOptions } from "@/app/components/cash-entry-review";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
 const query = "(max-width: 1100px)";
@@ -13,12 +14,14 @@ const subscribe = (callback: () => void) => {
   return () => media.removeEventListener("change", callback);
 };
 
-export function ChatDock({ analysis, open, onOpenChange, onOpenResult, storeName, disabled, onOpenLibrary }: {
+export function ChatDock({ analysis, open, onOpenChange, onOpenResult, storeName, disabled, onOpenLibrary, cashReview }: {
   analysis: ReturnType<typeof useWorkspaceAnalysis>; open: boolean; onOpenChange: (value: boolean) => void;
   onOpenLibrary: (search?: string) => void; onOpenResult: (id: string) => void; storeName: string; disabled: boolean;
+  cashReview?: CashReviewOptions;
 }) {
   const narrow = useSyncExternalStore(subscribe, () => window.matchMedia(query).matches, () => false);
   const panel = <ChatPanel apiFetch={analysis.apiFetch} composer={analysis.composer} onComposerChange={analysis.setComposer} messages={analysis.messages}
+    cashReview={cashReview}
     onOpenLibrary={onOpenLibrary} onSend={analysis.send} loading={analysis.loading} disabled={disabled || analysis.messageLoading}
     streamingSteps={analysis.stream.streamingSteps} streamingAnswer={analysis.stream.streamingAnswer}
     streamError={analysis.error} onStop={analysis.stop}

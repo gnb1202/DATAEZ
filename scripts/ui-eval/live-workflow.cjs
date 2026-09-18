@@ -98,6 +98,8 @@ async function main() {
       assert.equal(committed.rows_added, 3);
 
       await page.getByRole("button", { name: "대시보드", exact: true }).click();
+      await page.getByRole('button', { name: 'AI 분석', exact: true }).click();
+      await page.getByRole('tab', { name: '직접 지표 만들기', exact: true }).click();
       await page.getByText("갱신 가능한 지표 만들기", { exact: true }).click();
       await page.getByLabel("지표 이름", { exact: true }).fill("순매출 검증");
       await page.getByLabel("장부", { exact: true }).selectOption(card.table_id);

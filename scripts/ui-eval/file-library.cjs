@@ -29,6 +29,7 @@ async function main() {
       if (method === "OPTIONS") body = {};
       else if (p === "/api/auth/refresh") body = { access_token: "library-fixture", refresh_token: "library-fixture" };
       else if (p === "/api/auth/me") body = { email: "owner@example.test" };
+      else if (p === "/api/uploads/capabilities") body = { direct_upload: false, max_size_bytes: 50 * 1024 * 1024 };
       else if (p === "/api/projects") body = { projects: stores };
       else if (p === "/api/library/files/sample-workspace") body = { project: null };
       else if (p === "/api/library/files" && method === "GET") {
@@ -45,6 +46,7 @@ async function main() {
         const f = files.find((item) => item.file_id === p.split("/")[4]);
         if (p.endsWith("/preview")) body = { file: f, columns: [{ name: "결제일" }, { name: "금액" }], rows: [{ 결제일: "2026-09-01", 금액: "9007199254740993.01" }], row_count: 1 };
         else if (p.endsWith("/prepare")) { prepared++; f.bindings = [binding("store-a", "table-new", "현금매출.csv · 분석 장부")]; f.status = "linked"; body = f; }
+        else if (p.endsWith("/download-url")) body = { url: null };
         else if (p.endsWith("/download")) { await route.fulfill({ headers: { ...headers, "content-disposition": "attachment; filename=payments.csv" }, contentType: "application/octet-stream", body: "event_id,amount\n001,100" }); return; }
         else if (method === "DELETE") { files.splice(files.indexOf(f), 1); body = { removed: true }; }
         else body = f;
@@ -96,14 +98,15 @@ async function main() {
     await input().fill("선택한 파일로 매출을 비교해줘");
     await page.getByRole("button", { name: "AI 채팅 닫기", exact: true }).click();
     await page.getByRole("button", { name: "데이터 관리", exact: true }).click();
+    await page.getByRole("button", { name: "AI 분석", exact: true }).click();
     await page.locator("#workspace-chat-toggle").click();
     assert.equal(await page.locator('[aria-label="선택한 보관 파일"] button').count(), 2);
     assert.equal(await input().inputValue(), "선택한 파일로 매출을 비교해줘");
     await page.getByRole("button", { name: "분석 요청 보내기" }).click();
-    await page.getByText("선택한 성수점과 연남점 장부 전체의 매출입니다.", { exact: true }).waitFor();
+    await page.locator('#workspace-chat').getByText("선택한 성수점과 연남점 장부 전체의 매출입니다.", { exact: true }).waitFor();
     assert.equal(sent, 1); assert.equal(lastSelections[1].include_other_store, true);
     assert.equal(lastSelections[0].scope,"linked_ledger"); assert.equal(lastSelections[1].scope,"original_file");
-    assert.equal(await page.locator('[aria-label="분석에 사용한 보관 파일"]').count(), 2);
+    assert.equal(await page.locator('#workspace-chat [aria-label="분석에 사용한 보관 파일"]').count(), 2);
     pass("selected references and draft survive navigation; stream sends IDs without file bytes and displays source scope");
 
     await page.getByRole("button", { name: "새 분석", exact: true }).click();
@@ -128,7 +131,7 @@ async function main() {
 
     await page.getByRole("button", { name: "AI 채팅 닫기", exact: true }).click();
     await page.getByRole("button", { name: "데이터 관리", exact: true }).click();
-    await page.getByRole("button", { name: "파일 보관함", exact: true }).click();
+    await page.getByRole("tab", { name: "파일 보관함", exact: true }).click();
     await page.getByLabel("보관할 파일", { exact: true }).setInputFiles({ name: "현금매출.csv", mimeType: "text/csv", buffer: Buffer.from("date,amount\n2026-09-01,100") });
     const uploadedRow = page.getByRole("article", { name: "현금매출.csv", exact: true });
     await uploadedRow.getByRole("button", { name: "미리보기", exact: true }).click();
@@ -149,6 +152,7 @@ async function main() {
     await page.getByRole("button", { name: "제외 확인", exact: true }).click();
     await uploadedRow.waitFor({ state: "detached" });
     await page.getByRole("combobox", { name: "현재 작업 가게" }).selectOption("store-b");
+    await page.getByRole("button", { name: "AI 분석", exact: true }).click();
     await page.locator("#workspace-chat-toggle").click();
     assert.equal(await page.locator('[aria-label="선택한 보관 파일"]').count(), 0);
     assert.equal(await input().inputValue(), "");
