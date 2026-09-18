@@ -104,7 +104,8 @@ async function main() {
     await page.waitForFunction(() => document.activeElement?.id.startsWith("dashboard-widget-saved-"));
     await main.locator('[data-chart-ready="true"]').waitFor();
     assert.ok(await main.evaluate(el => el.scrollLeft === 0 && el.scrollWidth <= el.clientWidth + 1), "saved widget must fit the measured grid without horizontal scrolling");
-    await page.getByRole("button", { name: "AI 채팅 닫기", exact: true }).click();
+    assert.equal(await page.locator('#workspace-chat').isVisible(), false);
+    assert.equal(await page.locator('#workspace-chat-toggle').count(), 0);
     await pause(100);
     await main.evaluate(el => el.scrollTo({ top: 0, left: 0 }));
     await page.screenshot({ path: path.join(artifacts, "dashboard-dark.png"), animations: "disabled" });

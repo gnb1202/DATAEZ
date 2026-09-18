@@ -1,4 +1,4 @@
-"""Chat can prepare cash records, but only the review screen commits them."""
+"""Tools prepare cash records; only explicit user confirmation commits them."""
 from typing import Literal
 from fastapi.encoders import jsonable_encoder
 from uuid import UUID
@@ -28,7 +28,7 @@ class CashToolGet(BaseModel):
 CASH_TOOL_SPECS = [
     {'type':'function','function':{'name':name,'description':description,'parameters':model.model_json_schema()}}
     for name, description, model in [
-        ('draft_cash_entry','현재 가게의 현금 수납·취소 입력 초안을 작성합니다. 장부에는 아직 반영되지 않습니다. review_url에서 사용자가 확인·반영해야 합니다. 실제 환불/결제는 수행하지 않습니다.',CashToolDraft),
+        ('draft_cash_entry','현재 가게의 현금 수납·취소 입력 초안을 작성합니다. 장부에는 아직 반영되지 않습니다. 사용자가 채팅의 확인 카드에서 반영 확정 버튼을 누르거나 review_url에서 확인·반영해야 합니다. 실제 환불/결제는 수행하지 않습니다.',CashToolDraft),
         ('list_cash_entries','현재 가게의 현금 입력 이력과 미반영 초안을 최신순 20건 조회합니다.',CashToolList),
         ('get_cash_entry','확인한 entry_id로 현금 입력 초안·반영 상태·메모·중복 의심 기록과 검토 링크를 조회합니다.',CashToolGet),
     ]
@@ -39,4 +39,4 @@ def public_entry(row):
     row = jsonable_encoder(row)
     return {k:v for k,v in row.items() if k not in ('confirmation_token','similar') } | {
         'similar_count':row.get('similar',{}).get('count',0),
-        'hint':'초안은 장부에 아직 반영되지 않습니다. 검토하기 버튼에서 거래 일자·금액·메모를 확인하고 반영하세요. 날짜만 기록하므로 시간대 분석은 지원하지 않습니다.' if row['status']=='draft' else '저장된 현금 입력 상태입니다.'}
+        'hint':'초안은 장부에 아직 반영되지 않습니다. 채팅의 확인 카드에서 거래 일자·금액·메모를 확인하고 반영 확정 버튼을 누르세요. 검토하기 링크에서도 확인·반영할 수 있습니다. 날짜만 기록하므로 시간대 분석은 지원하지 않습니다.' if row['status']=='draft' else '저장된 현금 입력 상태입니다.'}

@@ -86,7 +86,7 @@ async function main() {
     await page.getByRole('combobox', { name: '현재 작업 가게' }).selectOption(input.project_id);
     if (phase === 'initial') {
       await page.getByRole('button', { name: '데이터 관리', exact: true }).click();
-      await page.getByRole('button', { name: '파일 보관함', exact: true }).click();
+      await page.getByRole('tab', { name: '파일 보관함', exact: true }).click();
       const upload = response('/api/library/files');
       await page.getByLabel('보관할 파일', { exact: true }).setInputFiles(path.join(out, input.filename));
       const file = await json(upload); checkpoint.file_id = file.file_id;
@@ -241,6 +241,8 @@ async function main() {
 
       await page.getByRole('combobox',{name:'현재 작업 가게'}).selectOption(input.other_project_id);
       await page.getByRole('button',{name:'대시보드',exact:true}).click();
+      await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
+      await page.getByRole('tab',{name:'시작 안내·샘플',exact:true}).click();
       await main.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).click();
       await page.getByLabel('분석 요청',{exact:true}).waitFor();
       const sampleProject=await page.getByRole('combobox',{name:'현재 작업 가게'}).inputValue();

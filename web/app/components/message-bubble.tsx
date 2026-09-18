@@ -16,11 +16,13 @@ import type { Message, AgentStep, ChartData } from "../lib/api";
 import { referenceScope, messageReferences, type LibraryFile } from "../lib/file-library";
 import ReasoningSteps from "./reasoning-steps";
 import { ImportReviewLinks } from "./import-review-links";
+import { CashEntryReviews, type CashReviewOptions } from "./cash-entry-review";
 import { EChartsChart } from "@/components/dashboard/echarts-chart";
 import { MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
 
 type MessageBubbleProps = {
   apiFetch?: QualityFetch;
+  cashReview?: CashReviewOptions;
   message: Message;
   onOpenLibrary?: (search?: string) => void;
   showSuggestions?: boolean;
@@ -31,6 +33,7 @@ type MessageBubbleProps = {
 
 function MessageBubble({
   apiFetch,
+  cashReview,
   message,
   showSuggestions,
   onSuggestionClick,
@@ -166,6 +169,7 @@ function MessageBubble({
               </div>
             )}
 
+            {apiFetch && cashReview && <CashEntryReviews steps={message.steps} apiFetch={apiFetch} options={cashReview} />}
             <ImportReviewLinks steps={message.steps} />
 
             {/* Suggestion buttons */}

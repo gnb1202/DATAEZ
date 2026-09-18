@@ -84,8 +84,11 @@ async function main(){
   async function sendAndFinish(){const response=page.waitForResponse(r=>r.url().endsWith('/messages/stream'));await send().click();await response;await page.waitForFunction(()=>!document.querySelector('[aria-label="분석 요청"]')?.disabled);}
   try{
     await page.goto(base);await page.locator('#dashboard-widget-existing svg').first().waitFor();
-    await page.getByText('시작 안내와 샘플 체험',{exact:true}).click();
-    check('Saved dashboard keeps sample/file start in its expandable guide',await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).isVisible());await shot('dashboard-entry');
+    check('Saved dashboard contains no sample setup',await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).count()===0);await shot('dashboard-entry');
+    await page.getByRole('button',{name:'데이터 관리',exact:true}).click();
+    await page.getByRole('tab',{name:'시작 안내·샘플',exact:true}).click();
+    await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).waitFor();
+    check('Sample/file start is available in data management',await page.getByRole('button',{name:'샘플 데이터로 시작',exact:true}).isVisible());
     await page.getByRole('button',{name:'새 분석',exact:true}).click();
     const before=sent;await chat().getByRole('button',{name:/어떤 장부들이 있어|이 가게에서 분석할 수 있는 자료/}).click();
     await page.waitForFunction(()=>!document.querySelector('[aria-label="분석 요청"]')?.disabled);

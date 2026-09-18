@@ -17,6 +17,7 @@ import { AnalysisWorkspaceResult } from "@/components/dashboard/analysis-workspa
 import { useChartSaving } from "../hooks/use-chart-saving";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { ProjectCreateDialog } from "@/components/dashboard/project-create-dialog";
@@ -42,6 +43,14 @@ const TablesSection = dynamic(
 );
 const SettingsSection = dynamic(
   () => import("@/components/dashboard/sections/settings-section").then((m) => ({ default: m.SettingsSection })),
+  { loading: SectionLoader }
+);
+const MetricBuilderSection = dynamic(
+  () => import("@/components/dashboard/sections/metric-builder-section").then((m) => ({ default: m.MetricBuilderSection })),
+  { loading: SectionLoader }
+);
+const GettingStartedSection = dynamic(
+  () => import("@/components/dashboard/sections/getting-started-section").then((m) => ({ default: m.GettingStartedSection })),
   { loading: SectionLoader }
 );
 
@@ -103,12 +112,16 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
   apiFetchWithRefresh: (path: string, init?: RequestInit) => Promise<Response>;
 }) {
   const router = useRouter();
+  // Capture the requested view once, before effects synchronize the URL.
+  const [initialParams] = useState(() => new URLSearchParams(typeof window === "undefined" ? "" : window.location.search));
+  const initialSection = initialParams.get("section");
   const analysis = useWorkspaceAnalysis(selectedProjectId, token, apiFetchWithRefresh);
   const { reset: resetAnalysis, setComposer: setAnalysisComposer } = analysis;
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(initialSection === "ai-chat");
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [librarySearch, setLibrarySearch] = useState("");
-  const [dataTab, setDataTab] = useState("ledgers");
+  const [dataTab, setDataTab] = useState(initialSection === "tables" && ["files", "setup"].includes(initialParams.get("view") || "") ? initialParams.get("view")! : "ledgers");
+  const [analysisTab, setAnalysisTab] = useState(initialSection === "analysis" && initialParams.get("view") === "metrics" ? "metrics" : "ai");
   const [menuOpen, setMenuOpen] = useState(false);
   const [dashboardRevision, setDashboardRevision] = useState(0);
   const [focusWidgetId, setFocusWidgetId] = useState<string>();
@@ -122,14 +135,9 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
   }, []);
 
   // Navigation
-  const [activeSection, setActiveSection] = useState<Section>("dashboard");
+  const [activeSection, setActiveSection] = useState<Section>(initialSection === "ai-chat" ? "analysis"
+    : ["dashboard", "analysis", "history", "tables", "settings"].includes(initialSection || "") ? initialSection as Section : "dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  useEffect(() => {
-    const section = new URLSearchParams(window.location.search).get("section");
-    if (section === "tables" || section === "dashboard" || section === "analysis" || section === "history" || section === "settings") setActiveSection(section);
-    if (section === "ai-chat") { setActiveSection("analysis"); setChatOpen(true); }
-  }, []);
 
   useEffect(() => {
     if (!sampleStart || sampleStart.project.id !== selectedProjectId) return;
@@ -140,7 +148,7 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
     const text = "선택한 샘플 파일의 원본 행만 사용해 paid_at 날짜별 amount 합계를 원화 꺾은선 그래프로 미리 보여줘. 음수 취소를 그대로 차감하고 전체 기간을 사용해. 재계산 가능한 지표로 준비하되 아직 저장하지 마.";
     resetAnalysis(text);
     setAnalysisComposer({ text, file: null, libraryFiles: [{...binding, file_id:file.file_id,filename:file.filename,content_hash:file.content_hash,scope:"original_file"}] });
-    setActiveSection("analysis"); setChatOpen(true); onSampleConsumed();
+    setAnalysisTab("ai"); setActiveSection("analysis"); setChatOpen(true); onSampleConsumed();
   }, [sampleStart, selectedProjectId, resetAnalysis, setAnalysisComposer, onSampleConsumed]);
 
   // Projects
@@ -158,19 +166,25 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
   // Derived
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
   const savedChart = useCallback(() => setDashboardRevision((value) => value + 1), []);
-  const chartSaving = useChartSaving(selectedProjectId, analysis.result, activeSection === "analysis", apiFetchWithRefresh, savedChart);
+  const chartSaving = useChartSaving(selectedProjectId, analysis.result, activeSection === "analysis" && analysisTab === "ai", apiFetchWithRefresh, savedChart);
+  const showChatToggle = activeSection === "analysis" && analysisTab === "ai";
+  const visibleChat = showChatToggle && chatOpen;
 
   useEffect(() => {
-    if (!selectedProjectId) return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("project") !== selectedProjectId) {
       url.searchParams.delete("source");
       url.searchParams.delete("batch");
     }
-    url.searchParams.set("project", selectedProjectId);
+    if (selectedProjectId) url.searchParams.set("project", selectedProjectId);
+    else url.searchParams.delete("project");
     url.searchParams.set("section", activeSection);
+    const view = activeSection === "analysis" && analysisTab === "metrics" ? "metrics"
+      : activeSection === "tables" && dataTab !== "ledgers" ? dataTab : null;
+    if (view) url.searchParams.set("view", view);
+    else url.searchParams.delete("view");
     window.history.replaceState(null, "", url);
-  }, [selectedProjectId, activeSection]);
+  }, [selectedProjectId, activeSection, analysisTab, dataTab]);
 
   const handleCreateProject = async (name: string, description: string) => {
     setProjectCreateLoading(true);
@@ -300,6 +314,7 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
         await fetchTables();
         if (!mounted.current) return;
         setSelectedTableId(data.id);
+        setDataTab("ledgers");
         setActiveSection("tables");
         toast.success("파일을 성공적으로 가져왔습니다");
       } else {
@@ -311,13 +326,18 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
   };
 
   const navigate = (section: Section) => { setActiveSection(section); setMenuOpen(false); };
+  const resumeAnalysis = () => { setAnalysisTab("ai"); navigate("analysis"); setChatOpen(true); };
+  const prepareData = () => { setDataTab("setup"); navigate("tables"); };
+  const metricCreated = () => { savedChart(); navigate("dashboard"); toast.success("지표를 대시보드에 저장했습니다."); };
+  const cashEntryCommitted = () => { void fetchTables(); setDataRevision(value => value + 1); savedChart(); };
   const startAnalysis = (text = "") => {
     analysis.reset(text);
+    setAnalysisTab("ai");
     setActiveSection("analysis");
     setChatOpen(true);
     setMenuOpen(false);
   };
-  const openResult = (id: string) => { analysis.setResultId(id); setActiveSection("analysis"); if (window.matchMedia("(max-width: 1100px)").matches) setChatOpen(false); };
+  const openResult = (id: string) => { analysis.setResultId(id); setAnalysisTab("ai"); setActiveSection("analysis"); if (window.matchMedia("(max-width: 1100px)").matches) setChatOpen(false); };
   const followWorkspaceLink = (event: React.MouseEvent) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = (event.target as Element).closest("a");
@@ -343,7 +363,7 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
   const selectLibrary = (files: LibraryReference[]) => {
     if (analysis.loading || analysis.composer.file) return;
     analysis.setComposer((prev) => ({ ...prev, libraryFiles: files }));
-    setLibraryOpen(false); setChatOpen(true);
+    setLibraryOpen(false); resumeAnalysis();
   };
   const renderSection = () => {
     switch (activeSection) {
@@ -351,39 +371,45 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
         return (
           <DashboardSection key={dashboardRevision}
             focusWidgetId={focusWidgetId}
-            onNavigateToChat={() => setChatOpen(true)}
-            onNavigateToTables={() => setActiveSection("tables")}
-            onCreateStore={() => setProjectCreateOpen(true)}
-            onStartMetricChat={startAnalysis}
-            onSampleReady={onSampleReady}
-            onOpenLibrary={() => { setDataTab("files"); setActiveSection("tables"); }}
+            onNavigateToChat={resumeAnalysis}
+            onCreateMetric={() => { setAnalysisTab("metrics"); navigate("analysis"); }}
+            onPrepareData={prepareData}
           />
         );
       case "analysis":
-        return <div className="mx-auto max-w-5xl space-y-6">
+        return <Tabs value={analysisTab} onValueChange={setAnalysisTab} className="gap-6">
+          <TabsList aria-label="분석 방법"><TabsTrigger value="ai">AI 분석</TabsTrigger><TabsTrigger value="metrics">직접 지표 만들기</TabsTrigger></TabsList>
+          <TabsContent value="metrics"><MetricBuilderSection onCreated={metricCreated} onPrepareData={prepareData} /></TabsContent>
+          <TabsContent value="ai" className="mx-auto w-full max-w-5xl space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">분석 작업 공간</p><h2 className="mt-2 text-xl font-bold">{analysis.result?.charts?.[0]?.title || "데이터에서 답을 찾아보세요"}</h2><p className="mt-2 text-sm text-muted-foreground">결과를 확인하고 필요한 차트를 대시보드에 저장하세요.</p></div><Button variant="outline" onClick={() => setChatOpen(true)} className="gap-2"><MessageSquare size={15} />대화 이어가기</Button></div>
           {analysis.result ? <AnalysisWorkspaceResult message={analysis.result} storeName={selectedProject?.name || ""} onOpenLibrary={openLibrary} state={chartSaving.state} onSave={chartSaving.save} onOpenWidget={(id) => { setFocusWidgetId(id); setActiveSection("dashboard"); if (window.matchMedia("(max-width: 1100px)").matches) setChatOpen(false); }} /> : <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--line-strong)] bg-card px-5 text-center"><BarChart3 className="mb-5 h-9 w-9 text-accent" /><h3 className="font-bold">{analysis.loading ? "요청한 내용을 분석하고 있어요" : analysis.messageLoading ? "분석 이력을 불러오고 있어요" : "어떤 매출이 궁금하신가요?"}</h3><p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">오른쪽 채팅에서 가게의 장부와 파일을 바탕으로 분석을 요청하세요.</p><Button onClick={() => setChatOpen(true)} className="mt-6 gap-2">AI 채팅 열기<ArrowRight size={15} /></Button></div>}
           {analysis.error && <p role="status" className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">{analysis.error}</p>}
-        </div>;
+          </TabsContent>
+        </Tabs>;
       case "history":
         return <div className="mx-auto max-w-4xl space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl font-bold">가게의 분석 이력</h2><p className="mt-2 text-sm text-muted-foreground">이전 질문과 결과를 다시 열고 대화를 이어가세요.</p></div><Button variant="outline" disabled={analysis.historyLoading} onClick={() => void analysis.refreshHistory()}>새로고침</Button></div>
           {analysis.historyLoading && <p role="status" className="text-sm text-muted-foreground">이력을 불러오는 중…</p>}
           {analysis.error && <p role="status" className="text-sm text-destructive">{analysis.error}</p>}
-          {!analysis.historyLoading && !analysis.conversations.length ? <div className="rounded-xl border border-dashed border-[var(--line-strong)] bg-card px-5 py-16 text-center"><History className="mx-auto mb-4 h-8 w-8 text-muted-foreground" /><h3 className="font-bold">아직 분석 이력이 없습니다</h3><p className="mt-2 text-sm text-muted-foreground">첫 질문을 보내면 여기에 대화가 저장됩니다.</p><Button className="mt-5" onClick={() => startAnalysis()}>새 분석 시작</Button></div> : <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">{analysis.conversations.map((conversation) => <button key={conversation.conversation_id} onClick={() => { void analysis.openConversation(conversation.conversation_id); setActiveSection("analysis"); setChatOpen(true); }} className="flex w-full items-center gap-4 p-5 text-left hover:bg-secondary"><MessageSquare size={18} className="shrink-0 text-muted-foreground" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{conversation.title || "새 분석"}</span><span className="mt-1 block text-xs text-muted-foreground">{conversation.updated_at || conversation.created_at ? new Date(conversation.updated_at || conversation.created_at!).toLocaleDateString("ko-KR") : "저장된 대화"}</span></span><ArrowRight size={16} className="text-muted-foreground" /></button>)}</div>}
+          {!analysis.historyLoading && !analysis.conversations.length ? <div className="rounded-xl border border-dashed border-[var(--line-strong)] bg-card px-5 py-16 text-center"><History className="mx-auto mb-4 h-8 w-8 text-muted-foreground" /><h3 className="font-bold">아직 분석 이력이 없습니다</h3><p className="mt-2 text-sm text-muted-foreground">첫 질문을 보내면 여기에 대화가 저장됩니다.</p><Button className="mt-5" onClick={() => startAnalysis()}>새 분석 시작</Button></div> : <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">{analysis.conversations.map((conversation) => <button key={conversation.conversation_id} onClick={() => { void analysis.openConversation(conversation.conversation_id); resumeAnalysis(); }} className="flex w-full items-center gap-4 p-5 text-left hover:bg-secondary"><MessageSquare size={18} className="shrink-0 text-muted-foreground" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{conversation.title || "새 분석"}</span><span className="mt-1 block text-xs text-muted-foreground">{conversation.updated_at || conversation.created_at ? new Date(conversation.updated_at || conversation.created_at!).toLocaleDateString("ko-KR") : "저장된 대화"}</span></span><ArrowRight size={16} className="text-muted-foreground" /></button>)}</div>}
         </div>;
       case "tables":
-        return <div className="space-y-6"><div className="flex gap-2 border-b border-border pb-3" aria-label="데이터 관리 보기"><Button variant={dataTab === "ledgers" ? "secondary" : "ghost"} onClick={() => setDataTab("ledgers")}>분석 장부</Button><Button variant={dataTab === "files" ? "secondary" : "ghost"} onClick={() => setDataTab("files")}>파일 보관함</Button></div>{dataTab === "files" ? <FileLibrary initial={analysis.composer.libraryFiles} onSelect={selectLibrary} onPrepared={() => void fetchTables()} disabled={analysis.loading || !!analysis.composer.file} /> : <TablesSection
+        return <Tabs value={dataTab} onValueChange={setDataTab} className="gap-6">
+          <TabsList aria-label="데이터 관리 보기"><TabsTrigger value="ledgers">분석 장부</TabsTrigger><TabsTrigger value="files">파일 보관함</TabsTrigger><TabsTrigger value="setup">시작 안내·샘플</TabsTrigger></TabsList>
+          <TabsContent value="setup"><GettingStartedSection onCreateStore={() => setProjectCreateOpen(true)} onOpenTables={() => setDataTab("ledgers")} onOpenLibrary={() => setDataTab("files")} onStartChat={startAnalysis} onSampleReady={onSampleReady} onCreated={metricCreated} /></TabsContent>
+          <TabsContent value="files"><FileLibrary initial={analysis.composer.libraryFiles} onSelect={selectLibrary} onPrepared={() => void fetchTables()} disabled={analysis.loading || !!analysis.composer.file} /></TabsContent>
+          <TabsContent value="ledgers"><TablesSection
             key={`${selectedProjectId}:${dataRevision}`}
             tables={tables}
             selectedTableId={selectedTableId}
             onSelectTable={handleSelectTable}
             onImportClick={() => setUploadModalOpen(true)}
             onDeleteTable={handleDeleteTable}
-            onNavigateToChat={() => setChatOpen(true)}
+            onNavigateToChat={resumeAnalysis}
             onTablesChange={fetchTables}
-            onOpenDashboard={() => setActiveSection("dashboard")}
-          />}</div>;
+            onCreateFirstMetric={prepareData}
+          /></TabsContent>
+        </Tabs>;
       case "settings":
         return (
           <SettingsSection apiFetch={apiFetchWithRefresh}
@@ -408,12 +434,13 @@ function StoreWorkspace({ sampleStart, onSampleConsumed, onSampleReady, projects
         <div className="hidden shrink-0 md:block"><Sidebar {...sidebarProps} /></div>
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}><SheetContent side="left" className="w-[280px] gap-0 bg-sidebar" onCloseAutoFocus={(event) => { event.preventDefault(); document.getElementById("workspace-menu-toggle")?.focus(); }}><SheetTitle className="sr-only">작업 메뉴</SheetTitle><SheetDescription className="sr-only">가게를 선택하거나 작업 화면을 이동합니다.</SheetDescription><Sidebar {...sidebarProps} mobile /></SheetContent></Sheet>
         <div className="flex min-w-0 flex-1 flex-col">
-          <Header activeSection={activeSection} selectedProject={selectedProject} chatOpen={chatOpen} onToggleChat={() => setChatOpen((value) => !value)} onOpenMenu={() => setMenuOpen(true)} />
+          <Header activeSection={activeSection} selectedProject={selectedProject} chatOpen={visibleChat} showChatToggle={showChatToggle} onToggleChat={() => setChatOpen((value) => !value)} onOpenMenu={() => setMenuOpen(true)} />
           <main id="workspace-main" tabIndex={-1} className="min-h-0 min-w-0 flex-1 overflow-auto overscroll-contain p-4 sm:p-6 lg:p-8">
             <ErrorBoundary key={activeSection}>{renderSection()}</ErrorBoundary>
           </main>
         </div>
-        <ChatDock onOpenLibrary={openLibrary} analysis={analysis} open={chatOpen} onOpenChange={setChatOpen} onOpenResult={openResult} storeName={selectedProject?.name || "가게 미선택"} disabled={!selectedProjectId} />
+        <ChatDock onOpenLibrary={openLibrary} analysis={analysis} open={visibleChat} onOpenChange={setChatOpen} onOpenResult={openResult} storeName={selectedProject?.name || "가게 미선택"} disabled={!selectedProjectId}
+          cashReview={{ projectId: selectedProjectId, storeName: selectedProject?.name || "가게 미선택", revision: dataRevision, onCommitted: cashEntryCommitted, disabled: !visibleChat || analysis.loading || analysis.messageLoading }} />
         <Dialog open={libraryOpen} onOpenChange={setLibraryOpen}><DialogContent className="max-h-[88dvh] overflow-y-auto sm:max-w-4xl"><DialogTitle>보관함에서 파일 선택</DialogTitle><DialogDescription>파일과 연결된 가게·장부를 확인하고 AI 채팅에 추가하세요.</DialogDescription><FileLibrary key={`${selectedProjectId}:${librarySearch}`} picker initialSearch={librarySearch} initial={analysis.composer.libraryFiles} onSelect={selectLibrary} onPrepared={() => void fetchTables()} disabled={analysis.loading || !!analysis.composer.file} /></DialogContent></Dialog>
         <ProjectCreateDialog open={projectCreateOpen} onClose={() => setProjectCreateOpen(false)} onCreate={handleCreateProject} loading={projectCreateLoading} />
         <FileUploadModal open={uploadModalOpen} onClose={() => setUploadModalOpen(false)} onUpload={handleImportCSV} loading={uploadLoading} />

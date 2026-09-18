@@ -1,24 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveGridLayout, verticalCompactor } from "react-grid-layout";
-import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout";
+import type { Layout, ResponsiveLayouts } from "react-grid-layout";
 import {
   LayoutDashboard,
   X,
   Loader2,
   Bot,
   GripVertical,
-  TableProperties,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EChartsChart } from "@/components/dashboard/echarts-chart";
 import { MetricEditDialog } from "@/components/dashboard/metric-edit-dialog";
 import { exactMetricValue, MetricAnalysisDialog } from "@/components/dashboard/metric-analysis-dialog";
-import { MetricCreateForm } from "@/components/dashboard/metric-create-form";
-import { GettingStarted } from "@/components/dashboard/getting-started";
-import { StoreMetricForm } from "@/components/dashboard/store-metric-form";
-import type { SampleReady } from "../sample-workspace-actions";
 import { parseError } from "@/app/lib/api";
 import { useDashboard } from "@/app/contexts/dashboard-context";
 import "react-grid-layout/css/styles.css";
@@ -35,6 +30,7 @@ type DashboardWidget = {
 };
 
 type LedgerSourceStatus = { id: string; table_id: string; name: string; row_count: number; last_committed_at?: string | null; baseline_at?: string | null };
+const gridBreakpoints = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 };
 
 function MetricSourceStatus({ widget, sources, projectId }: { widget: DashboardWidget; sources: LedgerSourceStatus[] | null; projectId: string }) {
   if (widget.widget_data.scope === "selected_stores") {
@@ -59,11 +55,8 @@ function MetricSourceStatus({ widget, sources, projectId }: { widget: DashboardW
 interface DashboardSectionProps {
   focusWidgetId?: string;
   onNavigateToChat: () => void;
-  onNavigateToTables: () => void;
-  onCreateStore: () => void;
-  onStartMetricChat: (prompt: string) => void;
-  onSampleReady: SampleReady;
-  onOpenLibrary: () => void;
+  onCreateMetric: () => void;
+  onPrepareData: () => void;
 }
 
 export function DashboardSection(props: DashboardSectionProps) {
@@ -73,16 +66,21 @@ export function DashboardSection(props: DashboardSectionProps) {
 
 function StoreDashboardSection({
   onNavigateToChat,
-  onNavigateToTables, onCreateStore, onStartMetricChat, focusWidgetId, onSampleReady, onOpenLibrary,
+  onCreateMetric, onPrepareData, focusWidgetId,
 }: DashboardSectionProps) {
   const { selectedProjectId, apiFetch } = useDashboard();
   const [widgets, setWidgets] = useState<DashboardWidget[]>([]);
   const [sources, setSources] = useState<LedgerSourceStatus[] | null>([]);
   const [loading, setLoading] = useState(false);
-  const [tableCount, setTableCount] = useState(0);
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  // Keep saved layouts stable while measuring the available workspace width.
+  const gridLayouts = useMemo<ResponsiveLayouts>(() => ({ lg: widgets.map(w => ({
+    i: w.id, ...w.layout, minW: 2,
+    minH: w.widget_data.metric_definition ? (w.widget_type === "chart" ? 7 : 5) : (w.widget_type === "chart" ? 4 : 3),
+  })) }), [widgets]);
+  const gridBreakpoint = Object.entries(gridBreakpoints).find(([, width]) => containerWidth > width)?.[0] || "xxs";
   // The grid mounts after loading/empty states. Observe the actual mounted node,
   // rather than a mount-only ref effect that can retain a guessed 1280px width.
   const containerRef = useCallback((node: HTMLDivElement | null) => {
@@ -128,27 +126,11 @@ function StoreDashboardSection({
     }
   }, [selectedProjectId, apiFetch]);
 
-  const fetchTableCount = useCallback(async () => {
-    if (!selectedProjectId) return;
-    try {
-      const res = await apiFetch(
-        `/api/projects/${selectedProjectId}/tables`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setTableCount((data.tables || []).length);
-      }
-    } catch {
-      // ignore
-    }
-  }, [selectedProjectId, apiFetch]);
-
   useEffect(() => {
     fetchWidgets();
-    fetchTableCount();
     const timer = setInterval(() => { if (!document.hidden) fetchWidgets(true); }, 15000);
     return () => clearInterval(timer);
-  }, [fetchWidgets, fetchTableCount]);
+  }, [fetchWidgets]);
 
   const handleLayoutChange = useCallback(
     (newLayout: Layout, _allLayouts: ResponsiveLayouts) => {
@@ -227,9 +209,6 @@ function StoreDashboardSection({
     finally { setRefreshing(null); }
   }
 
-  const guide = <GettingStarted completed={widgets.some(w => !!w.widget_data.metric_definition)} onCreateStore={onCreateStore} onOpenTables={onNavigateToTables} onCreated={fetchWidgets} onStartChat={onStartMetricChat} onSampleReady={onSampleReady} onOpenLibrary={onOpenLibrary} />;
-  if (!selectedProjectId) return guide;
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -238,83 +217,54 @@ function StoreDashboardSection({
     );
   }
 
-  const metricCards = <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-border py-3 text-xs text-muted-foreground" aria-label="대시보드 요약">
-    <span>연결 장부 <strong className="ml-2 numeric text-foreground">{tableCount}</strong></span>
-    <span>저장 위젯 <strong className="ml-2 numeric text-foreground">{widgets.length}</strong></span>
-    <span>자동 갱신 <strong className="ml-2 numeric text-foreground">{widgets.filter(w => !!w.refresh_interval_seconds && (w.refresh_failures || 0) < 3).length}</strong></span>
-  </div>;
-
   if (widgets.length === 0) {
     return (
       <div className="space-y-6">
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        {guide}
-        <MetricCreateForm onCreated={fetchWidgets} />
-        <StoreMetricForm onCreated={fetchWidgets} />
-        {metricCards}
         <div
-          className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-xl animate-in fade-in slide-in-from-bottom-4 duration-500"
-          style={{ animationDelay: "400ms", animationFillMode: "both" }}
+          className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border border-dashed border-border px-5 py-16 text-center"
         >
           <div className="h-20 w-20 rounded-2xl bg-secondary flex items-center justify-center mb-6">
             <LayoutDashboard className="h-10 w-10 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
-            대시보드가 비어있습니다
+            {selectedProjectId ? "저장한 지표가 아직 없습니다" : "우리 가게의 지표를 한눈에"}
           </h3>
           <p className="text-sm text-muted-foreground mb-6 max-w-md">
-            AI 분석에서 생성한 차트를 대시보드에 고정하세요.
+            {selectedProjectId ? "AI로 분석하거나 직접 만든 지표를 저장하면 여기에 표시됩니다." : "가게와 데이터를 준비하면 매출 차트와 지표를 모아볼 수 있습니다."}
           </p>
-          <div className="flex gap-3">
+          {selectedProjectId ? <div className="flex flex-wrap justify-center gap-3">
             <Button
               onClick={onNavigateToChat}
-              variant="outline"
               className="gap-2 hover:border-accent/50 transition-colors"
             >
               <Bot className="h-4 w-4" />
-              AI 분석으로 이동
+              AI로 분석하기
             </Button>
             <Button
-              onClick={onNavigateToTables}
+              onClick={onCreateMetric}
               variant="outline"
               className="gap-2 hover:border-accent/50 transition-colors"
             >
-              <TableProperties className="h-4 w-4" />
-              장부 관리
+              직접 지표 만들기
             </Button>
-          </div>
+          </div> : <Button onClick={onPrepareData}>가게와 데이터 준비하기</Button>}
+          {selectedProjectId && <Button variant="link" onClick={onPrepareData} className="mt-4 text-xs text-muted-foreground">데이터 연결·샘플 체험</Button>}
         </div>
       </div>
     );
   }
 
-  const gridLayout: LayoutItem[] = widgets.map((w) => ({
-    i: w.id,
-    x: w.layout.x,
-    y: w.layout.y,
-    w: w.layout.w,
-    h: w.layout.h,
-    minW: 2,
-    minH: w.widget_data.metric_definition ? (w.widget_type === "chart" ? 7 : 5) : (w.widget_type === "chart" ? 4 : 3),
-  }));
-
   return (
     <div className="space-y-6">
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      {metricCards}
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
-            <LayoutDashboard className="h-5 w-5 text-accent" />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">위젯</h2>
-            <p className="text-sm text-muted-foreground">
-              드래그하여 위치를 변경하고 모서리를 잡아 크기를 조절하세요
+            <h2 className="text-lg font-semibold text-foreground">저장한 지표 <span className="ml-2 numeric text-sm font-normal text-muted-foreground">{widgets.length}</span></h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              자동 갱신 {widgets.filter(w => !!w.refresh_interval_seconds && (w.refresh_failures || 0) < 3).length}개 · 드래그하여 배치와 크기를 조절하세요
             </p>
           </div>
-        </div>
         <Button
           onClick={onNavigateToChat}
           variant="outline"
@@ -329,13 +279,16 @@ function StoreDashboardSection({
       <div ref={containerRef}>
         {containerWidth > 0 && (
           <ResponsiveGridLayout
+            // Initialize each column count from the saved layout. Reusing the
+            // grid across breakpoints can loop while it synchronizes columns.
+            key={gridBreakpoint}
             className="layout"
             width={containerWidth}
-            layouts={{ lg: gridLayout }}
-            breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+            layouts={gridLayouts}
+            breakpoints={gridBreakpoints}
             cols={{ lg: 12, md: 12, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={60}
-            // Opening the chat changes available width. Persist only an
+            // Collapsing the sidebar changes available width. Persist only an
             // intentional drag/resize, never the responsive layout adjustment.
             onDragStop={(layout) => handleLayoutChange(layout, {})}
             onResizeStop={(layout) => handleLayoutChange(layout, {})}
@@ -404,14 +357,6 @@ function StoreDashboardSection({
           </ResponsiveGridLayout>
         )}
       </div>
-      <details className="rounded-lg border border-border bg-card px-4 py-3">
-        <summary className="cursor-pointer text-sm font-medium">시작 안내와 샘플 체험</summary>
-        <div className="mt-4">{guide}</div>
-      </details>
-      <details className="rounded-lg border border-border bg-card px-4 py-3">
-        <summary className="cursor-pointer text-sm font-medium">직접 지표 만들기</summary>
-        <div className="mt-4 space-y-4"><MetricCreateForm onCreated={fetchWidgets} /><StoreMetricForm onCreated={fetchWidgets} /></div>
-      </details>
     </div>
   );
 }

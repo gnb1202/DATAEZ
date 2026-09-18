@@ -74,7 +74,7 @@ def _is_pure_greeting(question: str) -> bool:
 
 _TOOL_SUMMARIES: dict[str, str] = {
     "search_library_files": "[조회] 계정 보관함 파일을 이름으로 검색. 현재 가게/계정 전체, 연결 장부와 준비 상태. 파일을 다시 업로드하거나 반영하지 않음",
-    "draft_cash_entry": "[변경] 현금 수납·취소 입력 초안 작성. 장부 반영은 검토 화면에서 사용자 확인 후 수행",
+    "draft_cash_entry": "[변경] 현금 수납·취소 입력 초안 작성. 장부 반영은 채팅 확인 카드 또는 검토 화면에서 사용자 확인 후 수행",
     "list_cash_entries": "[조회] 현금 직접입력 이력과 초안 상태·메모·오늘 한국 날짜",
     "get_cash_entry": "[조회] 현금 입력 초안/반영 상태 및 검토 링크 확인",
     "list_ledger_sources": "[조회] 현재 가게의 결제 출처, 컬럼 매핑, 전체 건수와 최근 반영 시각",
