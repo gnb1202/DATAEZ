@@ -1,0 +1,2 @@
+# Optional experimental runtime; not installed in the production API image.
+laya==0.3.24

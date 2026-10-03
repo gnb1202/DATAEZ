@@ -14,7 +14,7 @@ from .llm_telemetry import ROLE_WORKER, TurnLedger, track_llm_call
 from .metrics import agent_iterations, agent_turns_total
 from .openai_clients import get_async_openai_client, get_openai_client
 from .prompts import build_conversation_context, build_system_prompt
-from .router import OrchestratorResult, select_tools_via_orchestrator
+from .router import OrchestratorResult, expand_tool_selection, select_tools_via_orchestrator
 
 @dataclass
 class AgentStep:
@@ -121,19 +121,7 @@ def _select_tools(
     result: OrchestratorResult = select_tools_via_orchestrator(
         question, has_attachments, all_tool_names, ledger=ledger, conversation_messages=conversation_messages
     )
-    selected = result.tools or []
-    if any(word in question for word in ("보관함", "저장소", "파일 찾아", "파일 불러")):
-        selected = list(dict.fromkeys([*selected, "search_library_files"]))
-    if set(selected) & {"list_ledger_sources", "list_import_history", "inspect_import_review"}:
-        selected = list(set(selected) | {"list_ledger_sources", "list_import_history", "inspect_import_review"})
-    if "restore_metric" in selected:
-        selected = list(dict.fromkeys([*selected, "get_metric_history"]))
-    if "draft_cash_entry" in selected:
-        selected = list(dict.fromkeys([*selected, "list_cash_entries", "get_cash_entry"]))
-    if set(selected) & {"preview_metric", "save_metric", "list_metrics", "set_metric_refresh", "update_metric", "get_metric_history", "restore_metric"}:
-        selected = list(set(selected) | {"list_tables", "describe_table", "search_schema", "preview_metric", "list_metrics", "get_metric_history"})
-    if set(selected) & {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema"}:
-        selected = list(set(selected) | {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema", "preview_metric", "list_metrics", "get_metric_history"})
+    selected = expand_tool_selection(question, result.tools)
     specs = [t for t in TOOL_SPECS if t["function"]["name"] in selected]
     return specs, result.intent, result.degraded
 

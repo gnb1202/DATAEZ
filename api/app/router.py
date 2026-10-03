@@ -191,6 +191,24 @@ class OrchestratorResult:
     degraded: bool = False  # True면 라우팅 실패로 폴백된 결과
 
 
+def expand_tool_selection(question: str, tools: list[str] | None) -> set[str]:
+    """Shared deterministic tool dependencies applied before worker scope filters."""
+    selected = set(tools or [])
+    if any(word in question for word in ("보관함", "저장소", "파일 찾아", "파일 불러")):
+        selected.add("search_library_files")
+    if selected & {"list_ledger_sources", "list_import_history", "inspect_import_review"}:
+        selected |= {"list_ledger_sources", "list_import_history", "inspect_import_review"}
+    if "restore_metric" in selected:
+        selected.add("get_metric_history")
+    if "draft_cash_entry" in selected:
+        selected |= {"list_cash_entries", "get_cash_entry"}
+    if selected & {"preview_metric", "save_metric", "list_metrics", "set_metric_refresh", "update_metric", "get_metric_history", "restore_metric"}:
+        selected |= {"list_tables", "describe_table", "search_schema", "preview_metric", "list_metrics", "get_metric_history"}
+    if selected & {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema"}:
+        selected |= {"list_stores", "list_store_tables", "inspect_store_table", "search_store_schema", "preview_metric", "list_metrics", "get_metric_history"}
+    return selected
+
+
 def select_tools_via_orchestrator(
     question: str,
     has_attachments: bool = False,

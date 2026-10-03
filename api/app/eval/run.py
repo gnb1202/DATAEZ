@@ -16,7 +16,7 @@ import json
 import sys
 from pathlib import Path
 
-from .golden import GOLDEN_DIR, load_cases, validate_cases
+from .golden import GOLDEN_DIR, GoldenCase, load_cases, validate_cases
 from .report import check_gates, routing_json, routing_markdown, summary_line
 from .routing import run_routing_eval
 
@@ -36,13 +36,11 @@ DEFAULT_THRESHOLDS = {
     "max_fallback_rate": 0.05,
 }
 
-# L1 scores the router in isolation: it receives the question and nothing else.
-# An anaphoric reference is genuinely unresolvable that way, so cases tagged
-# `anaphora` measure something this harness cannot fairly ask of it. Resolving
-# them belongs to an L2 behavioural test that replays a conversation.
+# Context is replayed when a case supplies it. Historical cases without an
+# explicit history still cannot resolve anaphoric references fairly.
 KNOWN_LIMITATIONS = """\
-L1 evaluates routing without conversation history. Cases tagged `anaphora`
-depend on prior turns and are expected to under-score here."""
+L1 replays explicit conversation_messages and has_attachments from each case.
+Historical `anaphora` cases without history remain context-incomplete."""
 
 
 def _known_tool_names() -> set[str]:
@@ -51,16 +49,28 @@ def _known_tool_names() -> set[str]:
     return {spec["function"]["name"] for spec in TOOL_SPECS}
 
 
-def _live_router(question: str) -> tuple[list[str] | None, str, dict]:
+def _live_router(case: GoldenCase | str) -> tuple[list[str] | None, str, dict]:
     """Call the real orchestrator for one question, reporting what it cost."""
     from ..agent_tools import TOOL_SPECS
     from ..llm_telemetry import TurnLedger
     from ..router import select_tools_via_orchestrator
+    from ..llm_cost import is_priced
 
     all_names = [spec["function"]["name"] for spec in TOOL_SPECS]
     ledger = TurnLedger()
-    result = select_tools_via_orchestrator(question, False, all_names, ledger=ledger)
-    return result.tools, result.intent, ledger.summary()
+    if isinstance(case, str):
+        case = GoldenCase(id="live", question=case, expected_intent="general")
+    result = select_tools_via_orchestrator(
+        case.question, case.has_attachments, all_names, ledger=ledger,
+        conversation_messages=case.conversation_messages,
+    )
+    usage = ledger.summary()
+    usage["degraded"] = result.degraded
+    usage["cost_usd"] = (
+        None if result.degraded or any(not is_priced(c.model) or c.outcome != "ok" or c.total_tokens == 0 for c in ledger.calls)
+        else ledger.cost_usd
+    )
+    return result.tools, result.intent, usage
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -99,7 +109,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.validate_only:
         return 0
 
-    report = run_routing_eval(cases, _live_router)
+    report = run_routing_eval(cases, _live_router, case_aware=True)
     markdown = routing_markdown(report, DEFAULT_THRESHOLDS)
     print(markdown)
 

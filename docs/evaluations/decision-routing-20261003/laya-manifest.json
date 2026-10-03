@@ -1,0 +1,131 @@
+{
+  "started_at": "2026-10-03T08:51:52.321739+00:00",
+  "git_commit": "2e0a5817590528f65c4a242d2a9cff8783eb8748",
+  "git_branch": "codex/decision-model-evaluation",
+  "dirty": true,
+  "code_sha256": {
+    "scripts\\decision-eval\\run.py": "0fd0244bd3c43bfee2f3e7feec53813dedb8199619683f353f4c131a83de95b6",
+    "api\\app\\eval\\__init__.py": "2985604b7f109af189a4f455025db7957c6e4b35abe79af3cb14d48bb465a518",
+    "api\\app\\eval\\decision_models.py": "66a621065df056a310abd749512808a7e436aa3d5ddecc6eb244e090da84b213",
+    "api\\app\\eval\\golden.py": "97772a90803e4f082e975912226258abe5f5564ea01d5cfdb11fde6d236b0131",
+    "api\\app\\eval\\report.py": "7dfede51f3758545d79cb0b5492e217ec3800bd16257ed4da06fe3c76922441f",
+    "api\\app\\eval\\routing.py": "2a1a930c1ad4ccf98093864567691d498a22799ab7392116e38c2eafbf7403fa",
+    "api\\app\\eval\\run.py": "aee2ce7dceb63d3271f2cc375d8906be014a48779c4dc6051fa2d9f3a1f164cb",
+    "api\\app\\router.py": "88f770c0356184896b7add536e30400f0a4dbd17a2ba38026437b58d52608aae"
+  },
+  "dataset_sha256": "6ed605f322bc0d9538d9be1fc3226b2ad743040a19e5ac434b50f469e79b2357",
+  "dataset": "samples/decision-routing-v1/pilot.yaml",
+  "seed": 20261003,
+  "repetitions": 1,
+  "arms": [
+    "laya"
+  ],
+  "schedule": [
+    [
+      "pilot-09",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-02",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-05",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-11",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-08",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-04",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-07",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-03",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-06",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-12",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-10",
+      0,
+      "laya"
+    ],
+    [
+      "pilot-01",
+      0,
+      "laya"
+    ]
+  ],
+  "planned_observations": 12,
+  "threshold": 0.5,
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "openai": "1.109.1",
+    "httpx": "0.28.1",
+    "laya": "0.3.24",
+    "torch": "2.14.1",
+    "transformers": "5.18.0",
+    "huggingface-hub": "1.33.0",
+    "numpy": "2.5.3"
+  },
+  "price_snapshot": {
+    "checked_on": "2026-10-03",
+    "nano_input_per_1m": 0.2,
+    "nano_output_per_1m": 1.25,
+    "nano_cached_input_per_1m": 0.02,
+    "jev_input_per_1m": 0.042,
+    "nano_source": "https://developers.openai.com/api/docs/models/gpt-5.4-nano",
+    "jev_source": "https://docs.typesafe.ai/models"
+  },
+  "laya_revision": "e4e9ddf21a7b1903b7acffd8814ad4307bf63a67",
+  "scope": "router-only development pilot; no database writes or worker episodes",
+  "labels": "Codex-reviewed development labels, not human-confirmed holdout",
+  "backend_setup": {
+    "laya": {
+      "status": "ready",
+      "model": "convaiinnovations/laya-multilingual",
+      "revision": "e4e9ddf21a7b1903b7acffd8814ad4307bf63a67",
+      "arm": "B0",
+      "device": "cpu",
+      "dtype": "torch.float32",
+      "threads": 4,
+      "load_seconds": 16.00851750000038,
+      "probability_kind": "native",
+      "max_len": 8192,
+      "head_max_len": 512,
+      "question_chunk_size": 4,
+      "warmup_seconds": 68.83558500000072
+    }
+  },
+  "status": "complete",
+  "finished_at": "2026-10-03T09:05:39.516551+00:00",
+  "observed": 12,
+  "measurement_note": "Measured code is identified by source hashes and local frozen snapshots. Subsequent guards and reporting improvements are not retroactively claimed as the measured implementation. CPU benchmark shared the workstation with offline validation."
+}
