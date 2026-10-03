@@ -264,7 +264,7 @@ class TestCostReporting:
                             expected_tools=["query_data"])]
         report = run_routing_eval(cases, lambda q: (["query_data"], "crud"))
         assert report.total_tokens == 0
-        assert report.total_cost_usd == 0.0
+        assert report.total_cost_usd is None
         assert report.pass_rate == 1.0
 
     def test_cost_appears_in_the_scorecard(self):

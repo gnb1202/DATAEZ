@@ -31,10 +31,13 @@ def routing_markdown(report: RoutingReport, thresholds: dict[str, float] | None 
         # A routing score without its price cannot settle a model choice —
         # the orchestrator exists to spend less than the loop it feeds.
         lines.append(f"- routing tokens: **{report.total_tokens:,}**")
-        lines.append(
-            f"- routing cost: **${report.total_cost_usd:.5f}** "
-            f"(${report.cost_per_case_usd:.7f}/case)"
-        )
+        if report.total_cost_usd is None:
+            lines.append("- routing cost: **unknown** (incomplete usage or pricing)")
+        else:
+            lines.append(
+                f"- routing cost: **${report.total_cost_usd:.5f}** "
+                f"(${report.cost_per_case_usd:.7f}/case)"
+            )
     lines.append("")
 
     if thresholds:

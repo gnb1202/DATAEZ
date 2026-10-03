@@ -1,0 +1,32 @@
+{
+  "run_status": "complete",
+  "scope": "router-only development pilot; no database writes or worker episodes",
+  "dataset_sha256": "6ed605f322bc0d9538d9be1fc3226b2ad743040a19e5ac434b50f469e79b2357",
+  "arms": {
+    "laya": {
+      "planned": 12,
+      "observed": 12,
+      "complete": true,
+      "errors": 0,
+      "degraded": 0,
+      "passed": 2,
+      "primary_passed": 2,
+      "intent_accuracy": 0.3333333333333333,
+      "mean_case_tool_f1": 0.26514166666666666,
+      "primary_pass_rate": 0.16666666666666666,
+      "forbidden_selection_cases": 10,
+      "p50_s": 75.083449,
+      "p95_s": 82.814669,
+      "model_call_p50_s": 78.4926505,
+      "total_cost_usd": null,
+      "probabilities": {
+        "native_probability_cases": 10,
+        "intent_brier_multiclass": 1.097738511,
+        "explicit_tool_brier": 0.4932694575510204,
+        "explicit_tool_label_count": 49,
+        "note": "Uncalibrated development observations; optional and unlisted tool labels excluded; shortcuts have no native probabilities."
+      }
+    }
+  },
+  "caution": "Development pilot only. No human-confirmed holdout, worker execution, matched API latency comparison or production adoption decision."
+}

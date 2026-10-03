@@ -1,0 +1,81 @@
+{
+  "run_status": "interrupted",
+  "scope": "router-only development pilot; no database writes or worker episodes",
+  "dataset_sha256": "6ed605f322bc0d9538d9be1fc3226b2ad743040a19e5ac434b50f469e79b2357",
+  "arms": {
+    "current": {
+      "planned": 12,
+      "observed": 3,
+      "complete": false,
+      "errors": 0,
+      "degraded": 3,
+      "passed": 1,
+      "primary_passed": 0,
+      "intent_accuracy": null,
+      "mean_case_tool_f1": null,
+      "primary_pass_rate": null,
+      "forbidden_selection_cases": 0,
+      "p50_s": null,
+      "p95_s": null,
+      "model_call_p50_s": null,
+      "total_cost_usd": null,
+      "probabilities": {
+        "native_probability_cases": 0,
+        "intent_brier_multiclass": null,
+        "explicit_tool_brier": null,
+        "explicit_tool_label_count": 0,
+        "note": "Uncalibrated development observations; optional and unlisted tool labels excluded; shortcuts have no native probabilities."
+      }
+    },
+    "atomic": {
+      "planned": 12,
+      "observed": 1,
+      "complete": false,
+      "errors": 1,
+      "degraded": 0,
+      "passed": 0,
+      "primary_passed": 0,
+      "intent_accuracy": null,
+      "mean_case_tool_f1": null,
+      "primary_pass_rate": null,
+      "forbidden_selection_cases": 0,
+      "p50_s": null,
+      "p95_s": null,
+      "model_call_p50_s": null,
+      "total_cost_usd": null,
+      "probabilities": {
+        "native_probability_cases": 0,
+        "intent_brier_multiclass": null,
+        "explicit_tool_brier": null,
+        "explicit_tool_label_count": 0,
+        "note": "Uncalibrated development observations; optional and unlisted tool labels excluded; shortcuts have no native probabilities."
+      }
+    },
+    "laya": {
+      "planned": 12,
+      "observed": 1,
+      "complete": false,
+      "errors": 0,
+      "degraded": 0,
+      "passed": 0,
+      "primary_passed": 0,
+      "intent_accuracy": null,
+      "mean_case_tool_f1": null,
+      "primary_pass_rate": null,
+      "forbidden_selection_cases": 1,
+      "p50_s": null,
+      "p95_s": null,
+      "model_call_p50_s": 63.842759,
+      "total_cost_usd": null,
+      "probabilities": {
+        "native_probability_cases": 1,
+        "intent_brier_multiclass": 1.25429766,
+        "explicit_tool_brier": 0.530982634,
+        "explicit_tool_label_count": 5,
+        "note": "Uncalibrated development observations; optional and unlisted tool labels excluded; shortcuts have no native probabilities."
+      }
+    }
+  },
+  "caution": "Development pilot only. No human-confirmed holdout, worker execution, matched API latency comparison or production adoption decision.",
+  "reason": "OpenAI credit_balance_exhausted on first calls; interrupted to avoid repeated account failures. No normal nano response. Jev not attempted: TYPESAFE_API_KEY absent."
+}

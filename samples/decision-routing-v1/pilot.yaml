@@ -1,0 +1,131 @@
+# Synthetic development smoke cases. Labels reviewed against router.py by Codex.
+# No human sign-off, no held-out statistical claim. Freeze before each run.
+cases:
+  - id: pilot-01
+    family_id: greeting
+    split: development
+    label_status: codex-reviewed
+    question: 안녕하세요
+    expected_intent: general
+    tools_mode: exact
+    expected_tools: []
+    tags: [greeting, shortcut]
+  - id: pilot-02
+    family_id: attachment
+    split: development
+    label_status: codex-reviewed
+    question: 첨부한 파일을 장부로 가져와 주세요
+    has_attachments: true
+    expected_intent: crud
+    tools_mode: exact
+    expected_tools: [list_tables, describe_table, import_file]
+    tags: [attachment, shortcut]
+  - id: pilot-03
+    family_id: structure-list
+    split: development
+    label_status: codex-reviewed
+    question: 지금 등록된 장부 이름을 전부 보여주세요
+    expected_intent: schema
+    expected_tools: [list_tables]
+    optional_tools: [describe_table, search_schema]
+    forbidden_tools: [delete_rows, alter_table, create_table]
+    tags: [schema]
+  - id: pilot-04
+    family_id: structure-edit
+    split: development
+    label_status: codex-reviewed
+    question: 고객 장부에 비고라는 텍스트 컬럼을 추가해주세요
+    expected_intent: schema
+    expected_tools: [alter_table]
+    optional_tools: [list_tables, describe_table, search_schema]
+    forbidden_tools: [insert_rows, delete_rows]
+    tags: [schema, mutation]
+  - id: pilot-05
+    family_id: cash-draft
+    split: development
+    label_status: codex-reviewed
+    question: 오늘 현금으로 받은 7만 원을 기록할 초안 만들어 주세요
+    expected_intent: crud
+    expected_tools: [draft_cash_entry, list_cash_entries]
+    optional_tools: [get_cash_entry]
+    forbidden_tools: [insert_rows, create_table, delete_rows]
+    tags: [cash, draft]
+  - id: pilot-06
+    family_id: metric-save
+    split: development
+    label_status: codex-reviewed
+    question: 이번 달 카드와 현금 결제액 합계를 지표로 만들어 대시보드에 저장해 주세요
+    expected_intent: analysis
+    expected_tools: [preview_metric, save_metric]
+    optional_tools: [list_tables, describe_table, search_schema, list_ledger_sources, list_import_history, inspect_import_review, list_metrics, get_metric_history]
+    forbidden_tools: [insert_rows, cross_query, delete_rows]
+    tags: [metric, save]
+  - id: pilot-07
+    family_id: metric-history-reference
+    split: development
+    label_status: codex-reviewed
+    conversation_messages:
+      - role: user
+        content: 저장된 월별 매출 지표의 자동 갱신 주기를 확인해줘
+      - role: assistant
+        content: 월별 매출 지표는 현재 매시간 자동 갱신됩니다.
+    question: 그 지표는 이제 매일 한 번만 갱신하게 해줘
+    expected_intent: analysis
+    expected_tools: [list_metrics, set_metric_refresh]
+    optional_tools: [preview_metric, get_metric_history, list_tables, describe_table, search_schema]
+    forbidden_tools: [update_rows, insert_rows, delete_rows]
+    tags: [history, metric]
+  - id: pilot-08
+    family_id: import-review
+    split: development
+    label_status: codex-reviewed
+    question: 어제 카드 출처에 올린 파일의 중복 후보 원본 행과 검토 화면을 보여주세요
+    expected_intent: analysis
+    expected_tools: [inspect_import_review]
+    optional_tools: [list_ledger_sources, list_import_history]
+    forbidden_tools: [import_file, insert_rows, update_rows, delete_rows]
+    tags: [review, no-write]
+  - id: pilot-09
+    family_id: multi-store
+    split: development
+    label_status: codex-reviewed
+    question: 내가 가진 두 가게의 이번 달 순결제액을 합쳐서 계산해 주세요. 저장은 하지 마세요
+    expected_intent: analysis
+    expected_tools: [list_stores, list_store_tables, inspect_store_table, search_store_schema, preview_metric]
+    optional_tools: [list_metrics, get_metric_history, list_tables, describe_table, search_schema]
+    forbidden_tools: [cross_query, save_metric, delete_rows]
+    tags: [multi-store, no-write]
+  - id: pilot-10
+    family_id: policy-document
+    split: development
+    label_status: codex-reviewed
+    question: 업로드한 매뉴얼에서 환불 정책을 찾아 설명해 주세요
+    expected_intent: general
+    expected_tools: [search_documents]
+    forbidden_tools: [delete_rows, update_rows, insert_rows, import_file]
+    tags: [document]
+  - id: pilot-11
+    family_id: chart
+    split: development
+    label_status: codex-reviewed
+    question: 주문 장부를 조회해서 날짜별 주문 건수를 꺾은선 차트로 보여주세요
+    expected_intent: analysis
+    expected_tools: [query_data, generate_chart]
+    optional_tools: [list_tables, describe_table, search_schema, recommend_charts]
+    forbidden_tools: [delete_rows, update_rows, insert_rows]
+    tags: [chart]
+  - id: pilot-12
+    family_id: rows-followup
+    split: development
+    label_status: codex-reviewed
+    conversation_messages:
+      - role: user
+        content: 주문 장부에서 상태가 취소인 행을 보여줘
+      - role: assistant
+        content: 주문 장부의 취소된 주문 5개를 조회했습니다.
+    question: 그중 가장 최근 것 한 건만 다시 보여줘
+    expected_intent: crud
+    expected_tools: [query_data]
+    optional_tools: [list_tables, describe_table, search_schema]
+    forbidden_tools: [delete_rows, update_rows, insert_rows]
+    tags: [history, read]

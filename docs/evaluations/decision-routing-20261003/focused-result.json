@@ -1,0 +1,135 @@
+{
+  "runtime": {
+    "model": "convaiinnovations/laya-multilingual",
+    "revision": "e4e9ddf21a7b1903b7acffd8814ad4307bf63a67",
+    "arm": "B0",
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "threads": 4,
+    "load_seconds": 26.515858700000535,
+    "probability_kind": "native",
+    "max_len": 8192,
+    "head_max_len": 512,
+    "question_chunk_size": 4
+  },
+  "results": [
+    {
+      "state": "지금 등록된 장부 이름을 전부 보여주세요",
+      "elapsed_s": 0.4908868000002258,
+      "response": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "intent": {
+            "type": "choice",
+            "choice": "general",
+            "probabilities": {
+              "schema": 0.321,
+              "crud": 0.1142,
+              "analysis": 0.0165,
+              "general": 0.5482
+            },
+            "confidence": 0.2715,
+            "answer_confidence": 0.5482,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "list_tables": {
+            "type": "noul",
+            "noul": 0.4907,
+            "confidence": 0.5093,
+            "answer_confidence": 0.5093,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "delete_rows": {
+            "type": "noul",
+            "noul": 0.214,
+            "confidence": 0.786,
+            "answer_confidence": 0.786,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "generate_chart": {
+            "type": "noul",
+            "noul": 0.4314,
+            "confidence": 0.5686,
+            "answer_confidence": 0.5686,
+            "action": {
+              "act_probability": 1.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 226,
+          "output_tokens": 0,
+          "state_tokens": 14,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      }
+    },
+    {
+      "state": "주문 장부의 날짜별 주문 건수를 꺾은선 차트로 보여주세요",
+      "elapsed_s": 0.5205243999989762,
+      "response": {
+        "model": "laya-rl-agent",
+        "answers": {
+          "intent": {
+            "type": "choice",
+            "choice": "general",
+            "probabilities": {
+              "schema": 0.3139,
+              "crud": 0.0547,
+              "analysis": 0.0482,
+              "general": 0.5832
+            },
+            "confidence": 0.2907,
+            "answer_confidence": 0.5832,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "list_tables": {
+            "type": "noul",
+            "noul": 0.3384,
+            "confidence": 0.6616,
+            "answer_confidence": 0.6616,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "delete_rows": {
+            "type": "noul",
+            "noul": 0.033,
+            "confidence": 0.967,
+            "answer_confidence": 0.967,
+            "action": {
+              "act_probability": 1.0
+            }
+          },
+          "generate_chart": {
+            "type": "noul",
+            "noul": 0.8521,
+            "confidence": 0.8521,
+            "answer_confidence": 0.8521,
+            "action": {
+              "act_probability": 1.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 266,
+          "output_tokens": 0,
+          "state_tokens": 24,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      }
+    }
+  ]
+}

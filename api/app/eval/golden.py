@@ -48,6 +48,11 @@ class GoldenCase:
     tools_mode: str = "subset"
     tags: list[str] = field(default_factory=list)
     notes: str = ""
+    has_attachments: bool = False
+    conversation_messages: list[dict[str, str]] = field(default_factory=list)
+    family_id: str = ""
+    split: str = "development"
+    label_status: str = "legacy"
 
     def validate(self, known_tools: set[str]) -> list[str]:
         """Return a list of problems; empty means the case is well-formed."""
@@ -63,6 +68,15 @@ class GoldenCase:
             )
         if self.tools_mode not in VALID_TOOLS_MODES:
             problems.append(f"{self.id}: unknown tools_mode {self.tools_mode!r}")
+        if not isinstance(self.has_attachments, bool):
+            problems.append(f"{self.id}: has_attachments must be boolean")
+        if self.split not in {"development", "calibration", "selection", "confirmation", "test"}:
+            problems.append(f"{self.id}: unknown split {self.split!r}")
+        for message in self.conversation_messages:
+            if (not isinstance(message, dict)
+                    or message.get("role") not in {"user", "assistant"}
+                    or not isinstance(message.get("content"), str)):
+                problems.append(f"{self.id}: invalid conversation message")
         for tool in self.expected_tools:
             if tool not in known_tools:
                 problems.append(f"{self.id}: unknown tool {tool!r}")
@@ -107,6 +121,11 @@ def load_cases(path: Path | None = None) -> list[GoldenCase]:
                     tools_mode=str(raw.get("tools_mode", "subset")),
                     tags=list(raw.get("tags") or []),
                     notes=str(raw.get("notes", "")),
+                    has_attachments=raw.get("has_attachments", False),
+                    conversation_messages=list(raw.get("conversation_messages") or []),
+                    family_id=str(raw.get("family_id", "")),
+                    split=str(raw.get("split", "development")),
+                    label_status=str(raw.get("label_status", "legacy")),
                 )
             )
     return cases
@@ -116,9 +135,14 @@ def validate_cases(cases: list[GoldenCase], known_tools: set[str]) -> list[str]:
     """Validate a whole dataset, including duplicate ids."""
     problems: list[str] = []
     seen: set[str] = set()
+    family_splits: dict[str, str] = {}
     for case in cases:
         if case.id in seen:
             problems.append(f"duplicate id {case.id!r}")
         seen.add(case.id)
         problems.extend(case.validate(known_tools))
+        if case.family_id:
+            previous = family_splits.setdefault(case.family_id, case.split)
+            if previous != case.split:
+                problems.append(f"family {case.family_id!r} leaks across splits")
     return problems

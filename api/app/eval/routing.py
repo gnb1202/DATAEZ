@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Callable
+from time import perf_counter
 
 from .golden import GoldenCase
 
@@ -41,7 +42,8 @@ class CaseScore:
     # choice — the orchestrator exists to save money, so a score without a
     # price beside it does not answer the question the tier was chosen for.
     tokens: int = 0
-    cost_usd: float = 0.0
+    cost_usd: float | None = None
+    duration_s: float = 0.0
 
     @property
     def intent_correct(self) -> bool:
@@ -56,7 +58,7 @@ class CaseScore:
         the agent's documented behaviour as a false positive.
         """
         optional = set(self.optional_tools)
-        return [t for t in self.actual_tools if t not in optional]
+        return sorted(set(self.actual_tools) - optional)
 
     @property
     def true_positives(self) -> int:
@@ -64,6 +66,8 @@ class CaseScore:
 
     @property
     def precision(self) -> float:
+        if self.error:
+            return 0.0
         scored = self._scored_tools
         if not scored:
             # Selecting nothing is perfect precision only when nothing was
@@ -73,8 +77,10 @@ class CaseScore:
 
     @property
     def recall(self) -> float:
+        if self.error:
+            return 0.0
         if not self.expected_tools:
-            return 1.0 if not self.actual_tools else 0.0
+            return 1.0 if not self._scored_tools else 0.0
         return self.true_positives / len(self.expected_tools)
 
     @property
@@ -122,7 +128,8 @@ class CaseScore:
             "tags": self.tags,
             "error": self.error,
             "tokens": self.tokens,
-            "cost_usd": round(self.cost_usd, 8),
+            "cost_usd": round(self.cost_usd, 8) if self.cost_usd is not None else None,
+            "duration_s": round(self.duration_s, 6),
         }
 
 
@@ -158,16 +165,19 @@ class RoutingReport:
         return sum(s.tokens for s in self.scores)
 
     @property
-    def total_cost_usd(self) -> float:
+    def total_cost_usd(self) -> float | None:
+        if any(s.cost_usd is None for s in self.scores):
+            return None
         return sum(s.cost_usd for s in self.scores)
 
     @property
-    def cost_per_case_usd(self) -> float:
-        return self.total_cost_usd / self.total if self.scores else 0.0
+    def cost_per_case_usd(self) -> float | None:
+        total = self.total_cost_usd
+        return total / self.total if self.scores and total is not None else None
 
     @property
     def fallback_rate(self) -> float:
-        """Share of cases where routing degraded to the full toolset.
+        """Share of cases where routing degraded to a fallback toolset.
 
         A silent fallback defeats the orchestrator's purpose, so it is tracked
         as a headline number rather than buried in the per-case detail.
@@ -210,8 +220,8 @@ class RoutingReport:
             "pass_rate": round(self.pass_rate, 4),
             "fallback_rate": round(self.fallback_rate, 4),
             "total_tokens": self.total_tokens,
-            "total_cost_usd": round(self.total_cost_usd, 6),
-            "cost_per_case_usd": round(self.cost_per_case_usd, 8),
+            "total_cost_usd": round(self.total_cost_usd, 8) if self.total_cost_usd is not None else None,
+            "cost_per_case_usd": round(self.cost_per_case_usd, 8) if self.cost_per_case_usd is not None else None,
             "by_intent": self.by_intent(),
             "by_tag": self.by_tag(),
             "cases": [s.to_dict() for s in self.scores],
@@ -222,13 +232,14 @@ class RoutingReport:
 # (tools_or_None, intent, usage) where usage carries `total_tokens` and
 # `cost_usd`. The two-element form is what a stubbed router in a test needs;
 # the live router adds usage so a run can report what it cost.
-RouterFn = Callable[[str], tuple]
+RouterFn = Callable[..., tuple]
 
 
-def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
+def score_case(case: GoldenCase, router: RouterFn, *, case_aware: bool = False) -> CaseScore:
     """Run one golden case through `router` and score the result."""
+    started = perf_counter()
     try:
-        outcome = router(case.question)
+        outcome = router(case if case_aware else case.question)
         if len(outcome) == 3:
             tools, intent, usage = outcome
         else:
@@ -247,6 +258,7 @@ def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
             forbidden_tools=case.forbidden_tools,
             tags=case.tags,
             error=f"{type(exc).__name__}: {exc}"[:200],
+            duration_s=perf_counter() - started,
         )
 
     return CaseScore(
@@ -255,18 +267,18 @@ def score_case(case: GoldenCase, router: RouterFn) -> CaseScore:
         expected_intent=case.expected_intent,
         actual_intent=intent,
         expected_tools=case.expected_tools,
-        # A fallback selects everything; recording it as such is what makes
-        # its precision cost visible instead of hidden behind a None.
+        # Keep explicit fallback tools; a legacy None supplies no observed set.
         actual_tools=list(tools) if tools is not None else [],
         tools_mode=case.tools_mode,
         optional_tools=case.optional_tools,
         forbidden_tools=case.forbidden_tools,
         tags=case.tags,
-        fell_back=tools is None,
+        fell_back=tools is None or bool((usage or {}).get("degraded", False)),
         tokens=(usage or {}).get("total_tokens", 0),
-        cost_usd=(usage or {}).get("cost_usd", 0.0),
+        cost_usd=(usage or {}).get("cost_usd"),
+        duration_s=perf_counter() - started,
     )
 
 
-def run_routing_eval(cases: list[GoldenCase], router: RouterFn) -> RoutingReport:
-    return RoutingReport(scores=[score_case(c, router) for c in cases])
+def run_routing_eval(cases: list[GoldenCase], router: RouterFn, *, case_aware: bool = False) -> RoutingReport:
+    return RoutingReport(scores=[score_case(c, router, case_aware=case_aware) for c in cases])

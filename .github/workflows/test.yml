@@ -40,6 +40,16 @@ jobs:
           STORAGE_BACKEND: local
         run: python -m app.eval.run --validate-only
 
+      - name: Validate decision routing pilot and offline probability scoring
+        env:
+          APP_ENV: development
+          OPENAI_API_KEY: sk-ci-validation-only
+          JWT_SECRET_KEY: ci-only-insecure-secret
+          STORAGE_BACKEND: local
+        run: |
+          python ../scripts/decision-eval/run.py --validate-only
+          python -m pytest ../scripts/decision-eval/test_report.py -q
+
   web-build:
     name: Web Build
     runs-on: ubuntu-latest
